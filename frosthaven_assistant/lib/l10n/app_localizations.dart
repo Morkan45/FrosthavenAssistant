@@ -245,6 +245,18 @@ abstract class AppLocalizations {
   /// **'Connecting...'**
   String get connecting;
 
+  /// No description provided for @cancelConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelConnect;
+
+  /// No description provided for @connectionCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection cancelled'**
+  String get connectionCancelled;
+
   /// No description provided for @connectAsClientWithIp.
   ///
   /// In en, this message translates to:
@@ -920,8 +932,8 @@ abstract class AppLocalizations {
   /// No description provided for @addMinusOneCard.
   ///
   /// In en, this message translates to:
-  /// **'Add -1 card (added: {count})'**
-  String addMinusOneCard(int count);
+  /// **'{direction, select, added{Add -1 card (added: {count})} removed{Add -1 card (removed: {count})} other{Add -1 card ({count})}}'**
+  String addMinusOneCard(String direction, int count);
 
   /// No description provided for @removeMinusOneCard.
   ///

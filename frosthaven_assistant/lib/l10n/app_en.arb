@@ -41,6 +41,8 @@
 
   "connectedAsClient": "Connected as Client",
   "connecting": "Connecting...",
+  "cancelConnect": "Cancel",
+  "connectionCancelled": "Connection cancelled",
   "connectAsClientWithIp": "Connect as Client ({ip})",
   "@connectAsClientWithIp": {
     "placeholders": {

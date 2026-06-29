@@ -192,6 +192,13 @@ class MainMenu extends StatelessWidget {
                     final l10n = AppLocalizations.of(context)!;
                     return CheckboxListTile(
                       enabled: !vm.isServer && !vm.isConnecting,
+                      secondary: vm.isConnecting
+                          ? IconButton(
+                              icon: const Icon(Icons.close),
+                              tooltip: l10n.cancelConnect,
+                              onPressed: vm.cancelClientConnection,
+                            )
+                          : null,
                       title: Text(vm.isConnected
                           ? l10n.connectedAsClient
                           : vm.isConnecting

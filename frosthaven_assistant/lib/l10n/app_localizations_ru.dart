@@ -81,6 +81,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get connecting => 'Подключение…';
 
   @override
+  String get cancelConnect => 'Cancel';
+
+  @override
+  String get connectionCancelled => 'Connection cancelled';
+
+  @override
   String connectAsClientWithIp(String ip) {
     return 'Подключиться ($ip)';
   }

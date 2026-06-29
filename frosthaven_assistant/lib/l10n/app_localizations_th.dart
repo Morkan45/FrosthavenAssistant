@@ -81,6 +81,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get connecting => 'กำลังเชื่อมต่อ…';
 
   @override
+  String get cancelConnect => 'Cancel';
+
+  @override
+  String get connectionCancelled => 'Connection cancelled';
+
+  @override
   String connectAsClientWithIp(String ip) {
     return 'เชื่อมต่อในฐานะไคลเอนต์ ($ip)';
   }

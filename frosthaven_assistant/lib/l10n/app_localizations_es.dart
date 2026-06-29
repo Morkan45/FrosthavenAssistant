@@ -81,6 +81,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get connecting => 'Conectando…';
 
   @override
+  String get cancelConnect => 'Cancel';
+
+  @override
+  String get connectionCancelled => 'Connection cancelled';
+
+  @override
   String connectAsClientWithIp(String ip) {
     return 'Conectar como cliente ($ip)';
   }

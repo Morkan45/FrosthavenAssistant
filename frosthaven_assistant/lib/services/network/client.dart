@@ -18,6 +18,7 @@ import 'connection.dart';
 class Client {
   String _leftOverMessage = "";
   bool _serverResponsive = true;
+  bool _connectCancelled = false;
   final GameState _gameState;
   final Communication _communication;
   final Connection _connection;
@@ -52,6 +53,7 @@ class Client {
 
   Future<void> connect(String address) async {
     _serverResponsive = true;
+    _connectCancelled = false;
     try {
       int port = int.parse(_settings.lastKnownPort);
       debugPrint("port nr: ${port.toString()}");
@@ -78,12 +80,26 @@ class Client {
         },
       );
     } catch (error) {
-      debugPrint("client error: $error");
-      _setNetworkMessage(_l10n.clientError(error.toString()), isError: true);
+      if (_connectCancelled) {
+        debugPrint("client connect cancelled by user");
+        _setNetworkMessage(_l10n.connectionCancelled);
+      } else {
+        debugPrint("client error: $error");
+        _setNetworkMessage(_l10n.clientError(error.toString()), isError: true);
+      }
       _settings.client.value = ClientState.disconnected;
       _settings.connectClientOnStartup = false;
       _settings.saveToDisk();
+      _connectCancelled = false;
     }
+  }
+
+  /// Aborts an in-progress connection attempt started via [connect]. The
+  /// pending attempt then fails fast and is reported as cancelled rather than
+  /// as an error.
+  void cancelConnect() {
+    _connectCancelled = true;
+    _connection.cancelConnect();
   }
 
   bool _pinging =
