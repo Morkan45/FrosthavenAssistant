@@ -1013,6 +1013,20 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String cmdSetCharacterNote(String character) {
+    return 'ตั้งค่าบันทึกสำหรับ $character';
+  }
+
+  @override
+  String get characterNoteTitle => 'บันทึก';
+
+  @override
+  String get characterNoteHint => 'เพิ่มบันทึก…';
+
+  @override
+  String get characterNoteQuickAdd => 'บันทึกด่วน';
+
+  @override
   String cmdSetMonsterLevel(String monster) {
     return 'ตั้งค่าระดับ $monster';
   }

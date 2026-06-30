@@ -1006,6 +1006,20 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String cmdSetCharacterNote(String character) {
+    return '为 $character 设置备注';
+  }
+
+  @override
+  String get characterNoteTitle => '备注';
+
+  @override
+  String get characterNoteHint => '添加备注…';
+
+  @override
+  String get characterNoteQuickAdd => '快速备注';
+
+  @override
   String cmdSetMonsterLevel(String monster) {
     return '设置 $monster 等级';
   }
@@ -2102,6 +2116,20 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String cmdSetInitiative(String character) {
     return '設定 $character 先攻';
   }
+
+  @override
+  String cmdSetCharacterNote(String character) {
+    return '為 $character 設定備註';
+  }
+
+  @override
+  String get characterNoteTitle => '備註';
+
+  @override
+  String get characterNoteHint => '新增備註…';
+
+  @override
+  String get characterNoteQuickAdd => '快速備註';
 
   @override
   String cmdSetMonsterLevel(String monster) {

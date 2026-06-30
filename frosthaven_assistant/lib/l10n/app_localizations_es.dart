@@ -1025,6 +1025,20 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String cmdSetCharacterNote(String character) {
+    return 'Establecer nota para $character';
+  }
+
+  @override
+  String get characterNoteTitle => 'Nota';
+
+  @override
+  String get characterNoteHint => 'Añadir una nota…';
+
+  @override
+  String get characterNoteQuickAdd => 'Nota rápida';
+
+  @override
   String cmdSetMonsterLevel(String monster) {
     return 'Definir nivel de $monster';
   }

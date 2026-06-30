@@ -25,6 +25,9 @@ class Character extends ListItemData {
         characterClass = _requireClass(
             json['characterClass'] as String, json['edition'] as String?) {
     id = characterClass.id;
+    if (json.containsKey("note")) {
+      _note.value = json["note"] as String;
+    }
   }
 
   Character.fromJson(Map<String, dynamic> json)
@@ -37,6 +40,9 @@ class Character extends ListItemData {
         turnStateIdx >= 0 &&
         turnStateIdx < TurnsState.values.length) {
       _turnState.value = TurnsState.values[turnStateIdx];
+    }
+    if (json.containsKey("note")) {
+      _note.value = json["note"] as String;
     }
 
     id = GameMethods.isObjectiveOrEscort(characterClass)
@@ -53,6 +59,7 @@ class Character extends ListItemData {
         turnStateIdx < TurnsState.values.length) {
       _turnState.value = TurnsState.values[turnStateIdx];
     }
+    _note.value = json.containsKey("note") ? json["note"] as String : "";
     characterState.updateFromJson(json['characterClass'] as String,
         json['characterState'] as Map<String, dynamic>);
   }
@@ -87,6 +94,7 @@ class Character extends ListItemData {
   String toSave() {
     return '{'
         '"characterState": ${characterState.toString()}, '
+        '"note": ${jsonEncode(note.value)}, '
         '"characterClass": "${characterClass.id}", '
         '"edition": "${characterClass.edition}" '
         '}';
@@ -96,6 +104,7 @@ class Character extends ListItemData {
   Map<String, dynamic> toJson() => {
         'id': id,
         'turnState': turnState.value.index,
+        'note': note.value,
         'characterState': characterState.toJson(),
         'characterClass': characterClass.id,
         'edition': characterClass.edition,

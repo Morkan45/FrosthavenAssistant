@@ -1018,6 +1018,20 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String cmdSetCharacterNote(String character) {
+    return 'Ustaw notatkę dla $character';
+  }
+
+  @override
+  String get characterNoteTitle => 'Notatka';
+
+  @override
+  String get characterNoteHint => 'Dodaj notatkę…';
+
+  @override
+  String get characterNoteQuickAdd => 'Szybka notatka';
+
+  @override
   String cmdSetMonsterLevel(String monster) {
     return 'Ustaw poziom $monster';
   }
