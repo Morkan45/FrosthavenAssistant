@@ -78,6 +78,47 @@ class AppLocalizationsRu extends AppLocalizations {
   String get actionLogRollbackConfirm => 'Откатить';
 
   @override
+  String get menuAddNoteRow => 'Добавить строку заметки';
+
+  @override
+  String get noteRowTitle => 'Заметка';
+
+  @override
+  String get noteRowHint => 'Текст заметки…';
+
+  @override
+  String get noteRowColourLabel => 'Цвет';
+
+  @override
+  String get noteRowConnectLabel => 'Связать с:';
+
+  @override
+  String get noteRowConnectNone => 'Ничего (свободная заметка)';
+
+  @override
+  String get noteRowConnectPlayer => 'Игрок';
+
+  @override
+  String get noteRowConnectMonster => 'Монстр';
+
+  @override
+  String get noteRowWholeGroup => 'Вся группа';
+
+  @override
+  String get noteRowAll => 'Все';
+
+  @override
+  String noteRowStandeeNr(int nr) {
+    return 'Фишка $nr';
+  }
+
+  @override
+  String get noteRowAddFromMenu => 'Добавить заметку';
+
+  @override
+  String get noteRowDelete => 'Удалить заметку';
+
+  @override
   String get undo => 'Отменить';
 
   @override
@@ -763,6 +804,21 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cmdChangeName => 'Изменить имя персонажа';
+
+  @override
+  String get cmdAddNoteRow => 'Добавить строку заметки';
+
+  @override
+  String get cmdSetNoteRowText => 'Изменить заметку';
+
+  @override
+  String get cmdSetNoteRowColor => 'Изменить цвет заметки';
+
+  @override
+  String get cmdLinkNoteRow => 'Связать строку заметки';
+
+  @override
+  String get cmdRemoveNoteRow => 'Удалить строку заметки';
 
   @override
   String get cmdAddBless => 'Добавить благословение';

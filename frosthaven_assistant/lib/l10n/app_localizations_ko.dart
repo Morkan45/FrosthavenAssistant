@@ -77,6 +77,47 @@ class AppLocalizationsKo extends AppLocalizations {
   String get actionLogRollbackConfirm => '되돌리기';
 
   @override
+  String get menuAddNoteRow => '메모 행 추가';
+
+  @override
+  String get noteRowTitle => '메모';
+
+  @override
+  String get noteRowHint => '메모 내용…';
+
+  @override
+  String get noteRowColourLabel => '색상';
+
+  @override
+  String get noteRowConnectLabel => '연결 대상:';
+
+  @override
+  String get noteRowConnectNone => '없음 (자유 메모)';
+
+  @override
+  String get noteRowConnectPlayer => '플레이어';
+
+  @override
+  String get noteRowConnectMonster => '몬스터';
+
+  @override
+  String get noteRowWholeGroup => '전체 그룹';
+
+  @override
+  String get noteRowAll => '전체';
+
+  @override
+  String noteRowStandeeNr(int nr) {
+    return '스탠디 $nr';
+  }
+
+  @override
+  String get noteRowAddFromMenu => '메모 추가';
+
+  @override
+  String get noteRowDelete => '메모 삭제';
+
+  @override
   String get undo => '실행 취소';
 
   @override
@@ -750,6 +791,21 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get cmdChangeName => '캐릭터 이름 변경';
+
+  @override
+  String get cmdAddNoteRow => '메모 행 추가';
+
+  @override
+  String get cmdSetNoteRowText => '메모 편집';
+
+  @override
+  String get cmdSetNoteRowColor => '메모 색상 변경';
+
+  @override
+  String get cmdLinkNoteRow => '메모 행 연결';
+
+  @override
+  String get cmdRemoveNoteRow => '메모 행 제거';
 
   @override
   String get cmdAddBless => '축복 추가';

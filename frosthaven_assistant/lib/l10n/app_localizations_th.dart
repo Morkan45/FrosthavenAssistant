@@ -77,6 +77,47 @@ class AppLocalizationsTh extends AppLocalizations {
   String get actionLogRollbackConfirm => 'ย้อนกลับ';
 
   @override
+  String get menuAddNoteRow => 'เพิ่มแถวบันทึก';
+
+  @override
+  String get noteRowTitle => 'บันทึก';
+
+  @override
+  String get noteRowHint => 'ข้อความบันทึก…';
+
+  @override
+  String get noteRowColourLabel => 'สี';
+
+  @override
+  String get noteRowConnectLabel => 'เชื่อมกับ:';
+
+  @override
+  String get noteRowConnectNone => 'ไม่มี (บันทึกอิสระ)';
+
+  @override
+  String get noteRowConnectPlayer => 'ผู้เล่น';
+
+  @override
+  String get noteRowConnectMonster => 'มอนสเตอร์';
+
+  @override
+  String get noteRowWholeGroup => 'ทั้งกลุ่ม';
+
+  @override
+  String get noteRowAll => 'ทั้งหมด';
+
+  @override
+  String noteRowStandeeNr(int nr) {
+    return 'ตัวยืน $nr';
+  }
+
+  @override
+  String get noteRowAddFromMenu => 'เพิ่มบันทึก';
+
+  @override
+  String get noteRowDelete => 'ลบบันทึก';
+
+  @override
   String get undo => 'เลิกทำ';
 
   @override
@@ -754,6 +795,21 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get cmdChangeName => 'เปลี่ยนชื่อตัวละคร';
+
+  @override
+  String get cmdAddNoteRow => 'เพิ่มแถวบันทึก';
+
+  @override
+  String get cmdSetNoteRowText => 'แก้ไขบันทึก';
+
+  @override
+  String get cmdSetNoteRowColor => 'เปลี่ยนสีบันทึก';
+
+  @override
+  String get cmdLinkNoteRow => 'เชื่อมแถวบันทึก';
+
+  @override
+  String get cmdRemoveNoteRow => 'ลบแถวบันทึก';
 
   @override
   String get cmdAddBless => 'เพิ่มพร';

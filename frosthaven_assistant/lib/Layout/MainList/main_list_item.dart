@@ -4,6 +4,7 @@ import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 
 import '../CharacterWidget/character_widget.dart';
 import '../MonsterWidget/monster_widget.dart';
+import '../NoteWidget/note_row_widget.dart';
 import '../view_models/main_list_item_view_model.dart';
 
 class MainListItem extends StatelessWidget {
@@ -27,6 +28,9 @@ class MainListItem extends StatelessWidget {
     } else if (data is Monster) {
       final monster = data as Monster;
       child = MonsterWidget(key: Key(monster.id), data: monster);
+    } else if (data is NoteRow) {
+      final noteRow = data as NoteRow;
+      child = NoteRowWidget(key: Key(noteRow.id), data: noteRow);
     } else {
       child = const SizedBox.shrink();
     }

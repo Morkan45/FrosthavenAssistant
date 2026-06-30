@@ -28,6 +28,11 @@ class RoundMethods {
   static void sortCharactersFirst(_StateModifier _, {GameState? gameState}) {
     final gs = gameState ?? getIt<GameState>();
     gs._currentList.sort(_compareForCharactersFirst);
+    // Sorting compares note rows as initiative 0, scattering them; re-glue any
+    // linked notes back under their target. Callers that notify via
+    // updateList.notify() (e.g. DrawCommand) bypass _notifyCurrentList, so the
+    // reflow must happen here rather than only in _notifyCurrentList.
+    gs._reflowNoteRows();
   }
 
   static int _compareForCharactersFirst(ListItemData a, ListItemData b) {
@@ -159,6 +164,8 @@ class RoundMethods {
       }
       return aInitiative.compareTo(bInitiative);
     });
+    // Re-glue linked note rows after the initiative sort (see sortCharactersFirst).
+    gs._reflowNoteRows();
   }
 
   static void sortMonsterInstances(
@@ -192,6 +199,32 @@ class RoundMethods {
     final gs = gameState ?? getIt<GameState>();
     gs._currentList.insert(newIndex, gs._currentList.removeAt(oldIndex));
     gs._notifyCurrentList();
+  }
+
+  static void removeFromMainList(_StateModifier _, String id,
+      {GameState? gameState}) {
+    final gs = gameState ?? getIt<GameState>();
+    gs._currentList = gs._currentList.where((item) => item.id != id).toList();
+    gs._notifyCurrentList();
+  }
+
+  /// Deletes any note rows tied to a specific standee ([standeeNr] > 0) of the
+  /// monster [linkedId] — called when that standee is defeated so its note goes
+  /// with it. Notes for the whole group (standeeNr 0) are left alone.
+  static void removeNoteRowsForStandee(
+      _StateModifier _, String linkedId, int standeeNr,
+      {GameState? gameState}) {
+    if (standeeNr <= 0) return;
+    final gs = gameState ?? getIt<GameState>();
+    final filtered = gs._currentList
+        .where((item) => !(item is NoteRow &&
+            item.linkedId.value == linkedId &&
+            item.standeeNr.value == standeeNr))
+        .toList();
+    if (filtered.length != gs._currentList.length) {
+      gs._currentList = filtered;
+      gs._notifyCurrentList();
+    }
   }
 
   static void updateForSpecialRules(_StateModifier _,

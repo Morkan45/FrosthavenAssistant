@@ -35,6 +35,13 @@ void main() {
   });
 
   Future<void> pumpMenu(WidgetTester tester) async {
+    // Give the menu a tall viewport so the full (and growing) list of entries
+    // fits without relying on fragile scroll-then-tap, which leaves lower items
+    // clipped at the edge and makes taps miss.
+    tester.view.physicalSize = const Size(1000, 3000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
     FlutterError.onError = ignoreOverflowErrors;

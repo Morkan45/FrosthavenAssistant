@@ -4,9 +4,11 @@ import '../../../Resource/game_methods.dart';
 import '../../../Resource/settings.dart';
 import '../../../Resource/state/game_state.dart';
 import '../../../Resource/ui_utils.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../services/service_locator.dart';
 import '../../view_models/status_menu_view_model.dart';
 import '../../widgets/modal_background.dart';
+import '../note_row_menu.dart';
 import 'status_menu_condition_panel.dart';
 import 'status_menu_header.dart';
 import 'status_menu_stat_column.dart';
@@ -41,6 +43,28 @@ class StatusMenuState extends State<StatusMenu> {
   @override
   initState() {
     super.initState();
+  }
+
+  /// Opens the note editor pre-linked to this figure's row, so a note created
+  /// here is connected to (and rendered beneath) the figure.
+  Widget _buildAddNoteButton(
+      BuildContext context, StatusMenuViewModel vm, double scale) {
+    final l10n = AppLocalizations.of(context)!;
+    return TextButton.icon(
+      onPressed: () {
+        Navigator.of(context).pop();
+        openDialog(
+          context,
+          NoteRowMenu(
+            presetLinkId: vm.ownerId,
+            gameState: _gameState,
+            settings: _settings,
+          ),
+        );
+      },
+      icon: Icon(Icons.note_add_outlined, size: 18 * scale),
+      label: Text(l10n.noteRowAddFromMenu, style: getButtonTextStyle(scale)),
+    );
   }
 
   @override
@@ -130,6 +154,7 @@ class StatusMenuState extends State<StatusMenu> {
                       ),
                     ],
                   ),
+                  _buildAddNoteButton(context, vm, scale),
                 ],
               ),
             ),

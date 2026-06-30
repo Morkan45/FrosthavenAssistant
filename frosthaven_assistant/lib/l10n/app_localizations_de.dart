@@ -80,6 +80,47 @@ class AppLocalizationsDe extends AppLocalizations {
   String get actionLogRollbackConfirm => 'Zurücksetzen';
 
   @override
+  String get menuAddNoteRow => 'Notizzeile hinzufügen';
+
+  @override
+  String get noteRowTitle => 'Notiz';
+
+  @override
+  String get noteRowHint => 'Notiztext…';
+
+  @override
+  String get noteRowColourLabel => 'Farbe';
+
+  @override
+  String get noteRowConnectLabel => 'Verbinden mit:';
+
+  @override
+  String get noteRowConnectNone => 'Nichts (freie Notiz)';
+
+  @override
+  String get noteRowConnectPlayer => 'Spieler';
+
+  @override
+  String get noteRowConnectMonster => 'Monster';
+
+  @override
+  String get noteRowWholeGroup => 'Ganze Gruppe';
+
+  @override
+  String get noteRowAll => 'Alle';
+
+  @override
+  String noteRowStandeeNr(int nr) {
+    return 'Aufsteller $nr';
+  }
+
+  @override
+  String get noteRowAddFromMenu => 'Notiz hinzufügen';
+
+  @override
+  String get noteRowDelete => 'Notiz löschen';
+
+  @override
   String get undo => 'Rückgängig';
 
   @override
@@ -768,6 +809,21 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get cmdChangeName => 'Charaktername ändern';
+
+  @override
+  String get cmdAddNoteRow => 'Notizzeile hinzufügen';
+
+  @override
+  String get cmdSetNoteRowText => 'Notiz bearbeiten';
+
+  @override
+  String get cmdSetNoteRowColor => 'Notizfarbe ändern';
+
+  @override
+  String get cmdLinkNoteRow => 'Notizzeile verknüpfen';
+
+  @override
+  String get cmdRemoveNoteRow => 'Notizzeile entfernen';
 
   @override
   String get cmdAddBless => 'Segen hinzufügen';

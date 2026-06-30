@@ -22,6 +22,7 @@ import '../../Resource/settings.dart';
 import '../../Resource/ui_utils.dart';
 import '../../services/network/network.dart';
 import 'add_monster_menu.dart';
+import 'note_row_menu.dart';
 
 class MainMenu extends StatelessWidget {
   const MainMenu({
@@ -166,6 +167,14 @@ class MainMenu extends StatelessWidget {
                 onTap: () {
                   Navigator.pop(context);
                   openDialog(context, const RemoveMonsterMenu());
+                },
+              ),
+              const Divider(),
+              ListTile(
+                title: Text(l10n.menuAddNoteRow),
+                onTap: () {
+                  Navigator.pop(context);
+                  openDialog(context, const NoteRowMenu());
                 },
               ),
               if (vm.showShowAllyDeck)
