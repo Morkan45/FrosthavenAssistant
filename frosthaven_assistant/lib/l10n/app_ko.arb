@@ -1,5 +1,12 @@
 {
   "@@locale": "ko",
+  "actionLogRollbackHint": "작업을 탭하여 되돌리기",
+  "actionLogRollbackTitle": "되돌리시겠습니까?",
+  "actionLogRollbackBody": "\"{action}\"(으)로 되돌리시겠습니까? 이후 {count}개의 작업이 취소됩니다. 변경하기 전까지 다시 실행할 수 있습니다.",
+  "actionLogRollbackConfirm": "되돌리기",
+  "menuActionLog": "작업 기록 보기",
+  "actionLogTitle": "최근 20개 작업",
+  "actionLogEmpty": "아직 작업이 없습니다",
   "menuSetScenario": "시나리오 설정",
   "menuAddCharacter": "캐릭터 추가",
   "menuRemoveCharacters": "캐릭터 제거",

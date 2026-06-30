@@ -54,6 +54,29 @@ class AppLocalizationsEs extends AppLocalizations {
   String get menuAddRandomDungeonCard => 'Añadir carta de mazmorra aleatoria';
 
   @override
+  String get menuActionLog => 'Ver registro de acciones';
+
+  @override
+  String get actionLogTitle => 'Últimas 20 acciones';
+
+  @override
+  String get actionLogEmpty => 'Aún no hay acciones';
+
+  @override
+  String get actionLogRollbackHint => 'Toca una acción para volver a ella';
+
+  @override
+  String get actionLogRollbackTitle => '¿Revertir?';
+
+  @override
+  String actionLogRollbackBody(String action, int count) {
+    return '¿Volver a \"$action\"? Esto revierte $count acción(es) posterior(es). Puedes rehacerlas hasta que hagas un cambio.';
+  }
+
+  @override
+  String get actionLogRollbackConfirm => 'Revertir';
+
+  @override
   String get undo => 'Deshacer';
 
   @override

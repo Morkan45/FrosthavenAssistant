@@ -1,5 +1,12 @@
 {
   "@@locale": "pl",
+  "actionLogRollbackHint": "Dotknij akcji, aby do niej wrócić",
+  "actionLogRollbackTitle": "Cofnąć?",
+  "actionLogRollbackBody": "Cofnąć do \"{action}\"? Odwróci to {count} późniejszych akcji. Możesz je ponowić, dopóki nie wprowadzisz zmiany.",
+  "actionLogRollbackConfirm": "Cofnij",
+  "menuActionLog": "Pokaż dziennik akcji",
+  "actionLogTitle": "Ostatnie 20 akcji",
+  "actionLogEmpty": "Brak akcji",
   "menuSetScenario": "Ustaw scenariusz",
   "menuAddCharacter": "Dodaj postać",
   "menuRemoveCharacters": "Usuń postacie",

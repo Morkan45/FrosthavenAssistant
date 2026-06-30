@@ -54,6 +54,30 @@ class AppLocalizationsRu extends AppLocalizations {
   String get menuAddRandomDungeonCard => 'Добавить случайную карту подземелья';
 
   @override
+  String get menuActionLog => 'Журнал действий';
+
+  @override
+  String get actionLogTitle => 'Последние 20 действий';
+
+  @override
+  String get actionLogEmpty => 'Пока нет действий';
+
+  @override
+  String get actionLogRollbackHint =>
+      'Нажмите на действие, чтобы вернуться к нему';
+
+  @override
+  String get actionLogRollbackTitle => 'Откатить?';
+
+  @override
+  String actionLogRollbackBody(String action, int count) {
+    return 'Вернуться к \"$action\"? Это отменит $count последующих действий. Их можно повторить, пока вы не внесёте изменение.';
+  }
+
+  @override
+  String get actionLogRollbackConfirm => 'Откатить';
+
+  @override
   String get undo => 'Отменить';
 
   @override

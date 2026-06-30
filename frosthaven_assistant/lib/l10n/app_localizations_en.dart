@@ -54,6 +54,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuAddRandomDungeonCard => 'Add Random Dungeon Card';
 
   @override
+  String get menuActionLog => 'View Action Log';
+
+  @override
+  String get actionLogTitle => 'Last 20 Actions';
+
+  @override
+  String get actionLogEmpty => 'No actions yet';
+
+  @override
+  String get actionLogRollbackHint => 'Tap an action to roll back to it';
+
+  @override
+  String get actionLogRollbackTitle => 'Roll back?';
+
+  @override
+  String actionLogRollbackBody(String action, int count) {
+    return 'Undo back to \"$action\"? This reverses $count later action(s). You can redo them until you make a change.';
+  }
+
+  @override
+  String get actionLogRollbackConfirm => 'Roll back';
+
+  @override
   String get undo => 'Undo';
 
   @override

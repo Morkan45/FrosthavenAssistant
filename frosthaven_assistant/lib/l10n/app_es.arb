@@ -1,5 +1,12 @@
 {
   "@@locale": "es",
+  "actionLogRollbackHint": "Toca una acción para volver a ella",
+  "actionLogRollbackTitle": "¿Revertir?",
+  "actionLogRollbackBody": "¿Volver a \"{action}\"? Esto revierte {count} acción(es) posterior(es). Puedes rehacerlas hasta que hagas un cambio.",
+  "actionLogRollbackConfirm": "Revertir",
+  "menuActionLog": "Ver registro de acciones",
+  "actionLogTitle": "Últimas 20 acciones",
+  "actionLogEmpty": "Aún no hay acciones",
   "menuSetScenario": "Definir escenario",
   "menuAddCharacter": "Añadir personaje",
   "menuRemoveCharacters": "Retirar personajes",

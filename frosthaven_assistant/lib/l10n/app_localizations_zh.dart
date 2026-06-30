@@ -54,6 +54,29 @@ class AppLocalizationsZh extends AppLocalizations {
   String get menuAddRandomDungeonCard => '添加随机地下城卡牌';
 
   @override
+  String get menuActionLog => '查看操作记录';
+
+  @override
+  String get actionLogTitle => '最近 20 项操作';
+
+  @override
+  String get actionLogEmpty => '暂无操作';
+
+  @override
+  String get actionLogRollbackHint => '点按某个操作以回退到此处';
+
+  @override
+  String get actionLogRollbackTitle => '回退？';
+
+  @override
+  String actionLogRollbackBody(String action, int count) {
+    return '回退到\"$action\"？这将撤销之后的 $count 个操作。在你做出更改之前仍可重做。';
+  }
+
+  @override
+  String get actionLogRollbackConfirm => '回退';
+
+  @override
   String get undo => '撤销';
 
   @override
@@ -1071,6 +1094,29 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get menuAddRandomDungeonCard => '新增隨機地下城卡牌';
+
+  @override
+  String get menuActionLog => '查看操作紀錄';
+
+  @override
+  String get actionLogTitle => '最近 20 項操作';
+
+  @override
+  String get actionLogEmpty => '尚無操作';
+
+  @override
+  String get actionLogRollbackHint => '點按某個操作以回退到此處';
+
+  @override
+  String get actionLogRollbackTitle => '回退？';
+
+  @override
+  String actionLogRollbackBody(String action, int count) {
+    return '回退到\"$action\"？這將撤銷之後的 $count 個操作。在你做出更改之前仍可重做。';
+  }
+
+  @override
+  String get actionLogRollbackConfirm => '回退';
 
   @override
   String get undo => '撤銷';

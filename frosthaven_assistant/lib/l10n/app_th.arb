@@ -1,5 +1,12 @@
 {
   "@@locale": "th",
+  "actionLogRollbackHint": "แตะการกระทำเพื่อย้อนกลับไปยังจุดนั้น",
+  "actionLogRollbackTitle": "ย้อนกลับ?",
+  "actionLogRollbackBody": "ย้อนกลับไปที่ \"{action}\" หรือไม่? การกระทำ {count} รายการหลังจากนั้นจะถูกยกเลิก คุณสามารถทำซ้ำได้จนกว่าจะมีการเปลี่ยนแปลง",
+  "actionLogRollbackConfirm": "ย้อนกลับ",
+  "menuActionLog": "ดูบันทึกการกระทำ",
+  "actionLogTitle": "20 การกระทำล่าสุด",
+  "actionLogEmpty": "ยังไม่มีการกระทำ",
   "menuSetScenario": "ตั้งค่าฉาก",
   "menuAddCharacter": "เพิ่มตัวละคร",
   "menuRemoveCharacters": "นำตัวละครออก",

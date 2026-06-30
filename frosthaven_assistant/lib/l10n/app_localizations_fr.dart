@@ -54,6 +54,29 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuAddRandomDungeonCard => 'Ajouter une carte donjon aléatoire';
 
   @override
+  String get menuActionLog => 'Voir le journal des actions';
+
+  @override
+  String get actionLogTitle => '20 dernières actions';
+
+  @override
+  String get actionLogEmpty => 'Aucune action pour l\'instant';
+
+  @override
+  String get actionLogRollbackHint => 'Touchez une action pour y revenir';
+
+  @override
+  String get actionLogRollbackTitle => 'Revenir en arrière ?';
+
+  @override
+  String actionLogRollbackBody(String action, int count) {
+    return 'Revenir à \"$action\" ? Cela annule $count action(s) ultérieure(s). Vous pouvez les rétablir jusqu\'à ce que vous fassiez une modification.';
+  }
+
+  @override
+  String get actionLogRollbackConfirm => 'Revenir';
+
+  @override
   String get undo => 'Annuler';
 
   @override

@@ -54,6 +54,29 @@ class AppLocalizationsTh extends AppLocalizations {
   String get menuAddRandomDungeonCard => 'เพิ่มการ์ดดันเจี้ยนแบบสุ่ม';
 
   @override
+  String get menuActionLog => 'ดูบันทึกการกระทำ';
+
+  @override
+  String get actionLogTitle => '20 การกระทำล่าสุด';
+
+  @override
+  String get actionLogEmpty => 'ยังไม่มีการกระทำ';
+
+  @override
+  String get actionLogRollbackHint => 'แตะการกระทำเพื่อย้อนกลับไปยังจุดนั้น';
+
+  @override
+  String get actionLogRollbackTitle => 'ย้อนกลับ?';
+
+  @override
+  String actionLogRollbackBody(String action, int count) {
+    return 'ย้อนกลับไปที่ \"$action\" หรือไม่? การกระทำ $count รายการหลังจากนั้นจะถูกยกเลิก คุณสามารถทำซ้ำได้จนกว่าจะมีการเปลี่ยนแปลง';
+  }
+
+  @override
+  String get actionLogRollbackConfirm => 'ย้อนกลับ';
+
+  @override
   String get undo => 'เลิกทำ';
 
   @override
