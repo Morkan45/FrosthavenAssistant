@@ -30,6 +30,12 @@ class RemoveAMDCardMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final deck = GameMethods.getModifierDeck(name, _gameState);
+    if (index >= deck.discardPileSize) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) Navigator.pop(context);
+      });
+      return const SizedBox.shrink();
+    }
     final card = deck.discardPileContents[index];
     final screenSize = MediaQuery.of(context).size;
     double scale = kCardZoomDefaultScale;
