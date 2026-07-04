@@ -39,9 +39,14 @@ const _benignSocketErrno = <int>{
 };
 
 bool _isBenignNetworkError(Object error) {
-  if (error is! SocketException) return false;
-  final errno = error.osError?.errorCode;
-  return errno != null && _benignSocketErrno.contains(errno);
+  if (error is OSError) {
+    return _benignSocketErrno.contains(error.errorCode);
+  }
+  if (error is SocketException) {
+    final errno = error.osError?.errorCode;
+    return errno != null && _benignSocketErrno.contains(errno);
+  }
+  return false;
 }
 
 const title = 'X-haven Assistant';
