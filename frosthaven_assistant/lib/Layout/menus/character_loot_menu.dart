@@ -87,7 +87,7 @@ class _CharacterLootWidget extends StatelessWidget {
                 height: kIconSize,
                 width: kIconSize,
                 fit: BoxFit.contain,
-                image: AssetImage("assets/images/class-icons/$characterId.png"),
+                image: AssetImage("assets/images/class-icons/$characterName.png"),
               ),
               const SizedBox(width: _kCharIconSpacing),
               Text(

@@ -88,6 +88,7 @@ class LootCardFront extends StatelessWidget {
     final specialStyle = getWhiteShadowStyle(
         LootCardWidget._kSpecialTextFontSize * scale, shadow);
 
+    var characterName = card.owner.replaceAll(" BnB", "");
     return Container(
         width: LootCardWidget._kCardWidth * scale,
         height: LootCardWidget._kCardHeight * scale,
@@ -183,14 +184,14 @@ class LootCardFront extends StatelessWidget {
                                 fit: BoxFit.scaleDown,
                                 color: LootCardWidget._kOwnerIconShadowColor,
                                 image: AssetImage(
-                                    'assets/images/class-icons/${card.owner}.png')),
+                                    'assets/images/class-icons/$characterName.png')),
                           ),
                         ),
                         Image(
                             fit: BoxFit.scaleDown,
                             color: Colors.white,
                             image: AssetImage(
-                                'assets/images/class-icons/${card.owner}.png')),
+                                'assets/images/class-icons/$characterName.png')),
                       ],
                     ),
                   )
