@@ -66,8 +66,14 @@ class Connection {
     if (_isClosed(socket)) return const [];
     return _sockets.where((x) {
       if (_isClosed(x)) return false;
-      return x.remoteAddress == socket.remoteAddress &&
-          x.remotePort == socket.remotePort;
+      try {
+        return x.remoteAddress == socket.remoteAddress &&
+            x.remotePort == socket.remotePort;
+      } on SocketException catch (_) {
+        return false;
+      } on OSError catch (_) {
+        return false;
+      }
     }).toList();
   }
 
