@@ -68,6 +68,9 @@ class AddSectionMenuState extends State<AddSectionMenu> {
 
   // This function is called whenever the text field changes
   void _runFilter(String enteredKeyword) {
+    if (_gameState.scenario.value == "custom") {
+      return;
+    }
     List<String> results = [];
     if (enteredKeyword.isEmpty) {
       // if the search field is empty or only contains white-space, we'll display all
@@ -77,9 +80,6 @@ class AddSectionMenuState extends State<AddSectionMenu> {
           .toList();
       results = results.where((element) => !element.contains("spawn")).toList();
     } else {
-      if (_gameState.scenario.value == "custom") {
-        return;
-      }
       results = _gameData.modelData.value[_gameState.currentCampaign.value]!
           .scenarios[_gameState.scenario.value]!.sections
           .map((e) => e.name)
