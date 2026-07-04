@@ -91,6 +91,10 @@ class Communication {
         log('Removing dead socket in sendToAllExcept: $e');
         _connection.remove(socket);
         continue;
+      } on OSError catch (e) {
+        log('Removing dead socket in sendToAllExcept (OSError): $e');
+        _connection.remove(socket);
+        continue;
       }
       if (isOther) sendTo(socket, data);
     }
@@ -122,6 +126,10 @@ class Communication {
       // EPIPE (errno 32) and similar write errors mean the remote end closed
       // before we noticed. Remove the dead socket so future sends skip it.
       log('Write failed, removing dead socket: $e');
+      _connection.remove(socket);
+    } on OSError catch (e) {
+      // Same as above but surfaced as OSError on iOS/macOS.
+      log('Write failed, removing dead socket (OSError): $e');
       _connection.remove(socket);
     }
   }
