@@ -156,6 +156,11 @@ abstract class GameServer {
       log('Client disconnected before setup (errno 22): $e');
       client.destroy();
       return;
+    } on OSError catch (e) {
+      // Same as above but surfaced as OSError on iOS/macOS.
+      log('Client disconnected before setup (OSError): $e');
+      client.destroy();
+      return;
     }
     client.encoding = utf8;
 
@@ -202,7 +207,12 @@ abstract class GameServer {
           // (app backgrounded, screen locked, network switch). Treat it the
           // same as a clean disconnect — remove only this client and keep the
           // server running for everyone else.
-          if (error is SocketException && error.osError?.errorCode == 103) {
+          final int? errno = error is SocketException
+              ? error.osError?.errorCode
+              : error is OSError
+                  ? error.errorCode
+                  : null;
+          if (errno == 103) {
             log('Client aborted connection (errno 103): ${safeGetClientAddress(client)}');
             removeClientConnection(client);
             setNetworkMessage('Client left.');
