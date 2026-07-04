@@ -96,7 +96,12 @@ class RoundMethods {
               break;
             }
           }
-          newList.insert(insertIndex, item);
+          if(insertIndex > newList.length) {
+            newList.add(item);
+          } else {
+            newList.insert(insertIndex, item);
+          }
+
           gs._currentList = newList;
           gs._notifyCurrentList();
           return;
