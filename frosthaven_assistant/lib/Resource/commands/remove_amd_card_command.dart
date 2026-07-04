@@ -18,8 +18,10 @@ class RemoveAMDCardCommand extends Command {
   void execute() {
     final deck = GameMethods.getModifierDeck(name, _gameState);
     if (fromDrawPile) {
+      if (index >= deck.drawPileSize) return;
       deck.removeCardFromDrawPile(stateAccess, index);
     } else {
+      if (index >= deck.discardPileSize) return;
       deck.removeCardFromDiscard(stateAccess, index);
     }
   }
