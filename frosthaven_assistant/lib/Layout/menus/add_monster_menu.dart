@@ -214,38 +214,41 @@ class AddMonsterMenuState extends State<AddMonsterMenu> {
             const SizedBox(
               height: kMenuTopPadding,
             ),
-            FilteredListView(
-              items: _foundMonsters,
-              itemBuilder: (context, index) => ListTile(
-                leading: Image.asset(
-                  "assets/images/monsters/${_foundMonsters[index].gfx}.png",
-                  height: AddMonsterMenu._kImageHeight,
-                  cacheHeight: kMonsterImageCacheHeight,
+            Builder(builder: (context) {
+              final monsters = _foundMonsters;
+              return FilteredListView(
+                items: monsters,
+                itemBuilder: (context, index) => ListTile(
+                  leading: Image.asset(
+                    "assets/images/monsters/${monsters[index].gfx}.png",
+                    height: AddMonsterMenu._kImageHeight,
+                    cacheHeight: kMonsterImageCacheHeight,
+                  ),
+                  title: Text(
+                      monsters[index].hidden
+                          ? "${getIt<TranslationService>().t(monsters[index].display)} (special)"
+                          : getIt<TranslationService>().t(monsters[index].display),
+                      style: TextStyle(
+                          fontSize: kFontSizeTitle,
+                          color: _monsterAlreadyAdded(monsters[index].name)
+                              ? Colors.grey
+                              : Colors.black)),
+                  trailing: Text("(${monsters[index].edition})",
+                      style: kSubtitleStyle),
+                  onTap: () {
+                    if (!_monsterAlreadyAdded(monsters[index].name)) {
+                      setState(() {
+                        _gameState.action(AddMonsterCommand(
+                            monsters[index].name,
+                            null,
+                            _addAsAlly,
+                            gameState: _gameState));
+                      });
+                    }
+                  },
                 ),
-                title: Text(
-                    _foundMonsters[index].hidden
-                        ? "${getIt<TranslationService>().t(_foundMonsters[index].display)} (special)"
-                        : getIt<TranslationService>().t(_foundMonsters[index].display),
-                    style: TextStyle(
-                        fontSize: kFontSizeTitle,
-                        color: _monsterAlreadyAdded(_foundMonsters[index].name)
-                            ? Colors.grey
-                            : Colors.black)),
-                trailing: Text("(${_foundMonsters[index].edition})",
-                    style: kSubtitleStyle),
-                onTap: () {
-                  if (!_monsterAlreadyAdded(_foundMonsters[index].name)) {
-                    setState(() {
-                      _gameState.action(AddMonsterCommand(
-                          _foundMonsters[index].name,
-                          null,
-                          _addAsAlly,
-                          gameState: _gameState));
-                    });
-                  }
-                },
-              ),
-            ),
+              );
+            }),
             const SizedBox(
               height: kMenuCloseButtonSpacing,
             ),
