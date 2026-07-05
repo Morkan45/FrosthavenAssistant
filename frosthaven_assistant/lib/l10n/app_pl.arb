@@ -134,7 +134,7 @@
   "badOmensLeft": "Pozostałe złe omeny: {count}",
   "corrosiveSpew": "Żrący wyrzut",
   "empowersOnTop": "Wzmocnienia na górze",
-  "addMinusOneCard": "Dodaj kartę -1 (dodane: {count})",
+  "addMinusOneCard": "{direction, select, added{Dodaj kartę -1 (dodane: {count})} removed{Dodaj kartę -1 (usunięte: {count})} other{Karta -1 ({count})}}",
   "removeMinusOneCard": "Usuń kartę -1",
   "removeMinusTwoCard": "Usuń kartę -2",
   "minusTwoCardRemoved": "Karta -2 usunięta",

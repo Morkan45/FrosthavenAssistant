@@ -448,10 +448,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get empowersOnTop => 'การเสริมพลังอยู่ด้านบน';
 
   @override
-  String addMinusOneCard(int count) {
-    return count < 0
-        ? 'เพิ่มการ์ด -1 (ลบออกแล้ว: ${count.abs()})'
-        : 'เพิ่มการ์ด -1 (เพิ่มแล้ว: $count)';
+  String addMinusOneCard(String direction, int count) {
+    String _temp0 = intl.Intl.selectLogic(direction, {
+      'added': 'เพิ่มการ์ด -1 (เพิ่มแล้ว: $count)',
+      'removed': 'เพิ่มการ์ด -1 (ลบออกแล้ว: $count)',
+      'other': 'การ์ด -1 ($count)',
+    });
+    return '$_temp0';
   }
 
   @override

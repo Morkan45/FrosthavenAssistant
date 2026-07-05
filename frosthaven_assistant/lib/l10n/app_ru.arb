@@ -134,7 +134,7 @@
   "badOmensLeft": "Осталось предзнаменований: {count}",
   "corrosiveSpew": "Разъедающий выброс",
   "empowersOnTop": "Усиления сверху",
-  "addMinusOneCard": "Добавить карту -1 (добавлено: {count})",
+  "addMinusOneCard": "{direction, select, added{Добавить карту -1 (добавлено: {count})} removed{Добавить карту -1 (удалено: {count})} other{Карта -1 ({count})}}",
   "removeMinusOneCard": "Убрать карту -1",
   "removeMinusTwoCard": "Убрать карту -2",
   "minusTwoCardRemoved": "Карта -2 убрана",

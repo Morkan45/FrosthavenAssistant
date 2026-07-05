@@ -134,7 +134,7 @@
   "badOmensLeft": "남은 불길한 징조: {count}",
   "corrosiveSpew": "부식성 분출",
   "empowersOnTop": "강화 카드 맨 위에",
-  "addMinusOneCard": "-1 카드 추가 (추가됨: {count})",
+  "addMinusOneCard": "{direction, select, added{-1 카드 추가 (추가됨: {count})} removed{-1 카드 추가 (제거됨: {count})} other{-1 카드 ({count})}}",
   "removeMinusOneCard": "-1 카드 제거",
   "removeMinusTwoCard": "-2 카드 제거",
   "minusTwoCardRemoved": "-2 카드 제거됨",

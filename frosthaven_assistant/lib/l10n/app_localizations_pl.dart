@@ -452,10 +452,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get empowersOnTop => 'Wzmocnienia na górze';
 
   @override
-  String addMinusOneCard(int count) {
-    return count < 0
-        ? 'Dodaj kartę -1 (usunięte: ${count.abs()})'
-        : 'Dodaj kartę -1 (dodane: $count)';
+  String addMinusOneCard(String direction, int count) {
+    String _temp0 = intl.Intl.selectLogic(direction, {
+      'added': 'Dodaj kartę -1 (dodane: $count)',
+      'removed': 'Dodaj kartę -1 (usunięte: $count)',
+      'other': 'Karta -1 ($count)',
+    });
+    return '$_temp0';
   }
 
   @override

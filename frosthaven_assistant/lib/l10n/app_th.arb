@@ -134,7 +134,7 @@
   "badOmensLeft": "ลางร้ายที่เหลือ: {count}",
   "corrosiveSpew": "การพ่นสารกัดกร่อน",
   "empowersOnTop": "การเสริมพลังอยู่ด้านบน",
-  "addMinusOneCard": "เพิ่มการ์ด -1 (เพิ่มแล้ว: {count})",
+  "addMinusOneCard": "{direction, select, added{เพิ่มการ์ด -1 (เพิ่มแล้ว: {count})} removed{เพิ่มการ์ด -1 (ลบออกแล้ว: {count})} other{การ์ด -1 ({count})}}",
   "removeMinusOneCard": "นำการ์ด -1 ออก",
   "removeMinusTwoCard": "นำการ์ด -2 ออก",
   "minusTwoCardRemoved": "นำการ์ด -2 ออกแล้ว",

@@ -226,9 +226,10 @@
   },
   "corrosiveSpew": "Ätzender Ausstoß",
   "empowersOnTop": "Stärkt oben auf",
-  "addMinusOneCard": "-1-Karte hinzufügen (hinzugefügt: {count})",
+  "addMinusOneCard": "{direction, select, added{-1-Karte hinzufügen (hinzugefügt: {count})} removed{-1-Karte hinzufügen (entfernt: {count})} other{-1-Karte ({count})}}",
   "@addMinusOneCard": {
     "placeholders": {
+      "direction": { "type": "String" },
       "count": { "type": "int" }
     }
   },

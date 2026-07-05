@@ -122,7 +122,10 @@ class ModifierDeckHeader extends StatelessWidget {
                 AmdAddMinusOneCommand(name, gameState: gameState),
               );
             },
-            child: Text(l10n.addMinusOneCard(deck.addedMinusOnes.value)),
+            child: Text(l10n.addMinusOneCard(
+              deck.addedMinusOnes.value < 0 ? 'removed' : 'added',
+              deck.addedMinusOnes.value.abs(),
+            )),
           ),
           TextButton(
             onPressed: () {

@@ -443,10 +443,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get empowersOnTop => '强化卡在顶部';
 
   @override
-  String addMinusOneCard(int count) {
-    return count < 0
-        ? '添加-1卡牌（已移除：${count.abs()}）'
-        : '添加-1卡牌（已添加：$count）';
+  String addMinusOneCard(String direction, int count) {
+    String _temp0 = intl.Intl.selectLogic(direction, {
+      'added': '添加-1卡牌（已添加：$count）',
+      'removed': '添加-1卡牌（已移除：$count）',
+      'other': '-1卡牌（$count）',
+    });
+    return '$_temp0';
   }
 
   @override
@@ -1459,10 +1462,13 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get empowersOnTop => '強化卡在頂部';
 
   @override
-  String addMinusOneCard(int count) {
-    return count < 0
-        ? '新增-1卡牌（已移除：${count.abs()}）'
-        : '新增-1卡牌（已新增：$count）';
+  String addMinusOneCard(String direction, int count) {
+    String _temp0 = intl.Intl.selectLogic(direction, {
+      'added': '新增-1卡牌（已新增：$count）',
+      'removed': '新增-1卡牌（已移除：$count）',
+      'other': '-1卡牌（$count）',
+    });
+    return '$_temp0';
   }
 
   @override

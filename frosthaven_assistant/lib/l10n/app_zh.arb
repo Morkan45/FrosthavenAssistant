@@ -134,7 +134,7 @@
   "badOmensLeft": "剩余凶兆：{count}",
   "corrosiveSpew": "腐蚀喷射",
   "empowersOnTop": "强化卡在顶部",
-  "addMinusOneCard": "添加-1卡牌（已添加：{count}）",
+  "addMinusOneCard": "{direction, select, added{添加-1卡牌（已添加：{count}）} removed{添加-1卡牌（已移除：{count}）} other{-1卡牌（{count}）}}",
   "removeMinusOneCard": "移除-1卡牌",
   "removeMinusTwoCard": "移除-2卡牌",
   "minusTwoCardRemoved": "-2卡牌已移除",

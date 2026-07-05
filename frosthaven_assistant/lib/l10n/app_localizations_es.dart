@@ -459,10 +459,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get empowersOnTop => 'Potenciados encima';
 
   @override
-  String addMinusOneCard(int count) {
-    return count < 0
-        ? 'Añadir carta -1 (quitadas: ${count.abs()})'
-        : 'Añadir carta -1 (añadidas: $count)';
+  String addMinusOneCard(String direction, int count) {
+    String _temp0 = intl.Intl.selectLogic(direction, {
+      'added': 'Añadir carta -1 (añadidas: $count)',
+      'removed': 'Añadir carta -1 (quitadas: $count)',
+      'other': 'Carta -1 ($count)',
+    });
+    return '$_temp0';
   }
 
   @override

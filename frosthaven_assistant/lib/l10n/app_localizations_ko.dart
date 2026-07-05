@@ -444,10 +444,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get empowersOnTop => '강화 카드 맨 위에';
 
   @override
-  String addMinusOneCard(int count) {
-    return count < 0
-        ? '-1 카드 추가 (제거됨: ${count.abs()})'
-        : '-1 카드 추가 (추가됨: $count)';
+  String addMinusOneCard(String direction, int count) {
+    String _temp0 = intl.Intl.selectLogic(direction, {
+      'added': '-1 카드 추가 (추가됨: $count)',
+      'removed': '-1 카드 추가 (제거됨: $count)',
+      'other': '-1 카드 ($count)',
+    });
+    return '$_temp0';
   }
 
   @override

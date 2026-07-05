@@ -134,7 +134,7 @@
   "badOmensLeft": "Mauvais présages restants : {count}",
   "corrosiveSpew": "Crachat corrosif",
   "empowersOnTop": "Renforcés au dessus",
-  "addMinusOneCard": "Ajouter carte -1 (ajoutées : {count})",
+  "addMinusOneCard": "{direction, select, added{Ajouter carte -1 (ajoutées : {count})} removed{Ajouter carte -1 (retirées : {count})} other{Carte -1 ({count})}}",
   "removeMinusOneCard": "Retirer carte -1",
   "removeMinusTwoCard": "Retirer carte -2",
   "minusTwoCardRemoved": "Carte -2 retirée",

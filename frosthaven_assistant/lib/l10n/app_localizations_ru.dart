@@ -455,10 +455,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get empowersOnTop => 'Усиления сверху';
 
   @override
-  String addMinusOneCard(int count) {
-    return count < 0
-        ? 'Добавить карту -1 (удалено: ${count.abs()})'
-        : 'Добавить карту -1 (добавлено: $count)';
+  String addMinusOneCard(String direction, int count) {
+    String _temp0 = intl.Intl.selectLogic(direction, {
+      'added': 'Добавить карту -1 (добавлено: $count)',
+      'removed': 'Добавить карту -1 (удалено: $count)',
+      'other': 'Карта -1 ($count)',
+    });
+    return '$_temp0';
   }
 
   @override

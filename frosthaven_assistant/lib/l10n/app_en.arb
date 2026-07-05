@@ -226,9 +226,10 @@
   },
   "corrosiveSpew": "Corrosive Spew",
   "empowersOnTop": "Empowers on top",
-  "addMinusOneCard": "Add -1 card (added: {count})",
+  "addMinusOneCard": "{direction, select, added{Add -1 card (added: {count})} removed{Add -1 card (removed: {count})} other{Add -1 card ({count})}}",
   "@addMinusOneCard": {
     "placeholders": {
+      "direction": { "type": "String" },
       "count": { "type": "int" }
     }
   },
