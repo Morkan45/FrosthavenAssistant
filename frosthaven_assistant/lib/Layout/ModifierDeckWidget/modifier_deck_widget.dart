@@ -56,6 +56,14 @@ class ModifierDeckWidgetState extends State<ModifierDeckWidget> {
       );
   bool _animationsEnabled = false;
 
+  @override
+  void didUpdateWidget(ModifierDeckWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.name != widget.name) {
+      _vmInstance = null;
+    }
+  }
+
   Widget _buildStayAnimation(Widget child, double userScalingBars) {
     return Container(
         margin: EdgeInsets.only(
