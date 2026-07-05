@@ -462,7 +462,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String addMinusOneCard(int count) {
-    return '-1-Karte hinzufügen (hinzugefügt: $count)';
+    return count < 0
+        ? '-1-Karte hinzufügen (entfernt: ${count.abs()})'
+        : '-1-Karte hinzufügen (hinzugefügt: $count)';
   }
 
   @override

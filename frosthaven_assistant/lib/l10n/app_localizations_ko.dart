@@ -445,7 +445,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String addMinusOneCard(int count) {
-    return '-1 카드 추가 (추가됨: $count)';
+    return count < 0
+        ? '-1 카드 추가 (제거됨: ${count.abs()})'
+        : '-1 카드 추가 (추가됨: $count)';
   }
 
   @override

@@ -456,7 +456,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String addMinusOneCard(int count) {
-    return 'Добавить карту -1 (добавлено: $count)';
+    return count < 0
+        ? 'Добавить карту -1 (удалено: ${count.abs()})'
+        : 'Добавить карту -1 (добавлено: $count)';
   }
 
   @override

@@ -444,7 +444,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String addMinusOneCard(int count) {
-    return '添加-1卡牌（已添加：$count）';
+    return count < 0
+        ? '添加-1卡牌（已移除：${count.abs()}）'
+        : '添加-1卡牌（已添加：$count）';
   }
 
   @override
@@ -1458,7 +1460,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String addMinusOneCard(int count) {
-    return '新增-1卡牌（已新增：$count）';
+    return count < 0
+        ? '新增-1卡牌（已移除：${count.abs()}）'
+        : '新增-1卡牌（已新增：$count）';
   }
 
   @override
