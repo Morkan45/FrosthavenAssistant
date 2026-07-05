@@ -1,16 +1,12 @@
 import 'dart:async';
 import 'dart:developer' as developer;
 import 'dart:io';
-import 'dart:ui' show Locale;
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dart_ipify/dart_ipify.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 
-import '../../l10n/app_localizations.dart';
-import '../../Resource/settings.dart';
 import '../service_locator.dart';
 import 'network.dart';
 
@@ -28,8 +24,7 @@ class NetworkInformation {
             connection = ConnectivityResult.wifi.name;
           }
           getIt<Network>().networkMessage.value =
-              lookupAppLocalizations(Locale(getIt<Settings>().locale.value))
-                  .networkConnection(connection);
+              'Network connection: $connection';
         }
         _connectionStatus = result.first;
       }
@@ -67,11 +62,7 @@ class NetworkInformation {
         }
       }
     }
-    if (wifiIPv6.value == "") {
-      wifiIPv6.value = lookupAppLocalizations(
-              Locale(getIt<Settings>().locale.value))
-          .failedToGetWifiIp;
-    }
+    // Leave wifiIPv6 as "" if no address was found — UI handles empty display.
   }
 
   Future<void> initNetworkInfo() async {
