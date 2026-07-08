@@ -295,6 +295,10 @@ class SettingsMenuState extends State<SettingsMenu> {
                   settings.userScalingMainList.value = value;
                   setMaxWidth();
                   settings.saveToDisk();
+                  // Rebuild the board so the new scale applies immediately
+                  // (as the style toggle below does); without this the list
+                  // keeps its old size until the next state change.
+                  _gameState.updateList.notify();
                 });
               },
             ),
@@ -314,6 +318,7 @@ class SettingsMenuState extends State<SettingsMenu> {
                 setState(() {
                   settings.userScalingBars.value = value;
                   settings.saveToDisk();
+                  _gameState.updateList.notify();
                 });
               },
             ),

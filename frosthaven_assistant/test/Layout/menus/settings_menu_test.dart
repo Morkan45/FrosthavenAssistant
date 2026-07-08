@@ -406,5 +406,49 @@ void main() {
       getIt<GameState>().action(
           SetAllyDeckInOgGloomCommand(before, gameState: getIt<GameState>()));
     });
+
+    testWidgets('moving the Main List Scaling slider rebuilds the board',
+        (WidgetTester tester) async {
+      final gameState = getIt<GameState>();
+      final settings = getIt<Settings>();
+      final before = settings.userScalingMainList.value;
+      int notifications = 0;
+      void listener() => notifications++;
+      gameState.updateList.addListener(listener);
+      addTearDown(() => gameState.updateList.removeListener(listener));
+
+      await pumpMenu(tester);
+      final slider = find.byType(Slider).first; // Main List Scaling
+      await tester.ensureVisible(slider);
+      await tester.drag(slider, const Offset(-40, 0));
+      await tester.pump();
+
+      expect(notifications, greaterThan(0),
+          reason:
+              'changing the main-list scale must notify the board to rebuild');
+      settings.userScalingMainList.value = before;
+    });
+
+    testWidgets('moving the App Bar Scaling slider rebuilds the board',
+        (WidgetTester tester) async {
+      final gameState = getIt<GameState>();
+      final settings = getIt<Settings>();
+      final before = settings.userScalingBars.value;
+      int notifications = 0;
+      void listener() => notifications++;
+      gameState.updateList.addListener(listener);
+      addTearDown(() => gameState.updateList.removeListener(listener));
+
+      await pumpMenu(tester);
+      final slider = find.byType(Slider).at(1); // App Bar Scaling
+      await tester.ensureVisible(slider);
+      await tester.drag(slider, const Offset(-40, 0));
+      await tester.pump();
+
+      expect(notifications, greaterThan(0),
+          reason:
+              'changing the app-bar scale must notify the board to rebuild');
+      settings.userScalingBars.value = before;
+    });
   });
 }
