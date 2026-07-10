@@ -920,8 +920,8 @@ abstract class AppLocalizations {
   /// No description provided for @addMinusOneCard.
   ///
   /// In en, this message translates to:
-  /// **'Add -1 card (added: {count})'**
-  String addMinusOneCard(int count);
+  /// **'{direction, select, added{Add -1 card (added: {count})} removed{Add -1 card (removed: {count})} other{Add -1 card ({count})}}'**
+  String addMinusOneCard(String direction, int count);
 
   /// No description provided for @removeMinusOneCard.
   ///

@@ -992,6 +992,35 @@
         {"text": "Once each scenario, when any character ally would become exhausted by suffering %damage%, you may suffer %damage% 2 to reduce their hit point value to 1 instead."},
         {"text": "[double] At the start of each scenario you may play one level 1 card from your hand to perform a persistent loss action of the card."}
       ]
+    },
+    {
+      "name": "Dreadscourge",
+      "color": "FFD35660",
+      "colorSecondary": "FF463121",
+      "edition": "CCUG",
+      "health": [8,9,11,12,14,15,17,18,20],
+      "hidden": false,
+      "summons": {
+      },
+      "perks": [
+        {"removes": ["minus2"]},
+        {"removes": ["minus1","minus1"]},
+        {"removes": ["minus1"],"adds": [ "perks/plus0wound"]},
+        {"removes": ["minus1"],"adds": [ "perks/plus0wound"]},
+        {"removes": ["plus0"],"adds": [ "plus2"]},
+        {"removes": ["plus0"],"adds": [ "plus2"]},
+        {"removes": ["plus0","plus0"],"adds": [ "perks/plus1invisible"]},
+        {"removes": ["plus0","plus0"],"adds": [ "perks/plus1invisible"]},
+        {"text": "Add one \"%heal% 2 %target% 1 ally that has a Dread Token\"%flip% card and one \"%poison% %target% 1 enemy that has a Dread Token\"%flip% card","adds": [ "perks/unique/dr1", "perks/unique/dr2"]},
+        {"text": "Add one \"%heal% 2 %target% 1 ally that has a Dread Token\"%flip% card and one \"%poison% %target% 1 enemy that has a Dread Token\"%flip% card","adds": [ "perks/unique/dr1", "perks/unique/dr2"]},
+        {"text": "Add one +1 \"After the attack ability, perform %move% 2 %jump%\"%flip% card","adds": [ "perks/unique/dr3"]},
+        {"text": "Add one +1 \"After the attack ability, perform %move% 2 %jump%\"%flip% card","adds": [ "perks/unique/dr3"]},
+        {"adds": [ "perks/plus1stun"]},
+        {"text": "Ignore scenario effects and add one +1 card","adds": [ "plus1"]},
+        {"text": "You may bring on additional foot item into each scenario."},
+        {"text": "Whenever you command a figure that has a Dread Token, that figure ignores %immobilize%, %disarm%, %stun%, and %muddle%."},
+        {"text": "[double] At the start of each scenario, place one Dread Token on one enemy. Whenever a new room is revealed, place one Dread Token on one newly revealed enemy."}
+      ]
     }
   ],
   "monsterAbilities": [
