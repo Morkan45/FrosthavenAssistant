@@ -2723,8 +2723,8 @@
     {
       "86.2(1)": {
         "Candlekeeper Trice": {
-          "normal": [1, 0, 1],
-          "elite": [0, 1, 1]
+          "normal": [1, 1, 1],
+          "elite": [0, 0, 0]
         },
         "City Guard (2e)": {
           "normal": [3, 2, 1],
