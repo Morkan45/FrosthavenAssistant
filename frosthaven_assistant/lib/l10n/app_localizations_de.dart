@@ -56,6 +56,30 @@ class AppLocalizationsDe extends AppLocalizations {
   String get menuAddRandomDungeonCard => 'Zufällige Verließkarte hinzufügen';
 
   @override
+  String get menuActionLog => 'Aktionsprotokoll anzeigen';
+
+  @override
+  String get actionLogTitle => 'Letzte 20 Aktionen';
+
+  @override
+  String get actionLogEmpty => 'Noch keine Aktionen';
+
+  @override
+  String get actionLogRollbackHint =>
+      'Tippe auf eine Aktion, um dorthin zurückzukehren';
+
+  @override
+  String get actionLogRollbackTitle => 'Zurücksetzen?';
+
+  @override
+  String actionLogRollbackBody(String action, int count) {
+    return 'Zurück zu \"$action\"? Dies macht $count spätere Aktion(en) rückgängig. Du kannst sie wiederherstellen, bis du etwas änderst.';
+  }
+
+  @override
+  String get actionLogRollbackConfirm => 'Zurücksetzen';
+
+  @override
   String get undo => 'Rückgängig';
 
   @override

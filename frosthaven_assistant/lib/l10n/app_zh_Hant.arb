@@ -1,5 +1,12 @@
 {
   "@@locale": "zh_Hant",
+  "actionLogRollbackHint": "點按某個操作以回退到此處",
+  "actionLogRollbackTitle": "回退？",
+  "actionLogRollbackBody": "回退到\"{action}\"？這將撤銷之後的 {count} 個操作。在你做出更改之前仍可重做。",
+  "actionLogRollbackConfirm": "回退",
+  "menuActionLog": "查看操作紀錄",
+  "actionLogTitle": "最近 20 項操作",
+  "actionLogEmpty": "尚無操作",
   "menuSetScenario": "設定場景",
   "menuAddCharacter": "新增角色",
   "menuRemoveCharacters": "移除角色",

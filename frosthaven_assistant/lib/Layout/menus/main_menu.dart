@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:frosthaven_assistant/Layout/menus/action_log_menu.dart';
 import 'package:frosthaven_assistant/Layout/menus/LootCardsMenu/loot_cards_menu.dart';
 import 'package:frosthaven_assistant/Layout/menus/SelectScenarioMenu/select_scenario_menu.dart';
 import 'package:frosthaven_assistant/Layout/menus/SetLevelMenu/set_level_menu.dart';
@@ -95,6 +96,13 @@ class MainMenu extends StatelessWidget {
                 enabled: vm.redoEnabled,
                 onTap: () {
                   vm.redo();
+                },
+              ),
+              ListTile(
+                title: Text(l10n.menuActionLog),
+                onTap: () {
+                  Navigator.pop(context);
+                  openDialog(context, const ActionLogMenu());
                 },
               ),
               const Divider(),

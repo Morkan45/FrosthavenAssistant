@@ -54,6 +54,29 @@ class AppLocalizationsKo extends AppLocalizations {
   String get menuAddRandomDungeonCard => '무작위 던전 카드 추가';
 
   @override
+  String get menuActionLog => '작업 기록 보기';
+
+  @override
+  String get actionLogTitle => '최근 20개 작업';
+
+  @override
+  String get actionLogEmpty => '아직 작업이 없습니다';
+
+  @override
+  String get actionLogRollbackHint => '작업을 탭하여 되돌리기';
+
+  @override
+  String get actionLogRollbackTitle => '되돌리시겠습니까?';
+
+  @override
+  String actionLogRollbackBody(String action, int count) {
+    return '\"$action\"(으)로 되돌리시겠습니까? 이후 $count개의 작업이 취소됩니다. 변경하기 전까지 다시 실행할 수 있습니다.';
+  }
+
+  @override
+  String get actionLogRollbackConfirm => '되돌리기';
+
+  @override
   String get undo => '실행 취소';
 
   @override

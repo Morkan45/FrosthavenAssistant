@@ -1,5 +1,12 @@
 {
   "@@locale": "ru",
+  "actionLogRollbackHint": "Нажмите на действие, чтобы вернуться к нему",
+  "actionLogRollbackTitle": "Откатить?",
+  "actionLogRollbackBody": "Вернуться к \"{action}\"? Это отменит {count} последующих действий. Их можно повторить, пока вы не внесёте изменение.",
+  "actionLogRollbackConfirm": "Откатить",
+  "menuActionLog": "Журнал действий",
+  "actionLogTitle": "Последние 20 действий",
+  "actionLogEmpty": "Пока нет действий",
   "menuSetScenario": "Задать сценарий",
   "menuAddCharacter": "Добавить персонажа",
   "menuRemoveCharacters": "Убрать персонажей",

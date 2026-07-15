@@ -1,5 +1,12 @@
 {
   "@@locale": "de",
+  "actionLogRollbackHint": "Tippe auf eine Aktion, um dorthin zurückzukehren",
+  "actionLogRollbackTitle": "Zurücksetzen?",
+  "actionLogRollbackBody": "Zurück zu \"{action}\"? Dies macht {count} spätere Aktion(en) rückgängig. Du kannst sie wiederherstellen, bis du etwas änderst.",
+  "actionLogRollbackConfirm": "Zurücksetzen",
+  "menuActionLog": "Aktionsprotokoll anzeigen",
+  "actionLogTitle": "Letzte 20 Aktionen",
+  "actionLogEmpty": "Noch keine Aktionen",
 
   "menuSetScenario": "Szenario festlegen",
   "menuAddCharacter": "Charakter hinzufügen",

@@ -203,6 +203,48 @@ abstract class AppLocalizations {
   /// **'Add Random Dungeon Card'**
   String get menuAddRandomDungeonCard;
 
+  /// No description provided for @menuActionLog.
+  ///
+  /// In en, this message translates to:
+  /// **'View Action Log'**
+  String get menuActionLog;
+
+  /// No description provided for @actionLogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 20 Actions'**
+  String get actionLogTitle;
+
+  /// No description provided for @actionLogEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No actions yet'**
+  String get actionLogEmpty;
+
+  /// No description provided for @actionLogRollbackHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap an action to roll back to it'**
+  String get actionLogRollbackHint;
+
+  /// No description provided for @actionLogRollbackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Roll back?'**
+  String get actionLogRollbackTitle;
+
+  /// No description provided for @actionLogRollbackBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo back to \"{action}\"? This reverses {count} later action(s). You can redo them until you make a change.'**
+  String actionLogRollbackBody(String action, int count);
+
+  /// No description provided for @actionLogRollbackConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Roll back'**
+  String get actionLogRollbackConfirm;
+
   /// No description provided for @undo.
   ///
   /// In en, this message translates to:

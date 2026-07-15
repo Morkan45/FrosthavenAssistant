@@ -54,6 +54,29 @@ class AppLocalizationsPl extends AppLocalizations {
   String get menuAddRandomDungeonCard => 'Dodaj losową kartę lochu';
 
   @override
+  String get menuActionLog => 'Pokaż dziennik akcji';
+
+  @override
+  String get actionLogTitle => 'Ostatnie 20 akcji';
+
+  @override
+  String get actionLogEmpty => 'Brak akcji';
+
+  @override
+  String get actionLogRollbackHint => 'Dotknij akcji, aby do niej wrócić';
+
+  @override
+  String get actionLogRollbackTitle => 'Cofnąć?';
+
+  @override
+  String actionLogRollbackBody(String action, int count) {
+    return 'Cofnąć do \"$action\"? Odwróci to $count późniejszych akcji. Możesz je ponowić, dopóki nie wprowadzisz zmiany.';
+  }
+
+  @override
+  String get actionLogRollbackConfirm => 'Cofnij';
+
+  @override
   String get undo => 'Cofnij';
 
   @override

@@ -1,5 +1,12 @@
 {
   "@@locale": "fr",
+  "actionLogRollbackHint": "Touchez une action pour y revenir",
+  "actionLogRollbackTitle": "Revenir en arrière ?",
+  "actionLogRollbackBody": "Revenir à \"{action}\" ? Cela annule {count} action(s) ultérieure(s). Vous pouvez les rétablir jusqu'à ce que vous fassiez une modification.",
+  "actionLogRollbackConfirm": "Revenir",
+  "menuActionLog": "Voir le journal des actions",
+  "actionLogTitle": "20 dernières actions",
+  "actionLogEmpty": "Aucune action pour l'instant",
   "menuSetScenario": "Définir le scénario",
   "menuAddCharacter": "Ajouter un personnage",
   "menuRemoveCharacters": "Retirer des personnages",
