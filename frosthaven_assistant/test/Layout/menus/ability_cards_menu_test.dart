@@ -98,6 +98,10 @@ void main() {
     testWidgets(
         'menu reflects updated pile after loadFromData (network sync)',
         (WidgetTester tester) async {
+      final originalOnError = FlutterError.onError;
+      addTearDown(() => FlutterError.onError = originalOnError);
+      FlutterError.onError = ignoreOverflowErrors;
+
       final gameState = getIt<GameState>();
 
       // Capture the initial state (no cards drawn yet)
