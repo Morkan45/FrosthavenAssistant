@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -5,7 +6,15 @@ import 'dart:io';
 import 'package:format/format.dart';
 
 class Connection {
+  static const Duration _lookupTimeout = Duration(seconds: 5);
+  static const Duration _connectTimeout = Duration(seconds: 10);
+
   final _sockets = <Socket>[];
+
+  // The in-progress connection attempt, if any. Kept so that an attempt which
+  // hangs (e.g. wrong IP, server down) can be aborted by the user instead of
+  // running indefinitely.
+  ConnectionTask<Socket>? _pendingConnectionTask;
 
   List<Socket> getAll() {
     return _sockets;
@@ -13,10 +22,33 @@ class Connection {
 
   Future<Socket> connect(String address, int port) async {
     final resolvedAddresses = await _resolveAddress(address);
-    final socket = await Socket.connect(resolvedAddresses.first, port);
-    add(socket);
+    // startConnect returns a cancelable task rather than awaiting the socket
+    // directly, so an in-progress attempt can be aborted via cancelConnect().
+    final task = await Socket.startConnect(resolvedAddresses.first, port);
+    _pendingConnectionTask = task;
+    try {
+      final socket = await task.socket.timeout(
+        _connectTimeout,
+        onTimeout: () {
+          task.cancel();
+          throw TimeoutException(
+              'Connection attempt timed out', _connectTimeout);
+        },
+      );
+      add(socket);
 
-    return socket;
+      return socket;
+    } finally {
+      _pendingConnectionTask = null;
+    }
+  }
+
+  /// Aborts an in-progress [connect] attempt, if one is pending. Safe to call
+  /// when nothing is connecting. The pending [connect] future then completes
+  /// with an error once the underlying socket attempt is torn down.
+  void cancelConnect() {
+    _pendingConnectionTask?.cancel();
+    _pendingConnectionTask = null;
   }
 
   void add(Socket socket) {
@@ -48,7 +80,7 @@ class Connection {
 
   Future<List<InternetAddress>> _resolveAddress(String address) async {
     List<InternetAddress> resolvedAddresses =
-        await InternetAddress.lookup(address);
+        await InternetAddress.lookup(address).timeout(_lookupTimeout);
     if (resolvedAddresses.isEmpty) {
       throw Exception("Unable to resolve host");
     }

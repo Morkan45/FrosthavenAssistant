@@ -81,6 +81,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get connecting => '连接中…';
 
   @override
+  String get cancelConnect => 'Cancel';
+
+  @override
+  String get connectionCancelled => 'Connection cancelled';
+
+  @override
   String connectAsClientWithIp(String ip) {
     return '作为客户端连接（$ip）';
   }

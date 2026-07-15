@@ -69,6 +69,13 @@ class SettingsNetworkSectionState extends State<SettingsNetworkSection> {
               return CheckboxListTile(
                   enabled: !widget.settings.server.value &&
                       widget.settings.client.value != ClientState.connecting,
+                  secondary: clientState == ClientState.connecting
+                      ? IconButton(
+                          icon: const Icon(Icons.close),
+                          tooltip: l10n.cancelConnect,
+                          onPressed: () => widget.client.cancelConnect(),
+                        )
+                      : null,
                   title: Text(connectionText),
                   value: connected,
                   onChanged: (bool? value) {

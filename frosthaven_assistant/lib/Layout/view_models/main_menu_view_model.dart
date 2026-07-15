@@ -124,6 +124,8 @@ class MainMenuViewModel {
     }
   }
 
+  void cancelClientConnection() => _client.cancelConnect();
+
   void toggleServer() {
     _settings.lastKnownHostIP =
         "(${_network.networkInfo.wifiIPv6.value})";

@@ -245,6 +245,18 @@ abstract class AppLocalizations {
   /// **'Connecting...'**
   String get connecting;
 
+  /// No description provided for @cancelConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelConnect;
+
+  /// No description provided for @connectionCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection cancelled'**
+  String get connectionCancelled;
+
   /// No description provided for @connectAsClientWithIp.
   ///
   /// In en, this message translates to:

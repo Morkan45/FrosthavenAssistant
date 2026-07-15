@@ -81,6 +81,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get connecting => '연결 중…';
 
   @override
+  String get cancelConnect => 'Cancel';
+
+  @override
+  String get connectionCancelled => 'Connection cancelled';
+
+  @override
   String connectAsClientWithIp(String ip) {
     return '클라이언트로 연결 ($ip)';
   }

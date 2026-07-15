@@ -182,6 +182,28 @@ void main() {
     result.shouldBeFalse();
   });
 
+  test('cancelConnect is a safe no-op when nothing is connecting', () {
+    // arrange
+    final sut = Connection();
+
+    // act & assert — must not throw when there is no pending attempt
+    expect(sut.cancelConnect, returnsNormally);
+  });
+
+  test('connect can be cancelled and does not hang', () async {
+    // arrange — 192.0.2.1 is RFC 5737 TEST-NET-1: reserved and non-routable,
+    // so the attempt would otherwise hang until the connect timeout.
+    final sut = Connection();
+    final connectFuture = sut.connect('192.0.2.1', _randomPortNumber);
+
+    // act — abort the attempt shortly after it starts
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+    sut.cancelConnect();
+
+    // assert — completes with an error well before the 10s connect timeout
+    await expectLater(connectFuture, throwsA(isA<Exception>()));
+  }, timeout: const Timeout(Duration(seconds: 8)));
+
   test('connect returns socket connected to', () async {
     // arrange
     final expectedAddress = InternetAddress('127.0.0.1');

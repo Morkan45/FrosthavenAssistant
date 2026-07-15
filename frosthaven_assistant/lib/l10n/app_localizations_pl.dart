@@ -81,6 +81,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get connecting => 'Łączenie…';
 
   @override
+  String get cancelConnect => 'Cancel';
+
+  @override
+  String get connectionCancelled => 'Connection cancelled';
+
+  @override
   String connectAsClientWithIp(String ip) {
     return 'Połącz jako klient ($ip)';
   }
