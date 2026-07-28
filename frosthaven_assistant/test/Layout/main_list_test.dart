@@ -7,7 +7,11 @@ import 'package:frosthaven_assistant/Layout/MonsterWidget/monster_widget.dart';
 import 'package:frosthaven_assistant/Layout/background.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_character_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_monster_command.dart';
+import 'package:frosthaven_assistant/Resource/commands/add_standee_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/reorder_list_command.dart';
+import 'package:frosthaven_assistant/Resource/enums.dart';
+import 'package:frosthaven_assistant/Resource/scaling.dart';
+import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
 
@@ -20,7 +24,41 @@ void main() {
 
   setUp(() {
     getIt<GameState>().clearList();
+    final settings = getIt<Settings>();
+    settings.userScalingMainList.value = 1;
+    settings.fitMainListToWidth.value = false;
+    settings.mainListColumns.value = 0;
   });
+
+  void populateDenseBoard() {
+    final state = getIt<GameState>();
+    AddCharacterCommand('Blinkblade', 'Frosthaven', null, 4).execute();
+    AddCharacterCommand('Banner Spear', 'Frosthaven', null, 4).execute();
+    AddCharacterCommand('Hatchet', 'Jaws of the Lion', null, 4).execute();
+    AddCharacterCommand('Demolitionist', 'Jaws of the Lion', null, 4).execute();
+
+    const monsters = [
+      'Zealot',
+      'Vermling Raider',
+      'Ancient Artillery (FH)',
+      'Rat Monstrosity',
+      'Black Sludge',
+    ];
+    for (var index = 0; index < monsters.length; index++) {
+      final monster = monsters[index];
+      AddMonsterCommand(monster, 4, false, gameState: state).execute();
+      state.action(
+        AddStandeeCommand(
+          index + 1,
+          null,
+          monster,
+          MonsterType.normal,
+          false,
+          gameState: state,
+        ),
+      );
+    }
+  }
 
   Future<void> pumpWidget(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
@@ -112,6 +150,93 @@ void main() {
       MainList.scrollToTop(); // After pumping, has a client
       expect(find.byType(MainList), findsOneWidget);
     });
+
+    testWidgets('fit-width auto layout uses one column when content fits', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(2560, 1440);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final settings = getIt<Settings>();
+      settings.fitMainListToWidth.value = true;
+      settings.mainListColumns.value = 0;
+      addTearDown(() {
+        settings.fitMainListToWidth.value = false;
+        settings.mainListColumns.value = 0;
+      });
+
+      AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
+      AddCharacterCommand('Banner Spear', 'Frosthaven', null, 1).execute();
+      AddMonsterCommand(
+        'Zealot',
+        1,
+        false,
+        gameState: getIt<GameState>(),
+      ).execute();
+      AddMonsterCommand(
+        'Vermling Raider',
+        1,
+        false,
+        gameState: getIt<GameState>(),
+      ).execute();
+
+      await pumpWidget(tester);
+
+      final items = find.byType(MainListItem);
+      expect(items, findsNWidgets(4));
+      final scope = tester.widget<MainListLayoutScope>(
+        find.byType(MainListLayoutScope),
+      );
+      expect(scope.layout.columnCount, 1);
+      expect(scope.layout.columnWidth, 2560);
+      final distinctColumns = <int>{
+        for (var i = 0; i < 4; i++) tester.getTopLeft(items.at(i)).dx.round(),
+      };
+      expect(distinctColumns, hasLength(1));
+    });
+
+    testWidgets('fit-width auto layout uses two columns for a dense board', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(2560, 1440);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final settings = getIt<Settings>();
+      settings.fitMainListToWidth.value = true;
+      populateDenseBoard();
+
+      await pumpWidget(tester);
+
+      final scope = tester.widget<MainListLayoutScope>(
+        find.byType(MainListLayoutScope),
+      );
+      expect(scope.layout.columnCount, 2);
+    });
+
+    testWidgets('fit-width auto layout adds a third column when enlarged', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(2560, 1440);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final settings = getIt<Settings>();
+      settings.fitMainListToWidth.value = true;
+      settings.userScalingMainList.value = 1.8;
+      populateDenseBoard();
+
+      await pumpWidget(tester);
+
+      final scope = tester.widget<MainListLayoutScope>(
+        find.byType(MainListLayoutScope),
+      );
+      expect(scope.layout.columnCount, 3);
+    });
   });
 
   group('FLIP animation', () {
@@ -168,9 +293,8 @@ void main() {
       // At the midpoint the FLIP offset should be ~half the item height.
       // We look for any Transform whose y-translation exceeds a small
       // threshold to avoid false positives from identity matrices.
-      final transforms = tester
-          .widgetList<Transform>(find.byType(Transform))
-          .toList();
+      final transforms =
+          tester.widgetList<Transform>(find.byType(Transform)).toList();
       // Matrix4 is column-major; y-translation is at storage index 13.
       final nonZeroYTranslations = transforms
           .map((t) => t.transform.storage[13].abs())
@@ -180,8 +304,7 @@ void main() {
       expect(
         nonZeroYTranslations,
         isNotEmpty,
-        reason:
-            'Expected at least one Transform with a non-zero '
+        reason: 'Expected at least one Transform with a non-zero '
             'y-translation at animation midpoint.\n'
             'All y-translations: ${transforms.map((t) => t.transform.storage[13]).toList()}',
       );
@@ -193,9 +316,9 @@ void main() {
       WidgetTester tester,
     ) async {
       AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
-      final character =
-          getIt<GameState>().currentList.firstWhere((e) => e is Character)
-              as Character;
+      final character = getIt<GameState>()
+          .currentList
+          .firstWhere((e) => e is Character) as Character;
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
       FlutterError.onError = ignoreOverflowErrors;
@@ -219,9 +342,9 @@ void main() {
         false,
         gameState: getIt<GameState>(),
       ).execute();
-      final monster =
-          getIt<GameState>().currentList.firstWhere((e) => e is Monster)
-              as Monster;
+      final monster = getIt<GameState>()
+          .currentList
+          .firstWhere((e) => e is Monster) as Monster;
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
       FlutterError.onError = ignoreOverflowErrors;

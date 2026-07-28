@@ -17,6 +17,12 @@ void main() {
     await setUpGame();
   });
 
+  setUp(() {
+    final settings = getIt<Settings>();
+    settings.fitMainListToWidth.value = false;
+    settings.mainListColumns.value = 0;
+  });
+
   Future<void> pumpMenu(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
@@ -54,8 +60,9 @@ void main() {
       expect(find.text('Dark mode'), findsOneWidget);
     });
 
-    testWidgets('renders Expire Conditions checkbox',
-        (WidgetTester tester) async {
+    testWidgets('renders Expire Conditions checkbox', (
+      WidgetTester tester,
+    ) async {
       await pumpMenu(tester);
       expect(find.text('Expire Conditions'), findsOneWidget);
     });
@@ -65,8 +72,9 @@ void main() {
       expect(find.text('Close'), findsOneWidget);
     });
 
-    testWidgets('tapping Dark mode checkbox toggles the setting',
-        (WidgetTester tester) async {
+    testWidgets('tapping Dark mode checkbox toggles the setting', (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       final before = settings.darkMode.value;
       await pumpMenu(tester);
@@ -79,64 +87,73 @@ void main() {
       settings.darkMode.value = before;
     });
 
-    testWidgets('tapping Expire Conditions checkbox toggles the setting',
-        (WidgetTester tester) async {
+    testWidgets('tapping Expire Conditions checkbox toggles the setting', (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       final before = settings.expireConditions.value;
       await pumpMenu(tester);
 
-      await tester
-          .tap(find.widgetWithText(CheckboxListTile, 'Expire Conditions'));
+      await tester.tap(
+        find.widgetWithText(CheckboxListTile, 'Expire Conditions'),
+      );
       await tester.pump();
 
       expect(settings.expireConditions.value, !before);
       settings.expireConditions.value = before;
     });
 
-    testWidgets('tapping Soft numpad for input checkbox toggles the setting',
-        (WidgetTester tester) async {
+    testWidgets('tapping Soft numpad for input checkbox toggles the setting', (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       final before = settings.softNumpadInput.value;
       await pumpMenu(tester);
 
-      await tester
-          .tap(find.widgetWithText(CheckboxListTile, 'Soft numpad for input'));
+      await tester.tap(
+        find.widgetWithText(CheckboxListTile, 'Soft numpad for input'),
+      );
       await tester.pump();
 
       expect(settings.softNumpadInput.value, !before);
       settings.softNumpadInput.value = before;
     });
 
-    testWidgets("tapping Don't ask for initiative checkbox toggles setting",
-        (WidgetTester tester) async {
+    testWidgets("tapping Don't ask for initiative checkbox toggles setting", (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       final before = settings.noInit.value;
       await pumpMenu(tester);
 
       await tester.tap(
-          find.widgetWithText(CheckboxListTile, "Don't ask for initiative"));
+        find.widgetWithText(CheckboxListTile, "Don't ask for initiative"),
+      );
       await tester.pump();
 
       expect(settings.noInit.value, !before);
       settings.noInit.value = before;
     });
 
-    testWidgets('tapping Auto Add Standees checkbox toggles the setting',
-        (WidgetTester tester) async {
+    testWidgets('tapping Auto Add Standees checkbox toggles the setting', (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       final before = settings.autoAddStandees.value;
       await pumpMenu(tester);
 
-      await tester
-          .tap(find.widgetWithText(CheckboxListTile, 'Auto Add Standees'));
+      await tester.tap(
+        find.widgetWithText(CheckboxListTile, 'Auto Add Standees'),
+      );
       await tester.pump();
 
       expect(settings.autoAddStandees.value, !before);
       settings.autoAddStandees.value = before;
     });
 
-    testWidgets('tapping Random Standees checkbox toggles the setting',
-        (WidgetTester tester) async {
+    testWidgets('tapping Random Standees checkbox toggles the setting', (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       final before = settings.randomStandees.value;
       await pumpMenu(tester);
@@ -150,8 +167,9 @@ void main() {
       settings.randomStandees.value = before;
     });
 
-    testWidgets('tapping No Calculations checkbox toggles the setting',
-        (WidgetTester tester) async {
+    testWidgets('tapping No Calculations checkbox toggles the setting', (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       final before = settings.noCalculation.value;
       await pumpMenu(tester);
@@ -165,14 +183,17 @@ void main() {
       settings.noCalculation.value = before;
     });
 
-    testWidgets("tapping Don't track Standees checkbox toggles setting",
-        (WidgetTester tester) async {
+    testWidgets("tapping Don't track Standees checkbox toggles setting", (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       final before = settings.noStandees.value;
       await pumpMenu(tester);
 
-      final finder =
-          find.widgetWithText(CheckboxListTile, "Don't track Standees");
+      final finder = find.widgetWithText(
+        CheckboxListTile,
+        "Don't track Standees",
+      );
       await tester.ensureVisible(finder);
       await tester.tap(finder);
       await tester.pump();
@@ -181,14 +202,17 @@ void main() {
       settings.noStandees.value = before;
     });
 
-    testWidgets('tapping Auto Add Timed Spawns checkbox toggles setting',
-        (WidgetTester tester) async {
+    testWidgets('tapping Auto Add Timed Spawns checkbox toggles setting', (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       final before = settings.autoAddSpawns.value;
       await pumpMenu(tester);
 
-      final finder =
-          find.widgetWithText(CheckboxListTile, 'Auto Add Timed Spawns');
+      final finder = find.widgetWithText(
+        CheckboxListTile,
+        'Auto Add Timed Spawns',
+      );
       await tester.ensureVisible(finder);
       await tester.tap(finder);
       await tester.pump();
@@ -197,8 +221,9 @@ void main() {
       settings.autoAddSpawns.value = before;
     });
 
-    testWidgets('tapping Hide Loot Deck checkbox toggles setting',
-        (WidgetTester tester) async {
+    testWidgets('tapping Hide Loot Deck checkbox toggles setting', (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       final before = settings.hideLootDeck.value;
       await pumpMenu(tester);
@@ -212,14 +237,17 @@ void main() {
       settings.hideLootDeck.value = before;
     });
 
-    testWidgets('tapping Stat card text shimmers checkbox toggles setting',
-        (WidgetTester tester) async {
+    testWidgets('tapping Stat card text shimmers checkbox toggles setting', (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       final before = settings.shimmer.value;
       await pumpMenu(tester);
 
-      final finder =
-          find.widgetWithText(CheckboxListTile, 'Stat card text shimmers');
+      final finder = find.widgetWithText(
+        CheckboxListTile,
+        'Stat card text shimmers',
+      );
       await tester.ensureVisible(finder);
       await tester.tap(finder);
       await tester.pump();
@@ -228,30 +256,37 @@ void main() {
       settings.shimmer.value = before;
     });
 
-    testWidgets('tapping Show Scenario names in list checkbox toggles setting',
-        (WidgetTester tester) async {
-      final settings = getIt<Settings>();
-      final before = settings.showScenarioNames.value;
-      await pumpMenu(tester);
+    testWidgets(
+      'tapping Show Scenario names in list checkbox toggles setting',
+      (WidgetTester tester) async {
+        final settings = getIt<Settings>();
+        final before = settings.showScenarioNames.value;
+        await pumpMenu(tester);
 
-      final finder =
-          find.widgetWithText(CheckboxListTile, 'Show Scenario names in list');
-      await tester.ensureVisible(finder);
-      await tester.tap(finder);
-      await tester.pump();
+        final finder = find.widgetWithText(
+          CheckboxListTile,
+          'Show Scenario names in list',
+        );
+        await tester.ensureVisible(finder);
+        await tester.tap(finder);
+        await tester.pump();
 
-      expect(settings.showScenarioNames.value, !before);
-      settings.showScenarioNames.value = before;
-    });
+        expect(settings.showScenarioNames.value, !before);
+        settings.showScenarioNames.value = before;
+      },
+    );
 
-    testWidgets('tapping Show Battle Goal Reminder checkbox toggles setting',
-        (WidgetTester tester) async {
+    testWidgets('tapping Show Battle Goal Reminder checkbox toggles setting', (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       final before = settings.showBattleGoalReminder.value;
       await pumpMenu(tester);
 
-      final finder =
-          find.widgetWithText(CheckboxListTile, 'Show Battle Goal Reminder');
+      final finder = find.widgetWithText(
+        CheckboxListTile,
+        'Show Battle Goal Reminder',
+      );
       await tester.ensureVisible(finder);
       await tester.tap(finder);
       await tester.pump();
@@ -260,14 +295,17 @@ void main() {
       settings.showBattleGoalReminder.value = before;
     });
 
-    testWidgets('tapping Show Custom Content checkbox toggles setting',
-        (WidgetTester tester) async {
+    testWidgets('tapping Show Custom Content checkbox toggles setting', (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       final before = settings.showCustomContent.value;
       await pumpMenu(tester);
 
-      final finder =
-          find.widgetWithText(CheckboxListTile, 'Show Custom Content');
+      final finder = find.widgetWithText(
+        CheckboxListTile,
+        'Show Custom Content',
+      );
       await tester.ensureVisible(finder);
       await tester.tap(finder);
       await tester.pump();
@@ -276,47 +314,57 @@ void main() {
       settings.showCustomContent.value = before;
     });
 
-    testWidgets('tapping Show Sections in Main Screen checkbox toggles setting',
-        (WidgetTester tester) async {
-      final settings = getIt<Settings>();
-      final before = settings.showSectionsInMainView.value;
-      await pumpMenu(tester);
+    testWidgets(
+      'tapping Show Sections in Main Screen checkbox toggles setting',
+      (WidgetTester tester) async {
+        final settings = getIt<Settings>();
+        final before = settings.showSectionsInMainView.value;
+        await pumpMenu(tester);
 
-      final finder =
-          find.widgetWithText(CheckboxListTile, 'Show Sections in Main Screen');
-      await tester.ensureVisible(finder);
-      await tester.tap(finder);
-      await tester.pump();
+        final finder = find.widgetWithText(
+          CheckboxListTile,
+          'Show Sections in Main Screen',
+        );
+        await tester.ensureVisible(finder);
+        await tester.tap(finder);
+        await tester.pump();
 
-      expect(settings.showSectionsInMainView.value, !before);
-      settings.showSectionsInMainView.value = before;
-    });
+        expect(settings.showSectionsInMainView.value, !before);
+        settings.showSectionsInMainView.value = before;
+      },
+    );
 
     testWidgets(
-        'tapping Show Round Special Rule Reminders checkbox toggles setting',
-        (WidgetTester tester) async {
-      final settings = getIt<Settings>();
-      final before = settings.showReminders.value;
-      await pumpMenu(tester);
+      'tapping Show Round Special Rule Reminders checkbox toggles setting',
+      (WidgetTester tester) async {
+        final settings = getIt<Settings>();
+        final before = settings.showReminders.value;
+        await pumpMenu(tester);
 
-      final finder = find.widgetWithText(
-          CheckboxListTile, 'Show Round Special Rule Reminders');
-      await tester.ensureVisible(finder);
-      await tester.tap(finder);
-      await tester.pump();
+        final finder = find.widgetWithText(
+          CheckboxListTile,
+          'Show Round Special Rule Reminders',
+        );
+        await tester.ensureVisible(finder);
+        await tester.tap(finder);
+        await tester.pump();
 
-      expect(settings.showReminders.value, !before);
-      settings.showReminders.value = before;
-    });
+        expect(settings.showReminders.value, !before);
+        settings.showReminders.value = before;
+      },
+    );
 
-    testWidgets('tapping Show Attack Modifier Decks checkbox toggles setting',
-        (WidgetTester tester) async {
+    testWidgets('tapping Show Attack Modifier Decks checkbox toggles setting', (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       final before = settings.showAmdDeck.value;
       await pumpMenu(tester);
 
-      final finder =
-          find.widgetWithText(CheckboxListTile, 'Show Attack Modifier Decks');
+      final finder = find.widgetWithText(
+        CheckboxListTile,
+        'Show Attack Modifier Decks',
+      );
       await tester.ensureVisible(finder);
       await tester.tap(finder);
       await tester.pump();
@@ -326,24 +374,28 @@ void main() {
     });
 
     testWidgets(
-        'tapping Show character Attack Modifier Decks checkbox toggles setting',
-        (WidgetTester tester) async {
-      final settings = getIt<Settings>();
-      final before = settings.showCharacterAMD.value;
-      await pumpMenu(tester);
+      'tapping Show character Attack Modifier Decks checkbox toggles setting',
+      (WidgetTester tester) async {
+        final settings = getIt<Settings>();
+        final before = settings.showCharacterAMD.value;
+        await pumpMenu(tester);
 
-      final finder = find.widgetWithText(
-          CheckboxListTile, 'Show character Attack Modifier Decks');
-      await tester.ensureVisible(finder);
-      await tester.tap(finder);
-      await tester.pump();
+        final finder = find.widgetWithText(
+          CheckboxListTile,
+          'Show character Attack Modifier Decks',
+        );
+        await tester.ensureVisible(finder);
+        await tester.tap(finder);
+        await tester.pump();
 
-      expect(settings.showCharacterAMD.value, !before);
-      settings.showCharacterAMD.value = before;
-    });
+        expect(settings.showCharacterAMD.value, !before);
+        settings.showCharacterAMD.value = before;
+      },
+    );
 
-    testWidgets('tapping Style radio buttons changes the style',
-        (WidgetTester tester) async {
+    testWidgets('tapping Style radio buttons changes the style', (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       await pumpMenu(tester);
 
@@ -362,22 +414,27 @@ void main() {
       settings.style.value = Style.frosthaven;
     });
 
-    testWidgets('tapping Clear unlocked characters runs the command',
-        (WidgetTester tester) async {
+    testWidgets('tapping Clear unlocked characters runs the command', (
+      WidgetTester tester,
+    ) async {
       await pumpMenu(tester);
 
-      final finder =
-          find.widgetWithText(ListTile, 'Clear unlocked characters and stuff');
+      final finder = find.widgetWithText(
+        ListTile,
+        'Clear unlocked characters and stuff',
+      );
       await tester.ensureVisible(finder);
       await tester.tap(finder);
       await tester.pump();
       expect(
-          find.widgetWithText(ListTile, 'Clear unlocked characters and stuff'),
-          findsOneWidget);
+        find.widgetWithText(ListTile, 'Clear unlocked characters and stuff'),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('tapping Load/Save State opens SaveMenu',
-        (WidgetTester tester) async {
+    testWidgets('tapping Load/Save State opens SaveMenu', (
+      WidgetTester tester,
+    ) async {
       await pumpMenu(tester);
 
       final finder = find.widgetWithText(ListTile, 'Load/Save State');
@@ -389,65 +446,107 @@ void main() {
     });
 
     testWidgets(
-        'tapping Use Ally AMD in OG Gloomhaven checkbox toggles setting',
-        (WidgetTester tester) async {
-      final gameState = getIt<GameState>();
-      final before = gameState.allyDeckInOGGloom.value;
-      await pumpMenu(tester);
+      'tapping Use Ally AMD in OG Gloomhaven checkbox toggles setting',
+      (WidgetTester tester) async {
+        final gameState = getIt<GameState>();
+        final before = gameState.allyDeckInOGGloom.value;
+        await pumpMenu(tester);
 
-      final finder = find.widgetWithText(
-          CheckboxListTile, 'Use Ally Attack Modifier Deck in OG Gloomhaven');
-      await tester.ensureVisible(finder);
-      await tester.tap(finder);
-      await tester.pump();
+        final finder = find.widgetWithText(
+          CheckboxListTile,
+          'Use Ally Attack Modifier Deck in OG Gloomhaven',
+        );
+        await tester.ensureVisible(finder);
+        await tester.tap(finder);
+        await tester.pump();
 
-      expect(gameState.allyDeckInOGGloom.value, !before);
-      // restore
-      getIt<GameState>().action(
-          SetAllyDeckInOgGloomCommand(before, gameState: getIt<GameState>()));
-    });
+        expect(gameState.allyDeckInOGGloom.value, !before);
+        // restore
+        getIt<GameState>().action(
+          SetAllyDeckInOgGloomCommand(before, gameState: getIt<GameState>()),
+        );
+      },
+    );
 
-    testWidgets('moving the Main List Scaling slider rebuilds the board',
-        (WidgetTester tester) async {
-      final gameState = getIt<GameState>();
+    testWidgets('Main List Scaling updates while the pointer is down', (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       final before = settings.userScalingMainList.value;
-      int notifications = 0;
-      void listener() => notifications++;
-      gameState.updateList.addListener(listener);
-      addTearDown(() => gameState.updateList.removeListener(listener));
 
       await pumpMenu(tester);
       final slider = find.byType(Slider).first; // Main List Scaling
       await tester.ensureVisible(slider);
-      await tester.drag(slider, const Offset(-40, 0));
+      final gesture = await tester.startGesture(tester.getCenter(slider));
+      await gesture.moveBy(const Offset(-40, 0));
       await tester.pump();
 
-      expect(notifications, greaterThan(0),
-          reason:
-              'changing the main-list scale must notify the board to rebuild');
+      expect(
+        settings.userScalingMainList.value,
+        isNot(before),
+        reason: 'the main-list scale must update before pointer release',
+      );
+      await gesture.up();
       settings.userScalingMainList.value = before;
     });
 
-    testWidgets('moving the App Bar Scaling slider rebuilds the board',
-        (WidgetTester tester) async {
-      final gameState = getIt<GameState>();
+    testWidgets('fit-width checkbox reveals the column selector', (
+      WidgetTester tester,
+    ) async {
+      final settings = getIt<Settings>();
+      await pumpMenu(tester);
+
+      final checkbox = find.widgetWithText(
+        CheckboxListTile,
+        'Fit main list to screen width',
+      );
+      await tester.ensureVisible(checkbox);
+      await tester.tap(checkbox);
+      await tester.pump();
+
+      expect(settings.fitMainListToWidth.value, isTrue);
+      expect(
+        find.byKey(const Key('main-list-columns-dropdown')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('column selector updates the desktop column preference', (
+      WidgetTester tester,
+    ) async {
+      final settings = getIt<Settings>();
+      settings.fitMainListToWidth.value = true;
+      await pumpMenu(tester);
+
+      final dropdown = find.byKey(const Key('main-list-columns-dropdown'));
+      await tester.ensureVisible(dropdown);
+      await tester.tap(dropdown);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('3').last);
+      await tester.pump();
+
+      expect(settings.mainListColumns.value, 3);
+    });
+
+    testWidgets('App Bar Scaling updates while the pointer is down', (
+      WidgetTester tester,
+    ) async {
       final settings = getIt<Settings>();
       final before = settings.userScalingBars.value;
-      int notifications = 0;
-      void listener() => notifications++;
-      gameState.updateList.addListener(listener);
-      addTearDown(() => gameState.updateList.removeListener(listener));
 
       await pumpMenu(tester);
       final slider = find.byType(Slider).at(1); // App Bar Scaling
       await tester.ensureVisible(slider);
-      await tester.drag(slider, const Offset(-40, 0));
+      final gesture = await tester.startGesture(tester.getCenter(slider));
+      await gesture.moveBy(const Offset(-40, 0));
       await tester.pump();
 
-      expect(notifications, greaterThan(0),
-          reason:
-              'changing the app-bar scale must notify the board to rebuild');
+      expect(
+        settings.userScalingBars.value,
+        isNot(before),
+        reason: 'the app-bar scale must update before pointer release',
+      );
+      await gesture.up();
       settings.userScalingBars.value = before;
     });
   });

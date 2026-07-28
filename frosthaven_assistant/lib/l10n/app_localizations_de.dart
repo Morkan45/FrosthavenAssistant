@@ -222,6 +222,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsFullscreen => 'Vollbild';
 
   @override
+  String get settingsFitMainListWidth =>
+      'Hauptliste an Bildschirmbreite anpassen';
+
+  @override
+  String get settingsMainListColumns => 'Spalten der Hauptliste:';
+
+  @override
+  String get settingsMainListColumnsAuto => 'Automatisch';
+
+  @override
   String get settingsMainListScaling => 'Hauptlisten-Skalierung:';
 
   @override

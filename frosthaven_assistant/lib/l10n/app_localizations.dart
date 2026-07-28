@@ -491,6 +491,24 @@ abstract class AppLocalizations {
   /// **'Fullscreen'**
   String get settingsFullscreen;
 
+  /// No description provided for @settingsFitMainListWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit main list to screen width'**
+  String get settingsFitMainListWidth;
+
+  /// No description provided for @settingsMainListColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'Main list columns:'**
+  String get settingsMainListColumns;
+
+  /// No description provided for @settingsMainListColumnsAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get settingsMainListColumnsAuto;
+
   /// No description provided for @settingsMainListScaling.
   ///
   /// In en, this message translates to:

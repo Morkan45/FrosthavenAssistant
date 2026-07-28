@@ -214,6 +214,16 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsFullscreen => 'เต็มหน้าจอ';
 
   @override
+  String get settingsFitMainListWidth =>
+      'ปรับรายการหลักให้พอดีกับความกว้างหน้าจอ';
+
+  @override
+  String get settingsMainListColumns => 'คอลัมน์รายการหลัก:';
+
+  @override
+  String get settingsMainListColumnsAuto => 'อัตโนมัติ';
+
+  @override
   String get settingsMainListScaling => 'ขนาดรายการหลัก:';
 
   @override

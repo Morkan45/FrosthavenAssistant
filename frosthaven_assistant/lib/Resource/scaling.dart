@@ -6,14 +6,53 @@ import 'package:frosthaven_assistant/services/service_locator.dart';
 
 const double _kMaxListWidth = 740.0;
 const double _kReferenceMinBarWidth = 370.0;
+const double _kDesktopTargetListWidth = 900.0;
+const int _kMaxFitColumns = 3;
 double get maxWidth =>
     _kMaxListWidth * getIt<Settings>().userScalingMainList.value;
 const double referenceWidth = 412.0;
 
+class MainListLayout {
+  const MainListLayout({
+    required this.availableWidth,
+    required this.columnWidth,
+    required this.columnCount,
+    required this.fitsScreenWidth,
+    required this.scale,
+  });
+
+  final double availableWidth;
+  final double columnWidth;
+  final int columnCount;
+  final bool fitsScreenWidth;
+  final double scale;
+}
+
+class MainListLayoutScope extends InheritedWidget {
+  const MainListLayoutScope({
+    required this.layout,
+    required super.child,
+    super.key,
+  });
+
+  final MainListLayout layout;
+
+  static MainListLayout? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<MainListLayoutScope>()?.layout;
+
+  @override
+  bool updateShouldNotify(MainListLayoutScope oldWidget) =>
+      layout.availableWidth != oldWidget.layout.availableWidth ||
+      layout.columnWidth != oldWidget.layout.columnWidth ||
+      layout.columnCount != oldWidget.layout.columnCount ||
+      layout.fitsScreenWidth != oldWidget.layout.fitsScreenWidth ||
+      layout.scale != oldWidget.layout.scale;
+}
+
 void setMaxWidth() {}
 
 double getScaleByReference(BuildContext context) {
-  return _scaleByReference(context, referenceWidth, maxWidth);
+  return getMainListLayout(context).scale;
 }
 
 bool modifiersFitOnBar(BuildContext context, {Settings? settings}) {
@@ -29,17 +68,65 @@ bool modifiersFitOnBar(BuildContext context, {Settings? settings}) {
 }
 
 double getMainListWidth(BuildContext context) {
-  final screenSize = MediaQuery.of(context).size;
-
-  return min(screenSize.width, maxWidth);
+  return getMainListLayout(context).columnWidth;
 }
 
-double _scaleByReference(
-    BuildContext context, double referenceWidth, double maxWidth) {
-  final screenSize = MediaQuery.of(context).size;
-  final width = min(screenSize.width, maxWidth);
+int getMainListColumnCount(BuildContext context) {
+  return getMainListLayout(context).columnCount;
+}
 
-  return width / referenceWidth;
+MainListLayout getMainListLayout(BuildContext context, {Settings? settings}) {
+  final scopedLayout = MainListLayoutScope.maybeOf(context);
+  if (scopedLayout != null) return scopedLayout;
+
+  return calculateMainListLayout(
+    MediaQuery.sizeOf(context).width,
+    settings: settings,
+  );
+}
+
+MainListLayout calculateMainListLayout(
+  double availableWidth, {
+  Settings? settings,
+  int? automaticColumnCount,
+}) {
+  settings ??= getIt<Settings>();
+  final safeWidth = max(1.0, availableWidth);
+
+  if (!settings.fitMainListToWidth.value) {
+    final scaledMaxWidth = _kMaxListWidth * settings.userScalingMainList.value;
+    final columnWidth = min(safeWidth, scaledMaxWidth);
+    final columnCount = safeWidth >= columnWidth * 2 ? 2 : 1;
+    return MainListLayout(
+      availableWidth: safeWidth,
+      columnWidth: columnWidth,
+      columnCount: columnCount,
+      fitsScreenWidth: false,
+      scale: columnWidth / referenceWidth,
+    );
+  }
+
+  final requestedColumns = settings.mainListColumns.value;
+  final automaticColumns = automaticColumnCount ??
+      (safeWidth / _kDesktopTargetListWidth).round().clamp(
+            1,
+            _kMaxFitColumns,
+          );
+  final columnCount = requestedColumns == 0
+      ? automaticColumns
+      : requestedColumns.clamp(1, _kMaxFitColumns);
+  final columnWidth = safeWidth / columnCount;
+  final desiredScale =
+      _kDesktopTargetListWidth / referenceWidth *
+      settings.userScalingMainList.value;
+
+  return MainListLayout(
+    availableWidth: safeWidth,
+    columnWidth: columnWidth,
+    columnCount: columnCount,
+    fitsScreenWidth: true,
+    scale: min(columnWidth / referenceWidth, desiredScale),
+  );
 }
 
 extension GlobalPaintBounds on BuildContext {
@@ -53,11 +140,14 @@ extension GlobalPaintBounds on BuildContext {
 
     final ro = renderObject;
     if (translation != null && ro != null) {
-      final offset =
-          Offset(translation.x, translation.y); // Convert translation to Offset
+      final offset = Offset(
+        translation.x,
+        translation.y,
+      ); // Convert translation to Offset
 
-      return ro.paintBounds
-          .shift(offset); // Shift the paint bounds by the offset
+      return ro.paintBounds.shift(
+        offset,
+      ); // Shift the paint bounds by the offset
     } else {
       return null;
     }

@@ -47,8 +47,10 @@ class _FlipItemState extends State<_FlipItem>
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this, duration: _kDuration);
-    _curved =
-        CurvedAnimation(parent: _controller, curve: Curves.linearToEaseOut);
+    _curved = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.linearToEaseOut,
+    );
     widget.onRegister(widget.itemId, this);
   }
 
@@ -180,29 +182,29 @@ class _GameListState extends State<GameList> {
   List<Widget> _buildChildren() {
     final vm = widget.vm;
     final currentIds = <String>{};
-    final children = List<Widget>.generate(
-      vm.currentListLength,
-      (i) {
-        final id = vm.itemIdAt(i);
-        currentIds.add(id);
-        return RepaintBoundary(
-          child: _FlipItem(
-            key: ValueKey(id),
-            itemId: id,
-            onRegister: _registerFlipState,
-            onUnregister: _unregisterFlipState,
-            child: MainListItem(key: Key(id), data: vm.itemAt(i)),
-          ),
-        );
-      },
+    final children = List<Widget>.generate(vm.currentListLength, (i) {
+      final id = vm.itemIdAt(i);
+      currentIds.add(id);
+      return RepaintBoundary(
+        child: _FlipItem(
+          key: ValueKey(id),
+          itemId: id,
+          onRegister: _registerFlipState,
+          onUnregister: _unregisterFlipState,
+          child: MainListItem(key: Key(id), data: vm.itemAt(i)),
+        ),
+      );
+    });
+    _flipStates.removeWhere(
+      (id, state) => !currentIds.contains(id) && !state.mounted,
     );
-    _flipStates
-        .removeWhere((id, state) => !currentIds.contains(id) && !state.mounted);
     return children;
   }
 
   int _getItemsForHalfTotalHeight(
-      List<double> widgetPositions, Size screenSize) {
+    List<double> widgetPositions,
+    Size screenSize,
+  ) {
     double listWidth = getMainListWidth(context);
     bool canFit2Columns = screenSize.width >= listWidth * _kTwoColumns;
     if (!canFit2Columns) {
@@ -231,10 +233,19 @@ class _GameListState extends State<GameList> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    List<double> itemHeights = widget.vm.getItemHeights(context);
-    int itemsPerColumn = _getItemsForHalfTotalHeight(itemHeights, screenSize);
-    int itemsColumn2 = itemHeights.length - itemsPerColumn;
-    itemsPerColumn = max(itemsPerColumn, itemsColumn2);
+    final layout = getMainListLayout(context);
+    int? itemsPerColumn;
+    if (layout.fitsScreenWidth) {
+      itemsPerColumn = max(
+        1,
+        (widget.vm.currentListLength / layout.columnCount).ceil(),
+      );
+    } else {
+      final itemHeights = widget.vm.getItemHeights(context);
+      itemsPerColumn = _getItemsForHalfTotalHeight(itemHeights, screenSize);
+      final itemsColumn2 = itemHeights.length - itemsPerColumn;
+      itemsPerColumn = max(itemsPerColumn, itemsColumn2);
+    }
     double paddingBottom = _kHalfHeightFactor * screenSize.height;
 
     return ReorderableWrap(
@@ -244,6 +255,7 @@ class _GameListState extends State<GameList> {
       maxMainAxisCount: itemsPerColumn,
       ignorePrimaryScrollController: false,
       direction: Axis.vertical,
+      crossAxisAlignment: WrapCrossAlignment.start,
       buildDraggableFeedback: defaultBuildDraggableFeedback,
       needsLongPressDraggable: true,
       onReorder: (int oldIndex, int newIndex) {

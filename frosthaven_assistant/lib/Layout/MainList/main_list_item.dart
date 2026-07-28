@@ -34,6 +34,7 @@ class MainListItem extends StatelessWidget {
     return RepaintBoundary(
         child: AnimatedContainer(
       key: child.key,
+      width: listWidth,
       height: vm.height,
       duration: const Duration(milliseconds: 500),
       child: child,

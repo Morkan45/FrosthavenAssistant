@@ -212,6 +212,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsFullscreen => '全屏';
 
   @override
+  String get settingsFitMainListWidth => '使主列表适应屏幕宽度';
+
+  @override
+  String get settingsMainListColumns => '主列表列数：';
+
+  @override
+  String get settingsMainListColumnsAuto => '自动';
+
+  @override
   String get settingsMainListScaling => '主列表缩放：';
 
   @override
@@ -1252,6 +1261,15 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get settingsFullscreen => '全螢幕';
+
+  @override
+  String get settingsFitMainListWidth => '使主清單符合螢幕寬度';
+
+  @override
+  String get settingsMainListColumns => '主清單欄數：';
+
+  @override
+  String get settingsMainListColumnsAuto => '自動';
 
   @override
   String get settingsMainListScaling => '主清單縮放：';

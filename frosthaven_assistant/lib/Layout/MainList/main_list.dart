@@ -10,12 +10,7 @@ import '../view_models/main_list_view_model.dart';
 import 'game_list.dart';
 
 class MainList extends StatefulWidget {
-  const MainList({
-    super.key,
-    this.gameState,
-    this.gameData,
-    this.settings,
-  });
+  const MainList({super.key, this.gameState, this.gameData, this.settings});
 
   static void scrollToTop() {
     MainListState.scrollToTop();
@@ -30,8 +25,6 @@ class MainList extends StatefulWidget {
 }
 
 class MainListState extends State<MainList> {
-  static const int _kTwoColumns = 2;
-
   static void scrollToTop() {
     if (scrollController.hasClients) {
       scrollController.animateTo(
@@ -58,41 +51,62 @@ class MainListState extends State<MainList> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<bool>(
-        valueListenable: _vm.darkMode,
-        builder: (context, value, child) {
-          return BackGround(
-              child: ValueListenableBuilder<Map<String, CampaignModel>>(
-                  valueListenable: _vm.modelData,
-                  builder: (context, value, child) {
-                    return ValueListenableBuilder<double>(
-                        valueListenable: _vm.userScalingMainList,
-                        builder: (context, value, child) {
-                          return buildList();
-                        });
-                  }));
-        });
+      valueListenable: _vm.darkMode,
+      builder: (context, value, child) {
+        return BackGround(
+          child: ValueListenableBuilder<Map<String, CampaignModel>>(
+            valueListenable: _vm.modelData,
+            builder: (context, value, child) {
+              return ValueListenableBuilder<double>(
+                valueListenable: _vm.userScalingMainList,
+                builder: (context, value, child) {
+                  return ListenableBuilder(
+                    listenable: Listenable.merge([
+                      _vm.fitMainListToWidth,
+                      _vm.mainListColumns,
+                      _vm.userScalingBarsNotifier,
+                      _vm.updateList,
+                    ]),
+                    builder: (context, child) {
+                      return LayoutBuilder(
+                        builder: (context, constraints) {
+                          final layout = _vm.getLayoutForViewport(
+                            constraints.maxWidth,
+                            constraints.maxHeight,
+                          );
+                          return buildList(layout);
+                        },
+                      );
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 
-  Widget buildList() {
-    final screenSize = MediaQuery.of(context).size;
-    double width = getMainListWidth(context);
-    bool canFit2Columns = screenSize.width >= width * _kTwoColumns;
-    if (canFit2Columns) {
-      width *= _kTwoColumns;
-    }
-
-    return Container(
+  Widget buildList(MainListLayout layout) {
+    return MainListLayoutScope(
+      layout: layout,
+      child: Container(
         alignment: Alignment.topCenter,
         child: RepaintBoundary(
-            child: Scrollbar(
-                controller: scrollController,
-                child: SingleChildScrollView(
-                    controller: scrollController,
-                    child: Container(
-                        alignment: Alignment.center,
-                        width: screenSize.width,
-                        child: RepaintBoundary(
-                          child: GameList(vm: _vm),
-                        ))))));
+          child: Scrollbar(
+            controller: scrollController,
+            child: SingleChildScrollView(
+              controller: scrollController,
+              child: Container(
+                alignment: Alignment.topCenter,
+                width: layout.availableWidth,
+                child: RepaintBoundary(child: GameList(vm: _vm)),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

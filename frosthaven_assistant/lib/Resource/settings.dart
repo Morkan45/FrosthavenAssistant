@@ -20,10 +20,13 @@ class Settings {
   static const double _kDesktopBarScale = 1.6;
 
   final userScalingMainList = ValueNotifier<double>(1.0);
+  final fitMainListToWidth = ValueNotifier<bool>(false);
+  final mainListColumns = ValueNotifier<int>(0);
   final userScalingBars = ValueNotifier<double>(
-      (Platform.isWindows || Platform.isLinux || Platform.isMacOS)
-          ? _kDesktopBarScale
-          : 1.0);
+    (Platform.isWindows || Platform.isLinux || Platform.isMacOS)
+        ? _kDesktopBarScale
+        : 1.0,
+  );
   final userScalingMenus = ValueNotifier<double>(1.0);
   final fullScreen = ValueNotifier<bool>(true);
   final darkMode = ValueNotifier<bool>(false);
@@ -34,7 +37,8 @@ class Settings {
   final expireConditions = ValueNotifier<bool>(true);
   final hideLootDeck = ValueNotifier<bool>(false);
   final shimmer = ValueNotifier<bool>(
-      (Platform.isWindows || Platform.isLinux || Platform.isMacOS));
+    (Platform.isWindows || Platform.isLinux || Platform.isMacOS),
+  );
   final showScenarioNames = ValueNotifier<bool>(true);
   final showCustomContent = ValueNotifier<bool>(true);
   final showSectionsInMainView = ValueNotifier<bool>(true);
@@ -144,8 +148,9 @@ class Settings {
         await windowManager.center();
         await windowManager.show();
         await windowManager.setSkipTaskbar(false);
-        await windowManager
-            .setPosition(const Offset(0, 0)); //weird this was needed
+        await windowManager.setPosition(
+          const Offset(0, 0),
+        ); //weird this was needed
         await windowManager.show();
       } else {
         await windowManager.setTitleBarStyle(TitleBarStyle.normal);
@@ -163,35 +168,44 @@ class Settings {
       if (fullscreen) {
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
       } else {
-        SystemChrome.setEnabledSystemUIMode(nonFullscreen,
-            overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
+        SystemChrome.setEnabledSystemUIMode(
+          nonFullscreen,
+          overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top],
+        );
       }
       //to fix issue with system bottom bar on top after keyboard shown on earlier os (24)
-      SystemChrome.setSystemUIChangeCallback((systemOverlaysAreVisible) =>
-          Future.delayed(const Duration(milliseconds: 1001), () {
+      SystemChrome.setSystemUIChangeCallback(
+        (
+          systemOverlaysAreVisible,
+        ) =>
+            Future.delayed(const Duration(milliseconds: 1001), () {
+          if (fullscreen) {
+            SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+            if (kDebugMode) {
+              print("force fullscreen 1 sec");
+            }
+          } else {
+            SystemChrome.setEnabledSystemUIMode(
+              nonFullscreen,
+              overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top],
+            );
+          }
+          //in case the first went too early?
+          Future.delayed(const Duration(milliseconds: 301), () {
             if (fullscreen) {
               SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
               if (kDebugMode) {
-                print("force fullscreen 1 sec");
+                print("force fullscreen 1.3 sec");
               }
             } else {
-              SystemChrome.setEnabledSystemUIMode(nonFullscreen,
-                  overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
+              SystemChrome.setEnabledSystemUIMode(
+                nonFullscreen,
+                overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top],
+              );
             }
-            //in case the first went too early?
-            Future.delayed(const Duration(milliseconds: 301), () {
-              if (fullscreen) {
-                SystemChrome.setEnabledSystemUIMode(
-                    SystemUiMode.immersiveSticky);
-                if (kDebugMode) {
-                  print("force fullscreen 1.3 sec");
-                }
-              } else {
-                SystemChrome.setEnabledSystemUIMode(nonFullscreen,
-                    overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
-              }
-            });
-          }));
+          });
+        }),
+      );
     }
   }
 
@@ -229,6 +243,12 @@ class Settings {
       if (data["userScalingMainList"] != null) {
         userScalingMainList.value = data["userScalingMainList"];
         setMaxWidth();
+      }
+      if (data["fitMainListToWidth"] != null) {
+        fitMainListToWidth.value = data["fitMainListToWidth"];
+      }
+      if (data["mainListColumns"] != null) {
+        mainListColumns.value = data["mainListColumns"];
       }
       if (data["userScalingBars"] != null) {
         userScalingBars.value = data["userScalingBars"];
@@ -353,6 +373,8 @@ class Settings {
   String toString() {
     return '{'
         '"userScalingMainList": ${userScalingMainList.value}, '
+        '"fitMainListToWidth": ${fitMainListToWidth.value}, '
+        '"mainListColumns": ${mainListColumns.value}, '
         '"userScalingBars": ${userScalingBars.value}, '
         '"userScalingMenus": ${userScalingMenus.value}, '
         '"fullScreen": ${fullScreen.value}, '

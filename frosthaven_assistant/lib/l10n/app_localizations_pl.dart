@@ -217,6 +217,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsFullscreen => 'Pełny ekran';
 
   @override
+  String get settingsFitMainListWidth =>
+      'Dopasuj listę główną do szerokości ekranu';
+
+  @override
+  String get settingsMainListColumns => 'Kolumny listy głównej:';
+
+  @override
+  String get settingsMainListColumnsAuto => 'Automatycznie';
+
+  @override
   String get settingsMainListScaling => 'Skalowanie listy głównej:';
 
   @override

@@ -212,6 +212,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settingsFullscreen => '전체 화면';
 
   @override
+  String get settingsFitMainListWidth => '메인 목록을 화면 너비에 맞추기';
+
+  @override
+  String get settingsMainListColumns => '메인 목록 열:';
+
+  @override
+  String get settingsMainListColumnsAuto => '자동';
+
+  @override
   String get settingsMainListScaling => '메인 목록 크기:';
 
   @override

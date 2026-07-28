@@ -218,6 +218,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsFullscreen => 'Полный экран';
 
   @override
+  String get settingsFitMainListWidth =>
+      'Подогнать основной список по ширине экрана';
+
+  @override
+  String get settingsMainListColumns => 'Столбцы основного списка:';
+
+  @override
+  String get settingsMainListColumnsAuto => 'Автоматически';
+
+  @override
   String get settingsMainListScaling => 'Масштаб основного списка:';
 
   @override

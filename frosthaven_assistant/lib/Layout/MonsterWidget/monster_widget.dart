@@ -125,7 +125,7 @@ class MonsterWidgetState extends State<MonsterWidget> {
             Container(
               margin: EdgeInsets.only(
                   left: _kMarginH * scale, right: _kMarginH * scale),
-              width: getMainListWidth(context) - _kMarginH * scale,
+              width: getMainListWidth(context) - _kMarginH * scale * 2,
               child: ValueListenableBuilder<BuiltList<MonsterInstance>>(
                   valueListenable: _vm.monsterInstancesNotifier,
                   builder: (context, value, child) {

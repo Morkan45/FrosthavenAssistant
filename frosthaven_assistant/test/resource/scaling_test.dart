@@ -12,13 +12,21 @@ void main() {
 
   tearDownAll(getIt.reset);
 
+  setUp(() {
+    final settings = getIt<Settings>();
+    settings.userScalingMainList.value = 1;
+    settings.fitMainListToWidth.value = false;
+    settings.mainListColumns.value = 0;
+  });
+
   group('scaling', () {
     test('setMaxWidth does not throw', () {
       expect(() => setMaxWidth(), returnsNormally);
     });
 
-    testWidgets('getScaleByReference returns positive value',
-        (WidgetTester tester) async {
+    testWidgets('getScaleByReference returns positive value', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
@@ -32,8 +40,9 @@ void main() {
       );
     });
 
-    testWidgets('getMainListWidth returns positive value',
-        (WidgetTester tester) async {
+    testWidgets('getMainListWidth returns positive value', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
@@ -47,8 +56,7 @@ void main() {
       );
     });
 
-    testWidgets('modifiersFitOnBar returns bool',
-        (WidgetTester tester) async {
+    testWidgets('modifiersFitOnBar returns bool', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
@@ -60,6 +68,54 @@ void main() {
           ),
         ),
       );
+    });
+
+    test('legacy layout keeps two capped columns at 2560', () {
+      final layout = calculateMainListLayout(2560);
+
+      expect(layout.fitsScreenWidth, isFalse);
+      expect(layout.columnCount, 2);
+      expect(layout.columnWidth, 740);
+    });
+
+    test('fit-width auto layout uses two full columns at 1920', () {
+      getIt<Settings>().fitMainListToWidth.value = true;
+
+      final layout = calculateMainListLayout(1920);
+
+      expect(layout.fitsScreenWidth, isTrue);
+      expect(layout.columnCount, 2);
+      expect(layout.columnWidth, 960);
+    });
+
+    test('fit-width auto layout uses three full columns at 2560', () {
+      getIt<Settings>().fitMainListToWidth.value = true;
+
+      final layout = calculateMainListLayout(2560);
+
+      expect(layout.columnCount, 3);
+      expect(layout.columnWidth, closeTo(853.33, 0.01));
+      expect(layout.columnWidth * layout.columnCount, 2560);
+    });
+
+    test('fit-width layout respects an explicit column count', () {
+      final settings = getIt<Settings>();
+      settings.fitMainListToWidth.value = true;
+      settings.mainListColumns.value = 1;
+
+      final layout = calculateMainListLayout(2560);
+
+      expect(layout.columnCount, 1);
+      expect(layout.columnWidth, 2560);
+    });
+
+    test('fit-width auto layout preserves one column on compact screens', () {
+      getIt<Settings>().fitMainListToWidth.value = true;
+
+      final layout = calculateMainListLayout(800);
+
+      expect(layout.columnCount, 1);
+      expect(layout.columnWidth, 800);
     });
   });
 }
