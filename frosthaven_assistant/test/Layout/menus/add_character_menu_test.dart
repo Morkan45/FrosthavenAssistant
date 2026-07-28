@@ -18,7 +18,7 @@ void main() {
   Future<void> pumpMenu(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -103,7 +103,7 @@ void main() {
       if (tileFinder.evaluate().isNotEmpty) {
         await tester.tap(tileFinder.first);
         final originalOnError = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors;
+        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
         FlutterError.onError = originalOnError;

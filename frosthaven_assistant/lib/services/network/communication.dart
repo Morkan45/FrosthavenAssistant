@@ -3,14 +3,14 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:format/format.dart';
+import 'package:frosthaven_assistant_server/message_framer.dart';
 
 import '../service_locator.dart';
 import 'connection.dart';
 
 /// Typed envelope for state-sync messages sent between server and clients.
 ///
-/// The inner content (between `S3nD:` and `[EOM]`) is a JSON object:
+/// The framed content is a JSON object:
 /// `{"i": index, "d": "description", "e": {event_object}, "s": "gamestate"}`
 class StateEnvelope {
   // ignore: prefer-match-file-name, file contains multiple communication types
@@ -28,13 +28,13 @@ class StateEnvelope {
     required this.state,
   });
 
-  /// Encodes this envelope as a JSON string ready to be wrapped in `S3nD:/[EOM]`.
+  /// Encodes this envelope as JSON ready for byte-length framing.
   String encode() => jsonEncode({
-        'i': index,
-        'd': description,
-        'e': jsonDecode(eventJson),
-        's': state,
-      });
+    'i': index,
+    'd': description,
+    'e': jsonDecode(eventJson),
+    's': state,
+  });
 
   /// Attempts to decode [content] as a [StateEnvelope].
   /// Returns `null` if [content] is not in the new JSON format.
@@ -55,18 +55,18 @@ class StateEnvelope {
 }
 
 class Communication {
-  static const beginning = "S3nD:";
-  static const end = "[EOM]";
-  final messageTemplate = "$beginning{}$end";
   final Connection _connection;
 
   Communication({Connection? connection})
-      : _connection = connection ?? getIt<Connection>();
+    : _connection = connection ?? getIt<Connection>();
 
   // TODO: Need to test this somehow, or refactor altogether.
   // If testing, then better to verify assigned functions are being called on specific actions, rather than verify mock socket assignments.
   void listen(
-      Function(Uint8List) onData, Function? onError, Function()? onDone) {
+    Function(Uint8List) onData,
+    Function? onError,
+    Function()? onDone,
+  ) {
     final sockets = _connection.getAll();
     for (final socket in sockets) {
       socket.listen(onData, onError: onError, onDone: onDone);
@@ -85,7 +85,8 @@ class Communication {
       // was closed between the snapshot and this iteration — treat it as dead.
       bool isOther;
       try {
-        isOther = socket.remoteAddress != client.remoteAddress ||
+        isOther =
+            socket.remoteAddress != client.remoteAddress ||
             socket.remotePort != client.remotePort;
       } on SocketException catch (e) {
         log('Removing dead socket in sendToAllExcept: $e');
@@ -102,7 +103,9 @@ class Communication {
 
   void sendTo(Socket? socket, String data) {
     assert(
-        socket != null, 'sendTo called with a null socket — message dropped');
+      socket != null,
+      'sendTo called with a null socket — message dropped',
+    );
     if (socket == null) {
       debugPrint('Communication.sendTo: null socket, message dropped: "$data"');
       return;
@@ -119,9 +122,9 @@ class Communication {
     }
   }
 
-  void _writeToSocket(Socket socket, String message) {
+  void _writeToSocket(Socket socket, List<int> message) {
     try {
-      socket.write(message);
+      socket.add(message);
     } on SocketException catch (e) {
       // EPIPE (errno 32) and similar write errors mean the remote end closed
       // before we noticed. Remove the dead socket so future sends skip it.
@@ -134,18 +137,16 @@ class Communication {
     }
   }
 
-  String dataFrom(String message) {
-    final valid = isValid(message);
-    return valid
-        ? message.substring(beginning.length, message.length - end.length)
-        : "";
+  String dataFrom(List<int> message) {
+    try {
+      final decoded = MessageFramer().add(message);
+      return decoded.length == 1 ? decoded.single : '';
+    } on FormatException {
+      return '';
+    }
   }
 
-  bool isValid(String message) {
-    return message.startsWith(beginning) && message.endsWith(end);
-  }
+  bool isValid(List<int> message) => dataFrom(message).isNotEmpty;
 
-  String _composeMessageFrom(String data) {
-    return messageTemplate.format(data);
-  }
+  List<int> _composeMessageFrom(String data) => MessageFramer.encode(data);
 }

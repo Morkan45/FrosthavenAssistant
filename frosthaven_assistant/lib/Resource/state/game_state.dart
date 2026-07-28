@@ -70,8 +70,9 @@ class GameState {
   List<SpecialRule> _scenarioSpecialRules = [];
   final _scenarioSectionsVersion = ValueNotifier<int>(0);
   List<ListItemData> _currentList = []; //has both monsters and characters
-  final _currentListNotifier =
-      ValueNotifier<BuiltList<ListItemData>>(BuiltList.of([]));
+  final _currentListNotifier = ValueNotifier<BuiltList<ListItemData>>(
+    BuiltList.of([]),
+  );
   final List<MonsterAbilityState> _currentAbilityDecks =
       <MonsterAbilityState>[];
   final Map<Elements, ValueNotifier<ElementState>> _elementState = HashMap();
@@ -216,13 +217,15 @@ class GameState {
       'totalRounds': _totalRounds.value,
       'scenario': _scenario.value,
       'toastMessage': _toastMessage.value,
-      'scenarioSpecialRules':
-          _scenarioSpecialRules.map((r) => r.toJson()).toList(),
+      'scenarioSpecialRules': _scenarioSpecialRules
+          .map((r) => r.toJson())
+          .toList(),
       'scenarioSectionsAdded': _scenarioSectionsAdded,
       'currentCampaign': _currentCampaign.value,
       'currentList': _currentList.map((item) => item.toJson()).toList(),
-      'currentAbilityDecks':
-          _currentAbilityDecks.map((d) => d.toJson()).toList(),
+      'currentAbilityDecks': _currentAbilityDecks
+          .map((d) => d.toJson())
+          .toList(),
       'sanctuaryDeck': _sanctuaryDeck.toJson(),
       'modifierDeck': _modifierDeck.toJson(),
       'modifierDeckAllies': _modifierDeckAllies.toJson(),
@@ -243,16 +246,19 @@ class GameState {
     addSaveState(state);
   }
 
-  void load() {
+  Future<bool> load() async {
     GameSaveState state = GameSaveState();
-    state.loadFromDisk(this);
+    final loaded = await state.loadFromDisk(this);
+    if (!loaded) state.save(this);
     addSaveState(
-        state); //init state: means game save state is one larger than command list
+      state,
+    ); //init state: means game save state is one larger than command list
+    return loaded;
   }
 
-  void loadFromData(String data) {
+  bool loadFromData(String data) {
     GameSaveState state = GameSaveState();
-    state.loadFromData(data, this);
+    return state.loadFromData(data, this);
   }
 
   /// Fires `_currentListNotifier` with the current list and also increments

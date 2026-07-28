@@ -59,7 +59,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final figureId = standee.getId();
 
       await tester.pumpWidget(buildConditionButton(
@@ -75,7 +75,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
 
       await tester.pumpWidget(buildConditionButton(
         condition: Condition.stun,
@@ -92,7 +92,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final figureId = standee.getId();
       expect(standee.conditions.value, isNot(contains(Condition.stun)));
 
@@ -112,7 +112,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final figureId = standee.getId();
 
       // Add the condition first
@@ -138,7 +138,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final figureId = standee.getId();
 
       await tester.pumpWidget(buildConditionButton(
@@ -156,7 +156,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final figureId = standee.getId();
 
       await tester.pumpWidget(buildConditionButton(
@@ -174,7 +174,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final figureId = standee.getId();
 
       await tester.pumpWidget(buildConditionButton(
@@ -192,7 +192,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final figureId = standee.getId();
 
       await tester.pumpWidget(buildConditionButton(

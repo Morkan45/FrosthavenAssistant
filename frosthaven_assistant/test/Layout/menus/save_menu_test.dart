@@ -17,7 +17,7 @@ void main() {
   Future<void> pumpMenu(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -89,7 +89,7 @@ void main() {
       // Tapping a save opens SaveModalMenu
       await tester.tap(find.text('TestSave1'));
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpAndSettle();
       FlutterError.onError = originalOnError;
       expect(find.byType(SaveModalMenu), findsOneWidget);

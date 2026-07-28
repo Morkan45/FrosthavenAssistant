@@ -19,7 +19,7 @@ void main() {
 
   Future<void> pumpController(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -54,7 +54,7 @@ void main() {
       WidgetTester tester,
     ) async {
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpController(tester);
 
       // Start drag — should open overlay

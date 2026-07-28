@@ -22,7 +22,8 @@ class ActionHandler {
   final List<GameSaveState?> _gameSaveStates = [];
 
   List<Command?> get commands => List.unmodifiable(_commands);
-  List<String> get commandDescriptions => List.unmodifiable(_commandDescriptions);
+  List<String> get commandDescriptions =>
+      List.unmodifiable(_commandDescriptions);
   List<GameSaveState?> get gameSaveStates => List.unmodifiable(_gameSaveStates);
 
   /// Resets all command/description/save-state history to a clean slate,
@@ -40,9 +41,21 @@ class ActionHandler {
     _commands.clear();
   }
 
-  /// Inserts a description received from the network at [index].
+  /// Starts a new accepted network branch at [index].
   void insertReceivedDescription(int index, String description) {
-    _commandDescriptions.insert(index, description);
+    if (index < 0 || index > _commandDescriptions.length) {
+      throw RangeError.range(index, 0, _commandDescriptions.length, 'index');
+    }
+    if (_commandDescriptions.length > index) {
+      _commandDescriptions.removeRange(index, _commandDescriptions.length);
+    }
+    _commandDescriptions.add(description);
+    if (_commands.length > index) {
+      _commands.removeRange(index, _commands.length);
+    }
+    if (_gameSaveStates.length > index + 1) {
+      _gameSaveStates.removeRange(index + 1, _gameSaveStates.length);
+    }
   }
 
   /// Appends a save-state snapshot. Called by [GameState.save] and [GameState.load].
@@ -70,10 +83,10 @@ class ActionHandler {
     required Communication communication,
     Settings? settings,
     Network? network,
-  })  : _gameState = gameState,
-        _communication = communication,
-        _settingsOverride = settings,
-        _networkOverride = network;
+  }) : _gameState = gameState,
+       _communication = communication,
+       _settingsOverride = settings,
+       _networkOverride = network;
 
   Settings get _settings => _settingsOverride ?? getIt<Settings>();
   Network get _network => _networkOverride ?? getIt<Network>();
@@ -85,7 +98,9 @@ class ActionHandler {
 
   Command getCurrent() {
     final cmd = _commands[commandIndex.value];
-    if (cmd == null) throw StateError('No command at index ${commandIndex.value}');
+    if (cmd == null) {
+      throw StateError('No command at index ${commandIndex.value}');
+    }
     return cmd;
   }
 
@@ -94,42 +109,44 @@ class ActionHandler {
     bool isClient = _settings.client.value == ClientState.connected;
     if (!isClient) {
       if (commandIndex.value >= 0) {
+        final undoneIndex = commandIndex.value;
         // Guard against out-of-bounds access: in the server multiplayer path
         // updateStateFromMessage sets commandIndex directly then calls save()
         // once, which can leave commandIndex >= gameSaveStates.length.
-        final saveState = commandIndex.value < _gameSaveStates.length
-            ? _gameSaveStates[commandIndex.value]
+        final saveState = undoneIndex < _gameSaveStates.length
+            ? _gameSaveStates[undoneIndex]
             : null;
         if (saveState != null) {
           saveState.load(_gameState);
           saveState.saveToDisk(_gameState);
           if (!isServer && !isClient) {
-            final cmd = commandIndex.value < _commands.length
-                ? _commands[commandIndex.value]
+            final cmd = undoneIndex < _commands.length
+                ? _commands[undoneIndex]
                 : null;
             cmd?.onUndo(); //undo only makes sure ui is updated
           } else {
             updateAllUI();
-            //run generic update all function instead, as commands list is not retained
-
-            //send last game state if connected
-            if (isServer) {
-              final idx = commandIndex.value;
-              if (idx >= 0 && idx < _commandDescriptions.length) {
-                log('server sends, undo index: $idx, description:${_commandDescriptions[idx]}');
-                //should send a special undo message? yes
-                _network.server.send(StateEnvelope(
-                  index: idx,
-                  description: _commandDescriptions[idx],
-                  eventJson: const NoEvent().toJsonString(),
-                  state: saveState.getState(),
-                ).encode());
-              }
-            }
           }
         }
         lastEvent.value = const NoEvent();
-        commandIndex.value--;
+        commandIndex.value = undoneIndex - 1;
+        if (isServer && saveState != null) {
+          final idx = commandIndex.value;
+          final description = idx >= 0 && idx < _commandDescriptions.length
+              ? _commandDescriptions[idx]
+              : '';
+          log(
+            'server sends undo result, index: $idx, description:$description',
+          );
+          _network.server.send(
+            StateEnvelope(
+              index: idx,
+              description: description,
+              eventJson: const NoEvent().toJsonString(),
+              state: saveState.getState(),
+            ).encode(),
+          );
+        }
       }
     } else {
       _communication.sendToAll("undo");
@@ -144,8 +161,9 @@ class ActionHandler {
         lastEvent.value = const NoEvent();
         commandIndex.value++;
         final nextIdx = commandIndex.value + 1;
-        final nextState =
-            (nextIdx < _gameSaveStates.length) ? _gameSaveStates[nextIdx] : null;
+        final nextState = (nextIdx < _gameSaveStates.length)
+            ? _gameSaveStates[nextIdx]
+            : null;
         if (nextState == null) return; // save state evicted by maxUndo
         nextState.load(_gameState);
         nextState.saveToDisk(_gameState);
@@ -160,16 +178,23 @@ class ActionHandler {
       if (isServer) {
         final idx = commandIndex.value;
         final nextIdx = idx + 1;
-        final nextState =
-            (nextIdx < _gameSaveStates.length) ? _gameSaveStates[nextIdx] : null;
-        if (idx >= 0 && idx < _commandDescriptions.length && nextState != null) {
-          log('server sends, redo index: $idx, description:${_commandDescriptions[idx]}');
-          _network.server.send(StateEnvelope(
-            index: idx,
-            description: _commandDescriptions[idx],
-            eventJson: const NoEvent().toJsonString(),
-            state: nextState.getState(),
-          ).encode());
+        final nextState = (nextIdx < _gameSaveStates.length)
+            ? _gameSaveStates[nextIdx]
+            : null;
+        if (idx >= 0 &&
+            idx < _commandDescriptions.length &&
+            nextState != null) {
+          log(
+            'server sends, redo index: $idx, description:${_commandDescriptions[idx]}',
+          );
+          _network.server.send(
+            StateEnvelope(
+              index: idx,
+              description: _commandDescriptions[idx],
+              eventJson: const NoEvent().toJsonString(),
+              state: nextState.getState(),
+            ).encode(),
+          );
         }
       }
     } else if (isClient) {
@@ -198,11 +223,16 @@ class ActionHandler {
     if (_commands.length - 1 > commandIndex.value) {
       _commands.removeRange(commandIndex.value + 1, _commands.length);
       _commandDescriptions.removeRange(
-          commandIndex.value + 1, _commandDescriptions.length);
+        commandIndex.value + 1,
+        _commandDescriptions.length,
+      );
     }
     if (_gameSaveStates.length > commandIndex.value + 1) {
       //remove future game states
-      _gameSaveStates.removeRange(commandIndex.value + 1, _gameSaveStates.length);
+      _gameSaveStates.removeRange(
+        commandIndex.value + 1,
+        _gameSaveStates.length,
+      );
     }
 
     _gameState.save(); //save after each action
@@ -211,21 +241,29 @@ class ActionHandler {
     String description = command.describe();
     String eventJson = command.event.toJsonString();
     if (isServer) {
-      log('server sends, index: ${commandIndex.value}, description:$description');
-      _network.server.send(StateEnvelope(
-        index: commandIndex.value,
-        description: description,
-        eventJson: eventJson,
-        state: _gameState.toString(),
-      ).encode());
+      log(
+        'server sends, index: ${commandIndex.value}, description:$description',
+      );
+      _network.server.send(
+        StateEnvelope(
+          index: commandIndex.value,
+          description: description,
+          eventJson: eventJson,
+          state: _gameState.toString(),
+        ).encode(),
+      );
     } else if (isClient) {
-      log('client sends, index: ${commandIndex.value}, description:$description');
-      _communication.sendToAll(StateEnvelope(
-        index: commandIndex.value,
-        description: description,
-        eventJson: eventJson,
-        state: _gameState.toString(),
-      ).encode());
+      log(
+        'client sends, index: ${commandIndex.value}, description:$description',
+      );
+      _communication.sendToAll(
+        StateEnvelope(
+          index: commandIndex.value,
+          description: description,
+          eventJson: eventJson,
+          state: _gameState.toString(),
+        ).encode(),
+      );
     }
 
     //TODO: this is breaking if command index is not in sync with commands. and in connected state.

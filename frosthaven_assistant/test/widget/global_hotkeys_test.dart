@@ -22,7 +22,7 @@ void main() {
     setupGetIt();
     getIt<GameState>().init();
     await getIt<GameData>().loadData('assets/testData/');
-    getIt<GameState>().load();
+    await getIt<GameState>().load();
     getIt<GameState>().clearList();
     getIt<Settings>().noInit.value = false;
   }

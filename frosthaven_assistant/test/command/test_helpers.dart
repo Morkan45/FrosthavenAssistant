@@ -26,26 +26,25 @@ Future<void> setUpGame() async {
   //initialize game
   gameState.init();
   await getIt<GameData>().loadData("assets/testData/");
-  gameState.load();
+  await gameState.load();
 }
 
 void checkSaveState() {
   String state = gameState.toString();
   int nrStates = gameState.gameSaveStates.length;
   gameState.save();
-  gameState.load();
+  final loaded = gameState.loadFromData(state);
   String newState = gameState.toString();
-  assert(gameState.gameSaveStates.length ==
-      nrStates + 2); //for some reason a null state is added on load.
+  assert(loaded);
+  assert(gameState.gameSaveStates.length == nrStates + 1);
   assert(newState == state);
 }
 
-void checkNoSideEffects(
-  List<String> changedFields,
-  String oldState,
-) {
+void checkNoSideEffects(List<String> changedFields, String oldState) {
   final differ = JsonDiffer.fromJson(
-      json.decode(oldState), json.decode(gameState.toString()));
+    json.decode(oldState),
+    json.decode(gameState.toString()),
+  );
   DiffNode diff = differ.diff();
 
   if (kDebugMode) {
@@ -75,37 +74,31 @@ void checkNoSideEffects(
 }
 
 Widget testApp(Widget home) => MaterialApp(
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
-      supportedLocales: const [Locale('en')],
-      home: home,
-    );
+  localizationsDelegates: const [
+    AppLocalizations.delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ],
+  supportedLocales: const [Locale('en')],
+  builder: (context, child) => Material(child: child!),
+  home: home,
+);
 
-void ignoreOverflowErrors(
-  FlutterErrorDetails details, {
-  bool forceReport = false,
-}) {
-  bool ifIsOverflowError = false;
-  bool isUnableToLoadAsset = false;
+Widget testMaterialApp({required Widget home}) => testApp(home);
 
-  // Detect overflow error.
-  var exception = details.exception;
-  if (exception is FlutterError) {
-    ifIsOverflowError = !exception.diagnostics.any(
-      (e) => e.value.toString().startsWith("A RenderFlex overflowed by"),
-    );
-    isUnableToLoadAsset = !exception.diagnostics.any(
-      (e) => e.value.toString().startsWith("Unable to load asset"),
-    );
-  }
+FlutterExceptionHandler ignoreOverflowErrors(
+  FlutterExceptionHandler? delegate,
+) {
+  return (FlutterErrorDetails details) {
+    final message = details.exceptionAsString();
+    final isOverflow = message.startsWith('A RenderFlex overflowed by');
+    final isMissingAsset = message.startsWith('Unable to load asset');
 
-  // Ignore if is overflow error.
-  if (ifIsOverflowError || isUnableToLoadAsset) {
-    debugPrint('Ignored Error');
-  } else {
-    FlutterError.dumpErrorToConsole(details, forceReport: forceReport);
-  }
+    if (isOverflow || isMissingAsset) {
+      debugPrint('Ignored expected test layout error: $message');
+      return;
+    }
+
+    (delegate ?? FlutterError.presentError)(details);
+  };
 }

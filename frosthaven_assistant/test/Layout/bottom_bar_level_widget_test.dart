@@ -21,10 +21,10 @@ void main() {
   Future<void> pumpWidget(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
+      testMaterialApp(
+        home: const Scaffold(
           body: Center(child: BottomBarLevelWidget()),
         ),
       ),
@@ -56,10 +56,10 @@ void main() {
     testWidgets('tapping opens SetLevelMenu', (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
+        testMaterialApp(
+          home: const Scaffold(
             body: Center(child: BottomBarLevelWidget()),
           ),
         ),

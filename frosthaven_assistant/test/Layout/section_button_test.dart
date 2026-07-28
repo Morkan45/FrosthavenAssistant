@@ -19,7 +19,7 @@ void main() {
   Future<void> pumpWidget(WidgetTester tester, String data) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -72,7 +72,7 @@ void main() {
 
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.tap(find.byType(OutlinedButton));
       await tester.pump();
       FlutterError.onError = originalOnError;

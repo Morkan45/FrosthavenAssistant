@@ -13,8 +13,10 @@ class GameSaveState {
     _savedState = gameState.toString();
   }
 
-  void load(GameState gameState) {
+  bool load(GameState gameState, {bool rollbackOnFailure = true}) {
     if (_savedState != null) {
+      final failedState = _savedState;
+      final originalState = gameState.toString();
       try {
         final data = json.decode(_savedState ?? '') as Map<String, dynamic>;
 
@@ -146,8 +148,10 @@ class GameSaveState {
 
           // Reuse existing state to preserve drawPileVersion listeners; fall
           // back to the prototype for monsters newly added from a remote device.
-          final state = gameState._currentAbilityDecks
-                  .firstWhereOrNull((s) => s.name == deckName) ??
+          final state =
+              gameState._currentAbilityDecks.firstWhereOrNull(
+                (s) => s.name == deckName,
+              ) ??
               proto;
 
           if (item.containsKey("lastRoundDrawn")) {
@@ -168,8 +172,9 @@ class GameSaveState {
         _loadLootDeck(data, gameState);
 
         if (data["sanctuaryDeck"] != null) {
-          gameState._sanctuaryDeck =
-              SanctuaryDeck.fromJson(data["sanctuaryDeck"]);
+          gameState._sanctuaryDeck = SanctuaryDeck.fromJson(
+            data["sanctuaryDeck"],
+          );
         }
 
         //this is not really a setting, but a scenario command?
@@ -183,16 +188,25 @@ class GameSaveState {
           final raw = elementData[element.index.toString()] as int?;
           final idx =
               (raw != null && raw >= 0 && raw < ElementState.values.length)
-                  ? raw
-                  : ElementState.inert.index;
+              ? raw
+              : ElementState.inert.index;
           gameState._elementState[element]?.value = ElementState.values[idx];
         }
+        return true;
       } catch (e, stack) {
-        // Deserialization failure: log always (not just debug) so it surfaces
-        // in release builds and can be caught by crash-reporting tools.
         debugPrint('GameSaveState.load error: $e\n$stack');
+        if (rollbackOnFailure) {
+          _savedState = originalState;
+          final restored = load(gameState, rollbackOnFailure: false);
+          _savedState = failedState;
+          if (!restored) {
+            throw StateError('Failed to restore state after load failure');
+          }
+        }
+        return false;
       }
     }
+    return false;
   }
 
   Future<void> saveToDisk(GameState gameState) async {
@@ -211,7 +225,7 @@ class GameSaveState {
     }
   }
 
-  Future<void> loadFromDisk(GameState gameState) async {
+  Future<bool> loadFromDisk(GameState gameState) async {
     //have to call after init or element state overridden
 
     const sharedPrefsKey = 'gameState';
@@ -223,16 +237,17 @@ class GameSaveState {
     }
 
     if (_savedState != null) {
-      load(gameState);
+      return load(gameState);
     } else {
       save(gameState);
+      return true;
     }
   }
 
-  void loadFromData(String data, GameState gameState) {
+  bool loadFromData(String data, GameState gameState) {
     //have to call after init or element state overridden
     _savedState = data;
-    load(gameState);
+    return load(gameState);
   }
 
   void _loadLootDeck(Map<String, dynamic> data, GameState gameState) {
@@ -240,7 +255,10 @@ class GameSaveState {
   }
 
   void _loadModifierDeck(
-      String identifier, Map<String, dynamic> data, GameState gameState) {
+    String identifier,
+    Map<String, dynamic> data,
+    GameState gameState,
+  ) {
     final modifierDeckData = data[identifier] as Map<String, dynamic>;
     if (identifier == 'modifierDeck') {
       gameState._modifierDeck.updateFromJson(modifierDeckData);

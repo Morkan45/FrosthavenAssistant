@@ -6,6 +6,7 @@ import 'package:fluent_assertions/fluent_assertions.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/services/network/communication.dart';
 import 'package:frosthaven_assistant/services/network/connection.dart';
+import 'package:frosthaven_assistant_server/message_framer.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -22,8 +23,9 @@ final _stubConnection = MockConnection();
 void main() {
   setUpAll(() {
     _getIt.registerFactory<Connection>(() => _stubConnection);
-    when(_stubConnection.getAll())
-        .thenReturn([MockSocket(), MockSocket(), MockSocket()]);
+    when(
+      _stubConnection.getAll(),
+    ).thenReturn([MockSocket(), MockSocket(), MockSocket()]);
   });
   group('Message data', () {
     test('dataFrom data is extracted from message', () {
@@ -51,7 +53,7 @@ void main() {
 
     test('isValid message should not be valid', () {
       // arrange
-      const invalidMessage = "Message";
+      const invalidMessage = <int>[1, 2, 3];
 
       // act
       final result = _sut.isValid(invalidMessage);
@@ -66,9 +68,10 @@ void main() {
       // arrange
       const data = 'TestMessage';
       List<Socket> sockets = _stubConnection.getAll();
-      final excludedSocket = sockets.first;
-      final includedSockets =
-          sockets.where((socket) => socket != excludedSocket);
+      final excludedSocket = sockets.first as MockSocket;
+      final includedSockets = sockets.where(
+        (socket) => socket != excludedSocket,
+      );
       when(excludedSocket.remoteAddress).thenReturn(InternetAddress.anyIPv6);
       when(excludedSocket.remotePort).thenReturn(_randomPortNumber);
 
@@ -76,10 +79,10 @@ void main() {
       _sut.sendToAllExcept(excludedSocket, data);
 
       //assert
-      for (final socket in includedSockets) {
-        verify(socket.write(any));
+      for (final socket in includedSockets.cast<MockSocket>()) {
+        verify(socket.add(any));
       }
-      verifyNever(excludedSocket.write(any));
+      verifyNever(excludedSocket.add(any));
     });
 
     test('sendToAll sends message to all sockets', () {
@@ -92,8 +95,8 @@ void main() {
       _sut.sendToAll(data);
 
       // assert
-      for (final socket in sockets) {
-        verify(socket.write(message));
+      for (final socket in sockets.cast<MockSocket>()) {
+        verify(socket.add(message));
       }
     });
 
@@ -106,7 +109,7 @@ void main() {
       _sut.sendTo(_socket, data);
 
       // assert
-      verify(_socket.write(message));
+      verify(_socket.add(message));
     });
 
     test('sendTo asserts on null socket', () {
@@ -132,16 +135,20 @@ void main() {
       final excludedSocket = MockSocket();
 
       when(connection.getAll()).thenReturn([closedSocket, liveSocket]);
-      when(closedSocket.remoteAddress)
-          .thenThrow(const SocketException('Socket has been closed'));
+      when(
+        closedSocket.remoteAddress,
+      ).thenThrow(const SocketException('Socket has been closed'));
       when(excludedSocket.remoteAddress).thenReturn(InternetAddress.anyIPv6);
       when(excludedSocket.remotePort).thenReturn(_randomPortNumber);
       when(liveSocket.remoteAddress).thenReturn(InternetAddress.loopbackIPv4);
       when(liveSocket.remotePort).thenReturn(12345);
 
-      expect(() => sut.sendToAllExcept(excludedSocket, 'data'), returnsNormally);
+      expect(
+        () => sut.sendToAllExcept(excludedSocket, 'data'),
+        returnsNormally,
+      );
       verify(connection.remove(closedSocket));
-      verify(liveSocket.write(any));
+      verify(liveSocket.add(any));
     });
   });
 
@@ -154,10 +161,12 @@ void main() {
       final connection = MockConnection();
       final sut = Communication(connection: connection);
       final deadSocket = MockSocket();
-      when(deadSocket.write(any)).thenThrow(const SocketException(
-        'Write failed (OS Error: Broken pipe, errno = 32)',
-        osError: OSError('Broken pipe', 32),
-      ));
+      when(deadSocket.add(any)).thenThrow(
+        const SocketException(
+          'Write failed (OS Error: Broken pipe, errno = 32)',
+          osError: OSError('Broken pipe', 32),
+        ),
+      );
 
       expect(() => sut.sendTo(deadSocket, 'ping'), returnsNormally);
       verify(connection.remove(deadSocket));
@@ -169,18 +178,19 @@ void main() {
       final deadSocket = MockSocket();
       final liveSocket = MockSocket();
       when(connection.getAll()).thenReturn([deadSocket, liveSocket]);
-      when(deadSocket.write(any)).thenThrow(const SocketException(
-        'Write failed (OS Error: Broken pipe, errno = 32)',
-        osError: OSError('Broken pipe', 32),
-      ));
+      when(deadSocket.add(any)).thenThrow(
+        const SocketException(
+          'Write failed (OS Error: Broken pipe, errno = 32)',
+          osError: OSError('Broken pipe', 32),
+        ),
+      );
 
       expect(() => sut.sendToAll('ping'), returnsNormally);
       verify(connection.remove(deadSocket));
-      verify(liveSocket.write(any));
+      verify(liveSocket.add(any));
     });
   });
 }
 
-String _createValidMessage({String data = "Message"}) {
-  return "S3nD:$data[EOM]";
-}
+List<int> _createValidMessage({String data = "Message"}) =>
+    MessageFramer.encode(data);

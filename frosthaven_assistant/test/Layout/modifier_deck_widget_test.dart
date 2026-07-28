@@ -33,7 +33,7 @@ void main() {
   Future<void> pumpWidget(WidgetTester tester, String name) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -87,7 +87,7 @@ void main() {
 
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       // Tap the first InkWell (the draw pile)
       await tester.tap(find.byType(InkWell).first);
       // flush 0ms timers from TranslationAnimatedWidget.initState, then advance
@@ -229,7 +229,7 @@ void main() {
 
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.tap(find.byType(InkWell).first);
       await tester.pump();
       await tester.pump();
@@ -285,7 +285,7 @@ void main() {
 
         final originalOnError = FlutterError.onError;
         addTearDown(() => FlutterError.onError = originalOnError);
-        FlutterError.onError = ignoreOverflowErrors;
+        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         gameState.action(
           AMDRevealCommand(
             amount: 1,
@@ -319,7 +319,7 @@ void main() {
 
         final originalOnError = FlutterError.onError;
         addTearDown(() => FlutterError.onError = originalOnError);
-        FlutterError.onError = ignoreOverflowErrors;
+        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         gameState.action(
           AMDRevealCommand(
             amount: 0,

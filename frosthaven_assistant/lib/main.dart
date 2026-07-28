@@ -23,17 +23,17 @@ import 'services/translation_service.dart';
 // disconnects, network changes, timeouts). These are handled gracefully in
 // the networking layer and should not consume the Sentry error quota.
 const _benignSocketErrno = <int>{
-  9,     // EBADF          – bad file descriptor (socket already closed)
-  32,    // EPIPE          – broken pipe (client disconnected mid-write)
-  54,    // ECONNRESET     – connection reset by peer (macOS/iOS)
-  60,    // ETIMEDOUT      – operation timed out (macOS/iOS)
-  64,    // EHOSTDOWN      – host is down (macOS/BSD)
-  103,   // ECONNABORTED   – software caused connection abort (Android/Linux)
-  104,   // ECONNRESET     – connection reset by peer (Linux/Android)
-  107,   // ENOTCONN       – transport endpoint not connected
-  110,   // ETIMEDOUT      – operation timed out (Linux)
-  113,   // EHOSTUNREACH   – no route to host
-  121,   // ERROR_SEM_TIMEOUT – semaphore timeout (Windows)
+  9, // EBADF          – bad file descriptor (socket already closed)
+  32, // EPIPE          – broken pipe (client disconnected mid-write)
+  54, // ECONNRESET     – connection reset by peer (macOS/iOS)
+  60, // ETIMEDOUT      – operation timed out (macOS/iOS)
+  64, // EHOSTDOWN      – host is down (macOS/BSD)
+  103, // ECONNABORTED   – software caused connection abort (Android/Linux)
+  104, // ECONNRESET     – connection reset by peer (Linux/Android)
+  107, // ENOTCONN       – transport endpoint not connected
+  110, // ETIMEDOUT      – operation timed out (Linux)
+  113, // EHOSTUNREACH   – no route to host
+  121, // ERROR_SEM_TIMEOUT – semaphore timeout (Windows)
   10053, // WSAECONNABORTED – connection aborted by local software (Windows)
   10054, // WSAECONNRESET  – connection forcibly closed by remote host (Windows)
 };
@@ -120,16 +120,34 @@ Locale _parseLocale(String code) {
   return parts.length == 2 ? Locale(parts[0], parts[1]) : Locale(parts[0]);
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  static Future<void> _initializeApp() async {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Future<void> _initializeApp() async {
     try {
       await getIt<GameData>().loadData("assets/data/");
-      getIt<GameState>().load();
+      await getIt<GameState>().load();
       await getIt<Settings>().init();
       await getIt<TranslationService>().load(getIt<Settings>().locale.value);
       loading.value = false;
+    } catch (error, stack) {
+      Sentry.captureException(error, stackTrace: stack);
+      debugPrint('Init failed: $error');
+      loading.value = false;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    try {
+      getIt<GameState>().init();
+      unawaited(_initializeApp());
     } catch (error, stack) {
       Sentry.captureException(error, stackTrace: stack);
       debugPrint('Init failed: $error');
@@ -141,16 +159,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //debugInvertOversizedImages = true;
-
-    try {
-      //initialize game
-      getIt<GameState>().init();
-      unawaited(_initializeApp());
-    } catch (error, stack) {
-      Sentry.captureException(error, stackTrace: stack);
-      debugPrint('Init failed: $error');
-      loading.value = false;
-    }
 
     return ValueListenableBuilder<String>(
       valueListenable: getIt<Settings>().locale,

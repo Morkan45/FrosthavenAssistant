@@ -13,7 +13,7 @@ void main() {
 
   Future<void> pumpCard(WidgetTester tester, ModifierCardWidget widget) async {
     final originalOnError = FlutterError.onError;
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(home: Scaffold(body: widget)),
     );
@@ -42,7 +42,7 @@ void main() {
         (WidgetTester tester) async {
       final card = ModifierCard(CardType.add, 'imbue-plus1');
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -60,7 +60,7 @@ void main() {
       final card =
           ModifierCard(CardType.add, 'Military-perks/plus1shield1flip');
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -77,7 +77,7 @@ void main() {
         (WidgetTester tester) async {
       final card = ModifierCard(CardType.add, 'plus1');
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

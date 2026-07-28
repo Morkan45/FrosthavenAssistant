@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer' as developer;
 import 'dart:io';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dart_ipify/dart_ipify.dart';
 import 'package:flutter/foundation.dart';
@@ -10,17 +11,29 @@ import 'package:network_info_plus/network_info_plus.dart';
 import '../service_locator.dart';
 import 'network.dart';
 
+class LocalAddressCandidate {
+  final String interfaceName;
+  final InternetAddress address;
+
+  const LocalAddressCandidate(this.interfaceName, this.address);
+}
+
 class NetworkInformation {
   // ignore: prefer-match-file-name, file name uses short form of NetworkInformation
-  NetworkInformation() {
-    _connectivitySubscription = _connectivity.onConnectivityChanged
-        .listen((List<ConnectivityResult> result) {
+  NetworkInformation({
+    Connectivity? connectivity,
+    NetworkInfo? networkInfo,
+    Future<List<NetworkInterface>> Function()? interfaces,
+  }) : _connectivity = connectivity ?? Connectivity(),
+       networkInfo = networkInfo ?? NetworkInfo(),
+       _interfaces = interfaces ?? NetworkInterface.list {
+    _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
+      result,
+    ) {
       if (result.isNotEmpty && _connectionStatus != result.first) {
-        if (_connectionStatus != null) {
-          //null just to not show message on start.
-          String connection = result.first.name;
+        if (_connectionStatus != null && getIt.isRegistered<Network>()) {
+          var connection = result.first.name;
           if (result.contains(ConnectivityResult.wifi)) {
-            //default to show wifi if available
             connection = ConnectivityResult.wifi.name;
           }
           getIt<Network>().networkMessage.value =
@@ -28,62 +41,92 @@ class NetworkInformation {
         }
         _connectionStatus = result.first;
       }
-
       initNetworkInfo();
     });
   }
 
-  final NetworkInfo networkInfo = NetworkInfo();
-
+  final NetworkInfo networkInfo;
+  final Connectivity _connectivity;
+  final Future<List<NetworkInterface>> Function() _interfaces;
   ConnectivityResult? _connectionStatus;
-  final Connectivity _connectivity = Connectivity();
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
   final Set<String> wifiIPv6List = {};
-  final wifiIPv6 = ValueNotifier<String>("");
-  final outgoingIPv6 = ValueNotifier<String>("");
+  final wifiIPv6 = ValueNotifier<String>('');
+  final outgoingIPv6 = ValueNotifier<String>('');
+
+  static String? selectLocalIPv4(Iterable<LocalAddressCandidate> candidates) {
+    final usable = candidates.where((candidate) {
+      final address = candidate.address;
+      final name = candidate.interfaceName.toLowerCase();
+      return address.type == InternetAddressType.IPv4 &&
+          !address.isLoopback &&
+          !address.isLinkLocal &&
+          !address.isMulticast &&
+          !name.contains('virtual') &&
+          !name.contains('veth') &&
+          !name.contains('docker') &&
+          !name.contains('switch');
+    }).toList();
+
+    int priority(LocalAddressCandidate candidate) {
+      final name = candidate.interfaceName.toLowerCase();
+      if (name.contains('wi-fi') ||
+          name.contains('wifi') ||
+          name.contains('wlan')) {
+        return 0;
+      }
+      if (name.contains('ethernet') || name.startsWith('eth')) return 1;
+      return 2;
+    }
+
+    usable.sort((a, b) => priority(a).compareTo(priority(b)));
+    return usable.isEmpty ? null : usable.first.address.address;
+  }
 
   Future<void> initNonWifiIPs() async {
-    for (final interface in await NetworkInterface.list()) {
-      //searching for eth should fix the ethernet ip address issue on
-      // ethernet connections on windows and linux
-      if (interface.name.toLowerCase().contains("eth") &&
-          !interface.name.toLowerCase().contains("switch") &&
-          !interface.name.toLowerCase().contains("veth")) {
-        for (final address in interface.addresses) {
-          if (address.type == InternetAddressType.IPv6) {
-            wifiIPv6List.add(address.address);
-            if (wifiIPv6.value != "") {
-              wifiIPv6.value =
-                  address.address; //default to ipv4 ethernet address if no wifi
-            }
-            break;
-          }
-        }
+    final candidates = <LocalAddressCandidate>[];
+    for (final interface in await _interfaces()) {
+      for (final address in interface.addresses) {
+        candidates.add(LocalAddressCandidate(interface.name, address));
       }
     }
-    // Leave wifiIPv6 as "" if no address was found — UI handles empty display.
+    final address = selectLocalIPv4(candidates);
+    if (address != null) {
+      wifiIPv6List.add(address);
+      if (wifiIPv6.value.isEmpty) wifiIPv6.value = address;
+    }
   }
 
   Future<void> initNetworkInfo() async {
     try {
       outgoingIPv6.value = await Ipify.ipv64();
-    } catch (error) {
-      outgoingIPv6.value = "";
+    } catch (_) {
+      outgoingIPv6.value = '';
     }
 
     try {
-      String? ipv6 = await networkInfo.getWifiIP();
-      if (ipv6 != null) {
-        wifiIPv6.value = ipv6;
-        wifiIPv6List.add(ipv6);
+      final wifiAddress = await networkInfo.getWifiIP();
+      if (wifiAddress != null &&
+          InternetAddress.tryParse(wifiAddress)?.type ==
+              InternetAddressType.IPv4) {
+        wifiIPv6.value = wifiAddress;
+        wifiIPv6List.add(wifiAddress);
       }
-    } on PlatformException catch (e) {
-      developer.log('Failed to get Wifi IPv6', error: e);
+    } on PlatformException catch (error) {
+      developer.log('Failed to get Wi-Fi IP', error: error);
     }
-    initNonWifiIPs();
+    await initNonWifiIPs();
 
-    developer.log('Wifi IPv6: ${wifiIPv6.value}\n'
-        'Outgoing IPv6: ${outgoingIPv6.value}\n');
+    developer.log(
+      'Local IPv4: ${wifiIPv6.value}\n'
+      'Outgoing IP: ${outgoingIPv6.value}\n',
+    );
+  }
+
+  Future<void> dispose() async {
+    await _connectivitySubscription?.cancel();
+    wifiIPv6.dispose();
+    outgoingIPv6.dispose();
   }
 }

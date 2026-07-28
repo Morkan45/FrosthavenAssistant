@@ -12,8 +12,9 @@ class CharacterState extends FigureState {
   final _initiative = ValueNotifier<int>(0);
   final _xp = ValueNotifier<int>(0);
   final List<MonsterInstance> _summonList = [];
-  final _summonListNotifier =
-      ValueNotifier<BuiltList<MonsterInstance>>(BuiltList.of([]));
+  final _summonListNotifier = ValueNotifier<BuiltList<MonsterInstance>>(
+    BuiltList.of([]),
+  );
   final ModifierDeck _modifierDeck;
 
   ValueListenable<String> get display => _display;
@@ -48,7 +49,7 @@ class CharacterState extends FigureState {
   }
 
   CharacterState.fromSave(final String id, Map<String, dynamic> json)
-      : _modifierDeck = ModifierDeck(id) {
+    : _modifierDeck = ModifierDeck(id) {
     _level.value = json["level"];
     _display.value = json['display'];
     if (json.containsKey("useFHPerks")) {
@@ -66,16 +67,16 @@ class CharacterState extends FigureState {
   }
 
   CharacterState.fromJson(final String id, Map<String, dynamic> json)
-      : _modifierDeck = _deckFromJson(id, json) {
-    _initiative.value = json['initiative'];
-    _xp.value = json['xp'];
-    _chill.value = json['chill'];
-    _health.value = json["health"];
-    _level.value = json["level"];
-    _maxHealth.value = json["maxHealth"];
-    _display.value = json['display'];
+    : _modifierDeck = _deckFromJson(id, json) {
+    _initiative.value = json['initiative'] as int? ?? 0;
+    _xp.value = json['xp'] as int? ?? 0;
+    _chill.value = json['chill'] as int? ?? 0;
+    _health.value = json["health"] as int? ?? 0;
+    _level.value = json["level"] as int? ?? 1;
+    _maxHealth.value = json["maxHealth"] as int? ?? _health.value;
+    _display.value = json['display'] as String? ?? '';
 
-    final summons = json["summonList"];
+    final summons = json["summonList"] as List? ?? const [];
     for (final item in summons) {
       _summonList.add(MonsterInstance.fromJson(item));
     }
@@ -95,7 +96,7 @@ class CharacterState extends FigureState {
       _useFHPerks.value = json["useFHPerks"];
     }
 
-    final condis = json["conditions"];
+    final condis = json["conditions"] as List? ?? const [];
     for (int item in condis) {
       if (item >= 0 && item < Condition.values.length) {
         _conditions.value.add(Condition.values[item]);
@@ -124,17 +125,17 @@ class CharacterState extends FigureState {
   /// so subscribed widgets rebuild automatically. Preserves object identity so
   /// existing [ValueListenableBuilder] subscriptions remain valid.
   void updateFromJson(String _, Map<String, dynamic> json) {
-    _initiative.value = json['initiative'] as int;
-    _xp.value = json['xp'] as int;
-    _chill.value = json['chill'] as int;
-    _health.value = json["health"] as int;
-    _level.value = json["level"] as int;
-    _maxHealth.value = json["maxHealth"] as int;
-    _display.value = json['display'] as String;
+    _initiative.value = json['initiative'] as int? ?? 0;
+    _xp.value = json['xp'] as int? ?? 0;
+    _chill.value = json['chill'] as int? ?? 0;
+    _health.value = json["health"] as int? ?? 0;
+    _level.value = json["level"] as int? ?? 1;
+    _maxHealth.value = json["maxHealth"] as int? ?? _health.value;
+    _display.value = json['display'] as String? ?? '';
     _plague.value = 0; // not serialised — reset to match fromJson behaviour
 
     _summonList.clear();
-    for (final item in json["summonList"]) {
+    for (final item in json["summonList"] as List? ?? const []) {
       _summonList.add(MonsterInstance.fromJson(item as Map<String, dynamic>));
     }
     _notifySummonList();
@@ -151,12 +152,13 @@ class CharacterState extends FigureState {
       }
     }
     _perkListVersion.value++;
-    _useFHPerks.value =
-        json.containsKey("useFHPerks") ? json["useFHPerks"] as bool : false;
+    _useFHPerks.value = json.containsKey("useFHPerks")
+        ? json["useFHPerks"] as bool
+        : false;
 
     // Assign a new list instance so the ValueNotifier fires its listeners.
     final newConditions = <Condition>[];
-    for (int item in json["conditions"]) {
+    for (int item in json["conditions"] as List? ?? const []) {
       if (item >= 0 && item < Condition.values.length) {
         newConditions.add(Condition.values[item]);
       }
@@ -164,8 +166,9 @@ class CharacterState extends FigureState {
     _conditions.value = newConditions;
 
     if (json.containsKey("modifierDeck")) {
-      _modifierDeck
-          .updateFromJson(json["modifierDeck"] as Map<String, dynamic>);
+      _modifierDeck.updateFromJson(
+        json["modifierDeck"] as Map<String, dynamic>,
+      );
     } else {
       _modifierDeck.resetToDefault();
     }
@@ -227,23 +230,25 @@ class CharacterState extends FigureState {
   }
 
   Map<String, dynamic> toJson() => {
-        'initiative': initiative.value,
-        'health': health.value,
-        'maxHealth': maxHealth.value,
-        'level': level.value,
-        'xp': xp.value,
-        'chill': chill.value,
-        'display': display.value,
-        'modifierDeck': _modifierDeck.toJson(),
-        'summonList': _summonList.map((s) => s.toJson()).toList(),
-        'useFHPerks': useFHPerks.value,
-        'perkList': List<bool>.of(_perkList),
-        'conditions': _conditions.value.map((c) => c.index).toList(),
-        'conditionsAddedThisTurn':
-            _conditionsAddedThisTurn.map((c) => c.index).toList(),
-        'conditionsAddedPreviousTurn':
-            _conditionsAddedPreviousTurn.map((c) => c.index).toList(),
-      };
+    'initiative': initiative.value,
+    'health': health.value,
+    'maxHealth': maxHealth.value,
+    'level': level.value,
+    'xp': xp.value,
+    'chill': chill.value,
+    'display': display.value,
+    'modifierDeck': _modifierDeck.toJson(),
+    'summonList': _summonList.map((s) => s.toJson()).toList(),
+    'useFHPerks': useFHPerks.value,
+    'perkList': List<bool>.of(_perkList),
+    'conditions': _conditions.value.map((c) => c.index).toList(),
+    'conditionsAddedThisTurn': _conditionsAddedThisTurn
+        .map((c) => c.index)
+        .toList(),
+    'conditionsAddedPreviousTurn': _conditionsAddedPreviousTurn
+        .map((c) => c.index)
+        .toList(),
+  };
 
   @override
   String toString() => json.encode(toJson());

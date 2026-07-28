@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -68,6 +69,7 @@ class Settings {
   String lastKnownHostIP = "";
 
   bool connectClientOnStartup = false;
+  Timer? _startupConnectTimer;
 
   Future<void> init({Network? network}) async {
     await loadFromDisk();
@@ -177,8 +179,7 @@ class Settings {
       SystemChrome.setSystemUIChangeCallback(
         (
           systemOverlaysAreVisible,
-        ) =>
-            Future.delayed(const Duration(milliseconds: 1001), () {
+        ) => Future.delayed(const Duration(milliseconds: 1001), () {
           if (fullscreen) {
             SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
             if (kDebugMode) {
@@ -362,8 +363,14 @@ class Settings {
 
       if (data["connectClientOnStartup"] != null &&
           data["connectClientOnStartup"] != false) {
-        Future.delayed(const Duration(milliseconds: 2000), () {
-          (client ?? getIt<Client>()).connect(lastKnownConnection);
+        _startupConnectTimer?.cancel();
+        _startupConnectTimer = Timer(const Duration(milliseconds: 2000), () {
+          final reconnectClient = client ?? getIt<Client>();
+          if (this.client.value == ClientState.disconnected &&
+              !reconnectClient.hasActiveConnection) {
+            this.client.value = ClientState.connecting;
+            reconnectClient.connect(lastKnownConnection);
+          }
         });
       }
     }

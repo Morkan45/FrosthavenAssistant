@@ -62,15 +62,17 @@ class MainState extends State<MyHomePage>
           WakelockPlus.enable().ignore();
         }
         rebuildAllChildren(
-            context); //might be a bit performance heavy, but ensures app state visually up to date with server.
+          context,
+        ); //might be a bit performance heavy, but ensures app state visually up to date with server.
         if (_network.clientDisconnectedWhileInBackground ||
-            (_settings.connectClientOnStartup
-            //todo: reevaluate if this is a good idea: might be good to do an actual check, since this boo might be wrong
-            // && _settings.client.value == ClientState.disconnected
-            )) {
+            _settings.connectClientOnStartup) {
           log("client was in background so try reconnect");
           _network.clientDisconnectedWhileInBackground = false;
-          _client.connect(_settings.lastKnownConnection);
+          if (_settings.client.value == ClientState.disconnected &&
+              !_client.hasActiveConnection) {
+            _settings.client.value = ClientState.connecting;
+            _client.connect(_settings.lastKnownConnection);
+          }
         }
         break;
       case AppLifecycleState.inactive: //goes background but still alive.
@@ -85,7 +87,9 @@ class MainState extends State<MyHomePage>
         log("app in detached");
         //means shut down. save client state here. and try connect at startup if so.
         if (_settings.client.value == ClientState.connected) {
-          log("client was disconnected in background so try reconnect on restart");
+          log(
+            "client was disconnected in background so try reconnect on restart",
+          );
           _network.clientDisconnectedWhileInBackground = true;
           _settings.connectClientOnStartup = true;
           _settings.saveToDisk();
@@ -124,8 +128,7 @@ class MainState extends State<MyHomePage>
       windowManager.addListener(this);
     }
 
-    if (!kIsWeb &&
-        (Platform.isAndroid || Platform.isIOS)) {
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       WakelockPlus.enable().ignore();
     }
 

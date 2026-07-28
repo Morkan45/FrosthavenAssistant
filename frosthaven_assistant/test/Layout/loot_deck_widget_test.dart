@@ -26,10 +26,10 @@ void main() {
   Future<void> pumpWidget(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
+      testMaterialApp(
+        home: const Scaffold(
           body: Center(child: LootDeckWidget()),
         ),
       ),
@@ -114,7 +114,7 @@ void main() {
 
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       // First InkWell is the draw pile
       await tester.tap(find.byType(InkWell).first);
       await tester.pump();
@@ -136,7 +136,7 @@ void main() {
 
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       // Second InkWell is the discard pile
       final inkWells = find.byType(InkWell);
       if (inkWells.evaluate().length >= 2) {

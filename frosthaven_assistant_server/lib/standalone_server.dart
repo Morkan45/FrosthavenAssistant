@@ -1,18 +1,17 @@
-
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:frosthaven_assistant_server/connection_health.dart';
 import 'package:frosthaven_assistant_server/game_server.dart';
+import 'package:frosthaven_assistant_server/message_framer.dart';
 import 'package:frosthaven_assistant_server/server_state.dart';
 
 class StandaloneServer extends GameServer {
-
   final List<Socket> _clientConnections = List.empty(growable: true);
   final ServerState _state = ServerState();
-  final Map<Socket,ConnectionHealth> _connectionHealth = {};
+  final Map<Socket, ConnectionHealth> _connectionHealth = {};
   int pingCount = 0;
-  bool _pinging = false; //to not restart this ping sub process, if one is running
+  bool _pinging =
+      false; //to not restart this ping sub process, if one is running
 
   static const String _noEventJson = '{"type":"none"}';
 
@@ -21,7 +20,6 @@ class StandaloneServer extends GameServer {
         ? _state.gameSaveStates.last.getState()
         : "{}";
   }
-
 
   @override
   void addClientConnection(Socket client) {
@@ -42,9 +40,11 @@ class StandaloneServer extends GameServer {
 
   @override
   Future<String> getConnectToIP() async {
-    for (var interface in await NetworkInterface.list(type: InternetAddressType.IPv6)) {
-      for (var address in interface.addresses){
-        return address.address;
+    for (var interface in await NetworkInterface.list(
+      type: InternetAddressType.IPv4,
+    )) {
+      for (var address in interface.addresses) {
+        if (!address.isLoopback && !address.isLinkLocal) return address.address;
       }
     }
     return "0.0.0.0";
@@ -62,7 +62,9 @@ class StandaloneServer extends GameServer {
   void removeAllClientConnections() {
     print("Remove all Client Connections");
     for (var client in _clientConnections) {
-      print("Close Connection ${safeGetClientAddress(client)} ${_connectionHealth[client]}");
+      print(
+        "Close Connection ${safeGetClientAddress(client)} ${_connectionHealth[client]}",
+      );
       try {
         client.close();
       } catch (exception) {
@@ -75,7 +77,9 @@ class StandaloneServer extends GameServer {
   @override
   void removeClientConnection(Socket client) {
     print("Remove client connection ${safeGetClientAddress(client)}");
-    print("Close Connection ${safeGetClientAddress(client)} ${_connectionHealth[client]}");
+    print(
+      "Close Connection ${safeGetClientAddress(client)} ${_connectionHealth[client]}",
+    );
     try {
       client.close();
     } catch (exception) {
@@ -89,9 +93,8 @@ class StandaloneServer extends GameServer {
     _state.commandIndex = -1;
     _state.commands.clear();
     _state.commandDescriptions.clear();
-    if (_state.gameSaveStates.isNotEmpty){
-      _state.gameSaveStates
-          .removeRange(0, _state.gameSaveStates.length - 1);
+    if (_state.gameSaveStates.isNotEmpty) {
+      _state.gameSaveStates.removeRange(0, _state.gameSaveStates.length - 1);
     }
     _pinging = false;
   }
@@ -100,43 +103,44 @@ class StandaloneServer extends GameServer {
   void sendInitResponse(Socket client) {
     String commandDescription = "";
     if (_state.commandIndex > 0 &&
-        _state.commandDescriptions.length >
-            _state.commandIndex) {
-      commandDescription = _state
-          .commandDescriptions[_state.commandIndex];
+        _state.commandDescriptions.length > _state.commandIndex) {
+      commandDescription = _state.commandDescriptions[_state.commandIndex];
     }
     print(
-        'Server sends init response: "S3nD:Index:${_state.commandIndex}Description:$commandDescription');
+      'Server sends init response at index ${_state.commandIndex}: $commandDescription',
+    );
     sendToOnly(
-        GameServer.encodeStateEnvelope(
-          index: _state.commandIndex,
-          description: commandDescription,
-          eventJson: _noEventJson,
-          state: _lastSavedState(),
-        ),
-        client);
+      GameServer.encodeStateEnvelope(
+        index: _state.commandIndex,
+        description: commandDescription,
+        eventJson: _noEventJson,
+        state: _lastSavedState(),
+      ),
+      client,
+    );
   }
 
   @override
   void send(String data) {
-    final String message = _createMessage(data);
-    for(Socket client in _clientConnections){
+    final message = MessageFramer.encode(data);
+    for (Socket client in _clientConnections) {
       _writeToClient(client, message);
     }
   }
 
   @override
   void sendToOnly(String data, Socket client) {
-    final String message = _createMessage(data);
+    final message = MessageFramer.encode(data);
     _writeToClient(client, message);
   }
 
   @override
   void sendToOthers(String data, Socket client) {
-    final String message = _createMessage(data);
-    for(Socket clientConnection in _clientConnections){
+    final message = MessageFramer.encode(data);
+    for (Socket clientConnection in _clientConnections) {
       try {
-        if (client.remoteAddress != clientConnection.remoteAddress || clientConnection.remotePort != client.remotePort){
+        if (client.remoteAddress != clientConnection.remoteAddress ||
+            clientConnection.remotePort != client.remotePort) {
           _writeToClient(clientConnection, message);
         }
       } catch (exception) {
@@ -145,10 +149,10 @@ class StandaloneServer extends GameServer {
     }
   }
 
-  void _writeToClient(Socket client, String message) {
+  void _writeToClient(Socket client, List<int> message) {
     try {
       _connectionHealth[client]?.logMessageSent();
-      client.write(message);
+      client.add(message);
     } catch (error) {
       print(error);
     }
@@ -177,30 +181,29 @@ class StandaloneServer extends GameServer {
       if (_state.commandDescriptions.isNotEmpty) {
         commandDescription = _state.commandDescriptions.last;
       }
-      send(GameServer.encodeStateEnvelope(
-        index: _state.commandIndex,
-        description: commandDescription,
-        eventJson: _noEventJson,
-        state: _lastSavedState(),
-      ));
+      send(
+        GameServer.encodeStateEnvelope(
+          index: _state.commandIndex,
+          description: commandDescription,
+          eventJson: _noEventJson,
+          state: _lastSavedState(),
+        ),
+      );
     } else if (message.index > _state.commandIndex) {
-      _state.commandIndex = message.index;
-      if (message.index >= 0) {
-        _state.commandDescriptions
-            .insert(_state.commandIndex, message.description);
-      }
-      _state.save(message.data);
+      _state.acceptUpdate(message.index, message.description, message.data);
       sendToOthers(
-          GameServer.encodeStateEnvelope(
-            index: _state.commandIndex,
-            description: _state.commandDescriptions.last,
-            eventJson: message.eventJson,
-            state: _lastSavedState(),
-          ),
-          client);
+        GameServer.encodeStateEnvelope(
+          index: _state.commandIndex,
+          description: _state.commandDescriptions.last,
+          eventJson: message.eventJson,
+          state: _lastSavedState(),
+        ),
+        client,
+      );
     } else {
       print(
-          'Got same or lower index. ignoring: received index: ${message.indexString} current index ${_state.commandIndex}');
+        'Got same or lower index. ignoring: received index: ${message.indexString} current index ${_state.commandIndex}',
+      );
 
       //overwrite client state with current server state.
       final idx = _state.commandIndex;
@@ -208,13 +211,9 @@ class StandaloneServer extends GameServer {
           ? _state.commandDescriptions[idx]
           : '';
       sendToOnly(
-          "Mismatch:${GameServer.encodeStateEnvelope(
-            index: idx,
-            description: mismatchDesc,
-            eventJson: _noEventJson,
-            state: _lastSavedState(),
-          )}",
-          client);
+        "Mismatch:${GameServer.encodeStateEnvelope(index: idx, description: mismatchDesc, eventJson: _noEventJson, state: _lastSavedState())}",
+        client,
+      );
       //ignore if same index from server
     }
   }
@@ -229,11 +228,11 @@ class StandaloneServer extends GameServer {
           return;
         }
         send("ping");
-        for(Socket client in _clientConnections){
+        for (Socket client in _clientConnections) {
           _connectionHealth[client]?.logPing();
         }
         pingCount++;
-        if (pingCount % 30 == 0){
+        if (pingCount % 30 == 0) {
           printHealthReport();
         }
         _pinging = false;
@@ -243,45 +242,41 @@ class StandaloneServer extends GameServer {
   }
 
   @override
-  void handlePongMessage(Socket client){
+  void handlePongMessage(Socket client) {
     super.handlePongMessage(client);
     _connectionHealth[client]?.logPong();
   }
 
   @override
-  void processMessages(String message, Socket client){
+  void processMessages(String message, Socket client) {
     _connectionHealth[client]?.logMessageReceived();
     super.processMessages(message, client);
   }
 
-  String _createMessage(String data){
-    const beginning = "S3nD:";
-    const end = "[EOM]";
-    return "$beginning$data$end";
-  }
-
-  void printHealthReport(){
+  void printHealthReport() {
     print("=======================================");
     print("|           HEALTH REPORT             |");
     print("=======================================");
     print("ACTIVE CONNNECTIONS: ${_clientConnections.length}");
-    for(Socket client in _clientConnections){
-      print("Client ${safeGetClientAddress(client)} ${_connectionHealth[client]}");
+    for (Socket client in _clientConnections) {
+      print(
+        "Client ${safeGetClientAddress(client)} ${_connectionHealth[client]}",
+      );
     }
     print("");
     print("TOTAL CONNECTIONS: ${_connectionHealth.keys.length}");
     print("HEALTH DATA: ");
-    for (ConnectionHealth data in _connectionHealth.values){
+    for (ConnectionHealth data in _connectionHealth.values) {
       print(data);
     }
   }
 
-  String safeGetClientAddress(Socket client){
-    try{
+  @override
+  String safeGetClientAddress(Socket client) {
+    try {
       return "Client ${client.remoteAddress}:${client.remotePort}";
     } catch (exception) {
       return "Closed client: ";
     }
   }
-  
 }

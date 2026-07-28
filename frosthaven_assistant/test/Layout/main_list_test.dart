@@ -63,7 +63,7 @@ void main() {
   Future<void> pumpWidget(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       const MaterialApp(home: Scaffold(body: MainList())),
     );
@@ -258,7 +258,7 @@ void main() {
 
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
 
       await tester.pumpWidget(
         const MaterialApp(home: Scaffold(body: MainList())),
@@ -321,7 +321,7 @@ void main() {
           .firstWhere((e) => e is Character) as Character;
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(body: MainListItem(data: character)),
@@ -347,7 +347,7 @@ void main() {
           .firstWhere((e) => e is Monster) as Monster;
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(body: MainListItem(data: monster)),

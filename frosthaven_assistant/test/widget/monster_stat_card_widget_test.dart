@@ -33,9 +33,9 @@ void main() {
 
   Future<void> pumpStatCard(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
-      MaterialApp(
+      testMaterialApp(
         home: Scaffold(
           body: SingleChildScrollView(
             child: MonsterStatCardWidget(data: getZealot()),
@@ -68,7 +68,7 @@ void main() {
     testWidgets('tapping add button opens AddStandeeMenu or adds standee',
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpStatCard(tester);
       // Tap the first add (normal) button
       await tester.tap(find.byType(IconButton).first);
@@ -81,7 +81,7 @@ void main() {
 
     testWidgets('double tap opens StatCardZoom', (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpStatCard(tester);
       // Double tap the GestureDetector wrapping buildCard
       await tester.tap(find.byType(GestureDetector).first);
@@ -108,7 +108,7 @@ void main() {
     testWidgets('tapping elite add button opens AddStandeeMenu for elite',
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpStatCard(tester);
       // Elite add button is the second IconButton
       await tester.tap(find.byType(IconButton).last);
@@ -179,7 +179,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final zealot = getZealot();
 
       // With count > 2 available standees and none added, tapping opens menu
@@ -222,12 +222,12 @@ void main() {
 
     Future<void> pumpArtilleryCard(WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final monster = getIt<GameState>()
           .currentList
           .firstWhere((e) => e.id == 'Ancient Artillery (FH)') as Monster;
       await tester.pumpWidget(
-        MaterialApp(
+        testMaterialApp(
           home: Scaffold(
             body: SingleChildScrollView(
               child: MonsterStatCardWidget(data: monster),

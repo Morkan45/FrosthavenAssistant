@@ -1,8 +1,9 @@
-
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
+
+import 'package:frosthaven_assistant_server/message_framer.dart';
 
 class StateUpdateMessage {
   String indexString = "";
@@ -13,32 +14,35 @@ class StateUpdateMessage {
 }
 
 abstract class GameServer {
-
   /// Wire-protocol version. Increment this ONLY when the message format itself
   /// changes (e.g. envelope fields added/removed). Game-data additions (new
   /// classes, campaigns) must NOT bump this number.
-  static const int protocolVersion = 1;
+  static const int protocolVersion = 2;
 
   // Sockets rejected for version mismatch.  Checked in onDone so that
   // "Client left." does not overwrite the rejection message.
   final Set<Socket> _rejectedClients = {};
+  final Set<Socket> _initializedClients = {};
 
   ServerSocket? _serverSocket;
+  // ignore: unnecessary_getters_setters, subclasses depend on this override point.
   ServerSocket? get serverSocket {
     return _serverSocket;
   }
-  set serverSocket(ServerSocket? value){
+
+  set serverSocket(ServerSocket? value) {
     _serverSocket = value;
   }
 
   bool _serverEnabled = false;
+  // ignore: unnecessary_getters_setters, app and standalone servers override this state.
   bool get serverEnabled {
     return _serverEnabled;
   }
-  set serverEnabled(bool value){
+
+  set serverEnabled(bool value) {
     _serverEnabled = value;
   }
-
 
   void resetState();
   void undoState();
@@ -57,7 +61,6 @@ abstract class GameServer {
   void sendToOnly(String data, Socket client);
   void sendToOthers(String data, Socket client);
   void sendInitResponse(Socket client);
-
 
   /// Encodes a state message as a JSON envelope.
   ///
@@ -94,7 +97,6 @@ abstract class GameServer {
     }
   }
 
-
   Future<void> startServerInternal(String ip, int port) async {
     try {
       serverSocket = await ServerSocket.bind(ip, port);
@@ -107,12 +109,15 @@ abstract class GameServer {
       setNetworkMessage(info);
       resetState();
       send(currentStateMessage(""));
-      var subscriptions = server.listen((Socket client) {
-        handleConnection(client);
-      }, onError: (e) {
-        log('Server error: $e');
-        setNetworkMessage('Server error: ${e.toString()}');
-      });
+      var subscriptions = server.listen(
+        (Socket client) {
+          handleConnection(client);
+        },
+        onError: (e) {
+          log('Server error: $e');
+          setNetworkMessage('Server error: ${e.toString()}');
+        },
+      );
       sendPing();
       await subscriptions.asFuture();
     } catch (error) {
@@ -141,7 +146,7 @@ abstract class GameServer {
     resetState();
   }
 
-  void logHandleConnection(Socket client){
+  void logHandleConnection(Socket client) {
     String info = 'Connection from ${safeGetClientAddress(client)}';
     log(info);
     setNetworkMessage(info);
@@ -170,35 +175,22 @@ abstract class GameServer {
 
     // Per-connection leftover buffer — avoids the shared-field bug where
     // messages from different clients could corrupt each other's partial frames.
-    String leftOver = "";
-
-    const String prefix = 'S3nD:';
-    const String suffix = '[EOM]';
+    final framer = MessageFramer();
 
     // listen for events from the client
     try {
       client.listen(
         // handle data from the client
         (Uint8List data) {
-          String chunk;
           try {
-            chunk = utf8.decode(data);
+            for (final message in framer.add(data)) {
+              processMessages(message, client);
+            }
           } on FormatException catch (e) {
-            log('Invalid UTF-8 from client: $e');
+            log('Invalid frame from client: $e');
+            sendToOnly('Error: malformed network message.', client);
+            _rejectedClients.add(client);
             removeClientConnection(client);
-            return;
-          }
-          leftOver += chunk;
-          // Use indexOf-based framing: safe if the payload contains "S3nD:".
-          while (true) {
-            final int start = leftOver.indexOf(prefix);
-            if (start == -1) break;
-            final int contentStart = start + prefix.length;
-            final int end = leftOver.indexOf(suffix, contentStart);
-            if (end == -1) break;
-            final String content = leftOver.substring(contentStart, end);
-            leftOver = leftOver.substring(end + suffix.length);
-            processMessages(content, client);
           }
         },
         // handle errors
@@ -210,11 +202,14 @@ abstract class GameServer {
           final int? errno = error is SocketException
               ? error.osError?.errorCode
               : error is OSError
-                  ? error.errorCode
-                  : null;
+              ? error.errorCode
+              : null;
           if (errno == 103) {
-            log('Client aborted connection (errno 103): ${safeGetClientAddress(client)}');
+            log(
+              'Client aborted connection (errno 103): ${safeGetClientAddress(client)}',
+            );
             removeClientConnection(client);
+            _initializedClients.remove(client);
             setNetworkMessage('Client left.');
           } else {
             log(error.toString());
@@ -225,6 +220,7 @@ abstract class GameServer {
         onDone: () {
           if (serverEnabled) {
             removeClientConnection(client);
+            _initializedClients.remove(client);
             if (_rejectedClients.remove(client)) {
               log('Rejected old-version client disconnected');
             } else {
@@ -241,13 +237,24 @@ abstract class GameServer {
   }
 
   /// Dispatches a single fully-decoded, unframed message content to the
-  /// appropriate handler.  Framing (S3nD:/[EOM] extraction) is done by
+  /// appropriate handler. Byte framing is done by
   /// [handleConnection] before calling this method.
-  void processMessages(String message, Socket client){
+  void processMessages(String message, Socket client) {
+    if (message.startsWith("init")) {
+      handleInitMessage(message, client);
+      return;
+    }
+    if (!_initializedClients.contains(client)) {
+      sendToOnly(
+        'Error: initialize the connection before sending commands.',
+        client,
+      );
+      _rejectedClients.add(client);
+      removeClientConnection(client);
+      return;
+    }
     if (message.startsWith("{")) {
       handleIndexMessage(message, client);
-    } else if (message.startsWith("init")) {
-      handleInitMessage(message, client);
     } else if (message.startsWith("undo")) {
       handleUndoMessage();
     } else if (message.startsWith("redo")) {
@@ -259,57 +266,79 @@ abstract class GameServer {
     }
   }
 
-  void handleIndexMessage(String message, Socket client){
+  void handleIndexMessage(String message, Socket client) {
     final StateUpdateMessage? parsed = tryDecodeStateEnvelope(message);
     if (parsed == null) {
-      log('Received malformed state message from ${safeGetClientAddress(client)}, ignoring.');
+      log(
+        'Received malformed state message from ${safeGetClientAddress(client)}, ignoring.',
+      );
       return;
     }
     updateStateFromMessage(parsed, client);
   }
 
-  void handleInitMessage(String message, Socket client){
+  void handleInitMessage(String message, Socket client) {
     // Old clients (≤v1.13.7) send "init version:NNNN" — give a friendly
     // rejection rather than a confusing "malformed" error, then close the socket.
     if (message.contains("version:") && !message.contains("protocolVersion:")) {
-      setNetworkMessage("Old client attempted to connect. Please update the app.");
-      sendToOnly("Error: Your app is outdated. Please update to connect.", client);
+      setNetworkMessage(
+        "Old client attempted to connect. Please update the app.",
+      );
+      sendToOnly(
+        "Error: Your app is outdated. Please update to connect.",
+        client,
+      );
       _rejectedClients.add(client);
       removeClientConnection(client);
       return;
     }
     List<String> initMessageParts = message.split("protocolVersion:");
     if (initMessageParts.length < 2) {
-      sendToOnly("Error: malformed init message (missing protocolVersion field).", client);
+      sendToOnly(
+        "Error: malformed init message (missing protocolVersion field).",
+        client,
+      );
+      _rejectedClients.add(client);
+      removeClientConnection(client);
       return;
     }
     final int? version = int.tryParse(initMessageParts[1]);
     if (version == null) {
-      sendToOnly("Error: malformed init message (non-integer protocolVersion).", client);
+      sendToOnly(
+        "Error: malformed init message (non-integer protocolVersion).",
+        client,
+      );
+      _rejectedClients.add(client);
+      removeClientConnection(client);
       return;
     }
     if (version != protocolVersion) {
       setNetworkMessage(
-          "Protocol version mismatch. Client $version, server $protocolVersion. Please update.");
+        "Protocol version mismatch. Client $version, server $protocolVersion. Please update.",
+      );
       sendToOnly(
-          "Error: Protocol version mismatch. Client $version, server $protocolVersion. Please update.",
-          client);
+        "Error: Protocol version mismatch. Client $version, server $protocolVersion. Please update.",
+        client,
+      );
+      _rejectedClients.add(client);
+      removeClientConnection(client);
     } else {
+      _initializedClients.add(client);
       sendInitResponse(client);
     }
   }
 
-  void handleUndoMessage(){
+  void handleUndoMessage() {
     log('Server Receive undo command');
     undoState();
   }
 
-  void handleRedoMessage(){
+  void handleRedoMessage() {
     log('Server Receive redo command');
     redoState();
   }
 
-  void handlePongMessage(Socket client){
+  void handlePongMessage(Socket client) {
     log('pong from ${safeGetClientAddress(client)}');
   }
 
@@ -318,16 +347,16 @@ abstract class GameServer {
     sendToOnly("pong", client);
   }
 
-  String safeGetClientAddress(Socket client){
+  String safeGetClientAddress(Socket client) {
     try {
       return "${client.remoteAddress}:${client.remotePort}";
     } catch (exception) {
       log("Encountered error accessing client");
       log(exception.toString());
-      // There might be a chance that is is for a different 
-      // reason, but this is the most common reason I've 
+      // There might be a chance that is is for a different
+      // reason, but this is the most common reason I've
       // seen so far
-      return "Closed socket"; 
+      return "Closed socket";
     }
   }
 }

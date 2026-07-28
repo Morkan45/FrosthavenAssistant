@@ -34,7 +34,7 @@ void main() {
   Future<void> pumpMenu(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -95,7 +95,7 @@ void main() {
       await pumpMenu(tester);
       await tester.tap(find.text('Enhance cards'));
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpAndSettle();
       FlutterError.onError = originalOnError;
       expect(find.byType(LootCardEnhancementMenu), findsOneWidget);

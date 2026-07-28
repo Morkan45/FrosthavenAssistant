@@ -271,6 +271,7 @@ void main() {
     });
 
     test('Container with Text child returns the text', () {
+      // ignore: avoid_unnecessary_containers, Container is the subject under test.
       final widget = Container(child: const Text('inner'));
       final result = FrosthavenConverter.getAllTextInWidget(widget);
       expect(result, 'inner');

@@ -29,7 +29,7 @@ void main() {
   Future<void> pumpWidget(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -89,7 +89,7 @@ void main() {
 
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.tap(find.text('Character Decks'));
       // Flush 0ms timers created by animation state changes, then advance
       // past the 500ms animation duration so all timers complete.
@@ -129,7 +129,7 @@ void main() {
 
         final originalOnError = FlutterError.onError;
         addTearDown(() => FlutterError.onError = originalOnError);
-        FlutterError.onError = ignoreOverflowErrors;
+        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         AddCharacterCommand('Banner Spear', 'Frosthaven', null, 2).execute();
         await tester.pump();
         FlutterError.onError = originalOnError;
@@ -176,7 +176,7 @@ void main() {
 
         final originalOnError = FlutterError.onError;
         addTearDown(() => FlutterError.onError = originalOnError);
-        FlutterError.onError = ignoreOverflowErrors;
+        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         gameState.action(
           RemoveCharacterCommand([blinkblade], gameState: gameState),
         );

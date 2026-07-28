@@ -15,6 +15,7 @@ class _MockCharacter extends Mock implements Character {
   _MockCharacter(this.characterClass);
 }
 
+// ignore: must_be_immutable, Mockito's base class contains mutable internals.
 class _MockCharacterClass extends Mock implements CharacterClass {
   @override
   final String name;
