@@ -5,14 +5,29 @@ on:
       - main
     tags:
       - 'v*'
-#  pull_request:  # uncomment if you want to build in PRs also
+  pull_request:
+    branches: [ "main" ]
 
 permissions:
   contents: read
   packages: write
 
 jobs:
+  quality:
+    name: Analyze and test server
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frosthaven_assistant_server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - run: dart pub get
+      - run: dart analyze --fatal-infos
+      - run: dart test
+
   container:
+    if: github.event_name != 'pull_request'
     name: Build docker container
     runs-on: ubuntu-latest
     defaults:
