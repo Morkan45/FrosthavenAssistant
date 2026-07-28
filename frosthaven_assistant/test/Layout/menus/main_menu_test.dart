@@ -37,7 +37,7 @@ void main() {
   Future<void> pumpMenu(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -113,9 +113,11 @@ void main() {
     ) async {
       await pumpMenu(tester);
       await tester.scrollUntilVisible(find.text('Add Monsters'), 100);
+      await tester.ensureVisible(find.text('Add Monsters'));
+      await tester.pump();
       await tester.tap(find.text('Add Monsters'));
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       FlutterError.onError = originalOnError;
@@ -127,9 +129,11 @@ void main() {
     ) async {
       await pumpMenu(tester);
       await tester.scrollUntilVisible(find.text('Set Level'), 100);
+      await tester.ensureVisible(find.text('Set Level'));
+      await tester.pump();
       await tester.tap(find.text('Set Level'));
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       FlutterError.onError = originalOnError;
@@ -240,7 +244,7 @@ void main() {
       await tester.scrollUntilVisible(find.text('Settings'), 100);
       await tester.tap(find.text('Settings'));
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       FlutterError.onError = originalOnError;

@@ -26,7 +26,7 @@ void main() {
   Future<void> pumpMenu(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     // One normal standee slot for Zealot
     final monsterData = [
       const RoomMonsterData('Zealot', [1, 0, 0], [0, 0, 0]),
@@ -39,6 +39,7 @@ void main() {
           GlobalWidgetsLocalizations.delegate,
         ],
         supportedLocales: const [Locale('en')],
+        builder: (context, child) => Material(child: child!),
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () {
@@ -97,7 +98,7 @@ void main() {
         expect(monster.monsterInstances.length, greaterThan(instancesBefore));
         // Ignore errors from dialog closing animation
         final originalOnError = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors;
+        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.pump();
         FlutterError.onError = originalOnError;
       }
@@ -148,14 +149,14 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpMenu(tester);
       final checkbox = tester.widget<Checkbox>(find.byType(Checkbox));
       expect(
         () => checkbox.onChanged?.call(true),
         returnsNormally,
       );
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pump();
       FlutterError.onError = originalOnError;
     });
@@ -172,7 +173,7 @@ void main() {
     Future<void> pumpLargeMenu(WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final monsterData = [
         const RoomMonsterData('Rat Monstrosity', [6, 0, 0], [0, 0, 0]),
       ];
@@ -184,6 +185,7 @@ void main() {
             GlobalWidgetsLocalizations.delegate,
           ],
           supportedLocales: const [Locale('en')],
+          builder: (context, child) => Material(child: child!),
           home: Builder(
             builder: (context) => ElevatedButton(
               onPressed: () {
@@ -229,7 +231,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       // First monster needs 0 standees — while loop advances to Vermling Raider
       final monsterData = [
         const RoomMonsterData('Zealot', [0, 0, 0], [0, 0, 0]),
@@ -243,6 +245,7 @@ void main() {
             GlobalWidgetsLocalizations.delegate,
           ],
           supportedLocales: const [Locale('en')],
+          builder: (context, child) => Material(child: child!),
           home: Builder(
             builder: (context) => ElevatedButton(
               onPressed: () {
@@ -268,7 +271,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final monsterData = [
         const RoomMonsterData('Zealot', [1, 0, 0], [0, 0, 0]),
         const RoomMonsterData('Vermling Raider', [1, 0, 0], [0, 0, 0]),
@@ -281,6 +284,7 @@ void main() {
             GlobalWidgetsLocalizations.delegate,
           ],
           supportedLocales: const [Locale('en')],
+          builder: (context, child) => Material(child: child!),
           home: Builder(
             builder: (context) => ElevatedButton(
               onPressed: () {
@@ -302,7 +306,7 @@ void main() {
       // Tap standee 1 for Zealot to complete first monster
       final button1 = find.text('1');
       if (button1.evaluate().isNotEmpty) {
-        FlutterError.onError = ignoreOverflowErrors;
+        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.tap(button1.first);
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
@@ -364,6 +368,7 @@ void main() {
             GlobalWidgetsLocalizations.delegate,
           ],
           supportedLocales: const [Locale('en')],
+          builder: (context, child) => Material(child: child!),
           home: Builder(
             builder: (context) => ElevatedButton(
               onPressed: () {
@@ -402,7 +407,7 @@ void main() {
     Future<void> pumpEliteMenu(WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       // characterIndex=0: normal[0]=0, elite[0]=1
       final monsterData = [
         const RoomMonsterData('Zealot', [0, 0, 0], [1, 0, 0]),
@@ -415,6 +420,7 @@ void main() {
             GlobalWidgetsLocalizations.delegate,
           ],
           supportedLocales: const [Locale('en')],
+          builder: (context, child) => Material(child: child!),
           home: Builder(
             builder: (context) => ElevatedButton(
               onPressed: () {
@@ -455,7 +461,7 @@ void main() {
           expect(monster.monsterInstances.last.type, MonsterType.elite);
         }
         final originalOnError = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors;
+        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.pump();
         FlutterError.onError = originalOnError;
       }

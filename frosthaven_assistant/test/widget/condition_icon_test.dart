@@ -39,7 +39,7 @@ void main() {
   ) async {
     final character = getBlinkblade();
     final originalOnError = FlutterError.onError;
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -112,7 +112,7 @@ void main() {
       final owner = character;
       final figure = character.characterState;
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -198,7 +198,7 @@ void main() {
     ) async {
       final character = getBlinkblade();
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -255,7 +255,7 @@ void main() {
       final instance = monster.monsterInstances.first;
 
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -309,7 +309,7 @@ void main() {
           gameState.currentList.firstWhere((e) => e is Character) as Character;
 
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -340,7 +340,7 @@ void main() {
         ),
       );
 
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pump();
       expect(state.animate.value, isTrue);
       await tester.pump(const Duration(milliseconds: 400));
@@ -360,7 +360,7 @@ void main() {
                 as Character;
 
         final originalOnError = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors;
+        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         // stun is not in the health-decrease or health-increase animation lists
         // so _runAnimation() is NOT called → no pending timer
         await tester.pumpWidget(
@@ -388,7 +388,7 @@ void main() {
             gameState: getIt<GameState>(),
           ),
         );
-        FlutterError.onError = ignoreOverflowErrors;
+        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.pump();
         FlutterError.onError = originalOnError;
 
@@ -401,7 +401,7 @@ void main() {
             gameState: getIt<GameState>(),
           ),
         );
-        FlutterError.onError = ignoreOverflowErrors;
+        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.pump();
         FlutterError.onError = originalOnError;
 

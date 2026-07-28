@@ -25,7 +25,7 @@ void main() {
     bool isCharacter,
   ) async {
     final originalOnError = FlutterError.onError;
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -185,7 +185,7 @@ void main() {
 
       // Pump with scale=1.0
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

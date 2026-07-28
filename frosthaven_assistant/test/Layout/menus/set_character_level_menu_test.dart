@@ -30,7 +30,7 @@ void main() {
   Future<void> pumpMenu(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -39,6 +39,7 @@ void main() {
           GlobalWidgetsLocalizations.delegate,
         ],
         supportedLocales: const [Locale('en')],
+        builder: (context, child) => Material(child: child!),
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () {

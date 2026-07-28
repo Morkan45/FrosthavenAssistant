@@ -18,11 +18,14 @@ final loading = ValueNotifier<bool>(true);
 void setupGetIt() {
   getIt.registerLazySingleton<GameData>(() => GameData());
   getIt.registerLazySingleton<Settings>(() => Settings());
-  getIt.registerLazySingleton<GameState>(() => GameState(
-        communication: getIt<Communication>(),
-      ));
+  getIt.registerLazySingleton<GameState>(
+    () => GameState(communication: getIt<Communication>()),
+  );
   getIt.registerLazySingleton<Communication>(() => Communication());
-  getIt.registerLazySingleton<Network>(() => Network());
+  getIt.registerLazySingleton<Network>(
+    () => Network(),
+    dispose: (network) => network.dispose(),
+  );
   getIt.registerLazySingleton<Connection>(() => Connection());
   getIt.registerLazySingleton<Client>(() => Client());
   getIt.registerLazySingleton<TranslationService>(() => TranslationService());

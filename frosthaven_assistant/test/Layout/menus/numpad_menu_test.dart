@@ -32,7 +32,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(buildNumpad());
 
       for (int i = 0; i <= 9; i++) {
@@ -45,7 +45,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final controller = TextEditingController();
       await tester.pumpWidget(buildNumpad(controller: controller));
 
@@ -59,7 +59,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final controller = TextEditingController();
       await tester.pumpWidget(buildNumpad(controller: controller));
 
@@ -76,7 +76,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       String? lastValue;
       await tester.pumpWidget(buildNumpad(
         onChange: (value) => lastValue = value,
@@ -92,7 +92,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final List<String> values = [];
       await tester.pumpWidget(buildNumpad(
         onChange: (value) => values.add(value),
@@ -109,7 +109,7 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final controller = TextEditingController();
 
       await tester.pumpWidget(

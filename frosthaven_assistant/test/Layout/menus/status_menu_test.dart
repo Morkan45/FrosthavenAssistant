@@ -33,9 +33,9 @@ void main() {
   Future<void> pumpMenu(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     final character = getBlinkblade();
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
-      MaterialApp(
+      testMaterialApp(
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () {
@@ -161,7 +161,7 @@ void main() {
       WidgetTester tester,
     ) async {
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpMenu(tester);
       // The level button is an IconButton with 'assets/images/psd/level.png'
       final levelButton = find.byWidgetPredicate(
@@ -189,7 +189,7 @@ void main() {
       expect(originalHp, greaterThan(0));
 
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpMenu(tester);
       final skullButton = find.byWidgetPredicate(
         (w) =>
@@ -241,9 +241,9 @@ void main() {
       final zealot = getZealot();
       final instance = zealot.monsterInstances.first;
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
-        MaterialApp(
+        testMaterialApp(
           home: Builder(
             builder: (context) => ElevatedButton(
               onPressed: () {
@@ -296,7 +296,7 @@ void main() {
       WidgetTester tester,
     ) async {
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpMonsterMenu(tester);
       final levelButton = find.byWidgetPredicate(
         (w) =>
@@ -321,7 +321,7 @@ void main() {
       final zealot = getZealot();
       final instance = zealot.monsterInstances.first;
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpMonsterMenu(tester);
       final summonButton = find.byWidgetPredicate(
         (w) =>
@@ -371,9 +371,9 @@ void main() {
         final instance = zealot.monsterInstances.first;
 
         final originalOnError = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors;
+        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.pumpWidget(
-          MaterialApp(
+          testMaterialApp(
             home: Builder(
               builder: (context) => ElevatedButton(
                 onPressed: () {
@@ -437,9 +437,9 @@ void main() {
         final instance = zealot.monsterInstances.first;
 
         final originalOnError = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors;
+        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.pumpWidget(
-          MaterialApp(
+          testMaterialApp(
             home: Builder(
               builder: (context) => ElevatedButton(
                 onPressed: () {
@@ -482,7 +482,7 @@ void main() {
       WidgetTester tester,
     ) async {
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpMenu(tester);
       FlutterError.onError = originalOnError;
 
@@ -498,7 +498,7 @@ void main() {
       if (addButtons.evaluate().isNotEmpty) {
         final chillPlusButton = addButtons.last;
         final originalOnError2 = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors;
+        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.tap(chillPlusButton);
         await tester.pump();
         FlutterError.onError = originalOnError2;
@@ -522,7 +522,7 @@ void main() {
       expect(character.characterState.chill.value, greaterThan(0));
 
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpMenu(tester);
       FlutterError.onError = originalOnError;
 
@@ -537,7 +537,7 @@ void main() {
       if (subButtons.evaluate().isNotEmpty) {
         final chillMinusButton = subButtons.last;
         final originalOnError2 = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors;
+        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.tap(chillMinusButton);
         await tester.pump();
         FlutterError.onError = originalOnError2;

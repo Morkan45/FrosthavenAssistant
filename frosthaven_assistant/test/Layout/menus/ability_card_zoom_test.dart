@@ -29,7 +29,7 @@ void main() {
   Future<void> pumpZoom(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     final card = abilityState.drawPileContents.toList().first;
     await tester.pumpWidget(
       MaterialApp(

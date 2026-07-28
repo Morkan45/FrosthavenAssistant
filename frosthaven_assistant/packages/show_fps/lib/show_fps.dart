@@ -98,7 +98,7 @@ class ShowFPS extends StatefulWidget {
   final VoidCallback? onAlertTriggered;
 
   const ShowFPS({
-    Key? key,
+    super.key,
     this.alignment = Alignment.topRight,
     this.visible = true,
     this.showChart = true,
@@ -126,7 +126,7 @@ class ShowFPS extends StatefulWidget {
     this.goodColor = const Color.fromARGB(255, 0, 162, 255),
     this.poorColor = const Color(0xfff44336),
     this.onAlertTriggered,
-  }) : super(key: key);
+  });
 
   @override
   ShowFPSState createState() => ShowFPSState();
@@ -546,7 +546,8 @@ class ShowFPSState extends State<ShowFPS> with SingleTickerProviderStateMixin {
                                     fontSize: 10,
                                   ),
                             ),
-                          if (widget.showFrameBudget && widget.showDroppedFrames)
+                          if (widget.showFrameBudget &&
+                              widget.showDroppedFrames)
                             const Text(
                               ' | ',
                               style: TextStyle(
@@ -593,8 +594,8 @@ class ShowFPSState extends State<ShowFPS> with SingleTickerProviderStateMixin {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           ...timings.map((timing) {
-                            final p =
-                                (timing.fps / widget.chartMaxFps).clamp(0.0, 1.0);
+                            final p = (timing.fps / widget.chartMaxFps)
+                                .clamp(0.0, 1.0);
                             final isJank = _isJankFrame(timing);
 
                             return Padding(
@@ -642,11 +643,11 @@ class AnimatedBuilder extends StatelessWidget {
   final Widget? child;
 
   const AnimatedBuilder({
-    Key? key,
+    super.key,
     required this.animation,
     required this.builder,
     this.child,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -663,11 +664,11 @@ class AnimatedBuilder2 extends AnimatedWidget {
   final Widget? child;
 
   const AnimatedBuilder2({
-    Key? key,
+    super.key,
     required Animation<double> animation,
     required this.builder,
     this.child,
-  }) : super(key: key, listenable: animation);
+  }) : super(listenable: animation);
 
   @override
   Widget build(BuildContext context) {

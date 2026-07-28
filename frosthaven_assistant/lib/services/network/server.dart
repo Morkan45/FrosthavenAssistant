@@ -21,15 +21,15 @@ class Server extends GameServer {
   final Connection _connection;
   final Settings? _settingsOverride;
 
-  Server(
-      {GameState? gameState,
-      Communication? communication,
-      Connection? connection,
-      Settings? settings})
-      : _gameState = gameState ?? getIt<GameState>(),
-        _communication = communication ?? getIt<Communication>(),
-        _connection = connection ?? getIt<Connection>(),
-        _settingsOverride = settings;
+  Server({
+    GameState? gameState,
+    Communication? communication,
+    Connection? connection,
+    Settings? settings,
+  }) : _gameState = gameState ?? getIt<GameState>(),
+       _communication = communication ?? getIt<Communication>(),
+       _connection = connection ?? getIt<Connection>(),
+       _settingsOverride = settings;
 
   Settings get _settings => _settingsOverride ?? getIt<Settings>();
   AppLocalizations get _l10n {
@@ -54,13 +54,12 @@ class Server extends GameServer {
 
   @override
   Future<String> getConnectToIP() async {
-    String connectTo = InternetAddress.anyIPv6.address; //"0.0.0.0";
+    String connectTo = InternetAddress.loopbackIPv4.address;
     if (getIt<Network>().networkInfo.wifiIPv6.value.isNotEmpty &&
         !getIt<Network>().networkInfo.wifiIPv6.value.contains("Fail")) {
       connectTo = getIt<Network>().networkInfo.wifiIPv6.value;
     } else {
-      getIt<Network>().networkInfo.wifiIPv6.value =
-          connectTo; //if not on wifi show local ip
+      getIt<Network>().networkInfo.wifiIPv6.value = connectTo;
     }
     return connectTo;
   }
@@ -98,46 +97,54 @@ class Server extends GameServer {
       if (_gameState.commandDescriptions.isNotEmpty) {
         commandDescription = _gameState.commandDescriptions.last;
       }
-      send(StateEnvelope(
-        index: _gameState.commandIndex.value,
-        description: commandDescription,
-        eventJson: _noEventJson,
-        state: _lastSavedState(),
-      ).encode());
+      send(
+        StateEnvelope(
+          index: _gameState.commandIndex.value,
+          description: commandDescription,
+          eventJson: _noEventJson,
+          state: _lastSavedState(),
+        ).encode(),
+      );
     } else if (message.index > _gameState.commandIndex.value) {
-      if (message.index >= 0) {
-        _gameState.insertReceivedDescription(message.index, message.description);
+      if (!_gameState.loadFromData(message.data)) {
+        sendToOnly('Error: rejected invalid game state.', client);
+        return;
       }
-      _gameState.loadFromData(message.data);
+      if (message.index >= 0) {
+        _gameState.insertReceivedDescription(
+          message.index,
+          message.description,
+        );
+      }
       // Set event before commandIndex fires so VLB callbacks see it.
       _gameState.lastEvent.value = GameEvent.fromJsonString(message.eventJson);
       _gameState.commandIndex.value = message.index;
       _gameState.save();
       _gameState.updateAllUI();
       sendToOthers(
-          StateEnvelope(
-            index: _gameState.commandIndex.value,
-            description: _gameState.commandDescriptions.last,
-            eventJson: message.eventJson,
-            state: _lastSavedState(),
-          ).encode(),
-          client);
+        StateEnvelope(
+          index: _gameState.commandIndex.value,
+          description: _gameState.commandDescriptions.last,
+          eventJson: message.eventJson,
+          state: _lastSavedState(),
+        ).encode(),
+        client,
+      );
     } else {
-      log('Got same or lower index. ignoring: received index: ${message.indexString} current index ${_gameState.commandIndex.value}');
+      log(
+        'Got same or lower index. ignoring: received index: ${message.indexString} current index ${_gameState.commandIndex.value}',
+      );
 
       //overwrite client state with current server state.
       final idx = _gameState.commandIndex.value;
-      final mismatchDesc = (idx >= 0 && idx < _gameState.commandDescriptions.length)
+      final mismatchDesc =
+          (idx >= 0 && idx < _gameState.commandDescriptions.length)
           ? _gameState.commandDescriptions[idx]
           : '';
       sendToOnly(
-          "Mismatch:${StateEnvelope(
-            index: idx,
-            description: mismatchDesc,
-            eventJson: _noEventJson,
-            state: _lastSavedState(),
-          ).encode()}",
-          client);
+        "Mismatch:${StateEnvelope(index: idx, description: mismatchDesc, eventJson: _noEventJson, state: _lastSavedState()).encode()}",
+        client,
+      );
       //ignore if same index from server
     }
   }
@@ -145,7 +152,8 @@ class Server extends GameServer {
   @override
   void setNetworkMessage(String data) {
     // Translate known static messages; leave dynamic ones (IPs, errors) as-is.
-    final bool isError = data.toLowerCase().contains('error') ||
+    final bool isError =
+        data.toLowerCase().contains('error') ||
         data.toLowerCase().contains('offline') ||
         data.toLowerCase().contains('mismatch') ||
         data.toLowerCase().contains('outdated');
@@ -170,12 +178,11 @@ class Server extends GameServer {
     ).encode();
   }
 
-  bool _pinging = false; //to not restart this ping sub process, if one is running
+  bool _pinging =
+      false; //to not restart this ping sub process, if one is running
   @override
   void sendPing() {
-    if (serverSocket != null &&
-        _settings.server.value &&
-        !_pinging) {
+    if (serverSocket != null && _settings.server.value && !_pinging) {
       _pinging = true;
       Future.delayed(const Duration(seconds: 20), () {
         if (serverSocket == null || !_settings.server.value) {
@@ -207,9 +214,8 @@ class Server extends GameServer {
   static const int _defaultPort = 4567;
 
   void startServer() {
-    final int port =
-        int.tryParse(_settings.lastKnownPort) ?? _defaultPort;
-    startServerInternal(InternetAddress.anyIPv6.address, port);
+    final int port = int.tryParse(_settings.lastKnownPort) ?? _defaultPort;
+    startServerInternal(InternetAddress.anyIPv4.address, port);
   }
 
   @override
@@ -240,14 +246,17 @@ class Server extends GameServer {
         print("?");
       }
     }
-    log('Server sends init response: "S3nD:Index:${_gameState.commandIndex.value}Description:$commandDescription');
+    log(
+      'Server sends init response at index ${_gameState.commandIndex.value}: $commandDescription',
+    );
     sendToOnly(
-        StateEnvelope(
-          index: _gameState.commandIndex.value,
-          description: commandDescription,
-          eventJson: _noEventJson,
-          state: _lastSavedState(),
-        ).encode(),
-        client);
+      StateEnvelope(
+        index: _gameState.commandIndex.value,
+        description: commandDescription,
+        eventJson: _noEventJson,
+        state: _lastSavedState(),
+      ).encode(),
+      client,
+    );
   }
 }

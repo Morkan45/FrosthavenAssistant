@@ -1,5 +1,7 @@
 // ignore_for_file: no-magic-number
 
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_monster_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/set_level_command.dart';
@@ -84,6 +86,34 @@ void main() {
         gs.undo();
         gs.undo();
       });
+
+      test('accepted network action after undo replaces the redo branch', () {
+        final gs = getIt<GameState>();
+        gs.action(SetLevelCommand(2, null));
+        gs.action(SetLevelCommand(3, null));
+        gs.action(SetLevelCommand(4, null));
+        gs.undo();
+        gs.undo();
+
+        gs.insertReceivedDescription(1, 'Set level 6 remotely');
+        final remoteState = jsonDecode(gs.toString()) as Map<String, dynamic>
+          ..['level'] = 6;
+        expect(gs.loadFromData(jsonEncode(remoteState)), isTrue);
+        gs.commandIndex.value = 1;
+        gs.save();
+
+        expect(gs.commandDescriptions.length, 2);
+        expect(gs.commandDescriptions.last, 'Set level 6 remotely');
+        expect(gs.gameSaveStates.length, 3);
+        gs.undo();
+        expect(gs.level.value, 2);
+        gs.redo();
+        expect(gs.level.value, 6);
+        gs.redo();
+        expect(gs.level.value, 6);
+        gs.undo();
+        gs.undo();
+      });
     });
 
     group('maxUndo eviction', () {
@@ -109,17 +139,19 @@ void main() {
     });
 
     group('getCurrent edge cases', () {
-      test('getCurrent throws when there is no valid command at current index',
-          () {
-        final gs = getIt<GameState>();
-        // Reset so commandIndex is -1 (no commands executed yet).
-        gs.commandIndex.value = -1;
-        gs.resetCommandHistory();
-        // getCurrent accesses _commands[commandIndex] — either a RangeError
-        // (negative index) or TypeError (null-check on a null entry). Either
-        // way it must throw an Error so callers know to guard the call site.
-        expect(() => gs.getCurrent(), throwsA(isA<Error>()));
-      });
+      test(
+        'getCurrent throws when there is no valid command at current index',
+        () {
+          final gs = getIt<GameState>();
+          // Reset so commandIndex is -1 (no commands executed yet).
+          gs.commandIndex.value = -1;
+          gs.resetCommandHistory();
+          // getCurrent accesses _commands[commandIndex] — either a RangeError
+          // (negative index) or TypeError (null-check on a null entry). Either
+          // way it must throw an Error so callers know to guard the call site.
+          expect(() => gs.getCurrent(), throwsA(isA<Error>()));
+        },
+      );
     });
 
     group('redo after maxUndo eviction', () {
@@ -150,8 +182,9 @@ void main() {
       test('undo after adding a monster removes it from the list', () {
         final gs = getIt<GameState>();
         gs.clearList();
-        gs.action(AddMonsterCommand('Zealot', 1, false,
-            gameState: getIt<GameState>()));
+        gs.action(
+          AddMonsterCommand('Zealot', 1, false, gameState: getIt<GameState>()),
+        );
         expect(gs.currentList.any((e) => e.id == 'Zealot'), isTrue);
         gs.undo();
         expect(gs.currentList.any((e) => e.id == 'Zealot'), isFalse);
@@ -179,7 +212,8 @@ void main() {
 
         // Advance commandIndex past the end of gameSaveStates, simulating the
         // server receiving a state message whose index was not matched by a save().
-        gs.commandIndex.value = gs.gameSaveStates.length; // one beyond valid range
+        gs.commandIndex.value =
+            gs.gameSaveStates.length; // one beyond valid range
 
         // A client sends "undo" — the server calls undoState() → undo().
         // This must not throw a RangeError.

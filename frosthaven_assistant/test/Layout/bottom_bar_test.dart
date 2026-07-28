@@ -26,7 +26,7 @@ void main() {
   Future<void> pumpBar(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       const MaterialApp(
         localizationsDelegates: [

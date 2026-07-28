@@ -30,7 +30,7 @@ void main() {
   Future<void> pumpMenu(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     final character = getBlinkblade();
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [

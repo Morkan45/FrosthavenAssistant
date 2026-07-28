@@ -14,11 +14,13 @@ import 'package:frosthaven_assistant/services/network/connection.dart';
 import 'package:frosthaven_assistant/services/network/network.dart';
 import 'package:frosthaven_assistant/services/network/server.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
+import 'package:frosthaven_assistant_server/game_server.dart';
+import 'package:frosthaven_assistant_server/message_framer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ─── Wire-level client ────────────────────────────────────────────────────────
 
-/// Minimal TCP client that parses S3nD:…[EOM] framed messages.
+/// Minimal TCP client that parses length-prefixed S3nD messages.
 ///
 /// It does NOT use any app classes — it's a raw socket + framing helper used
 /// to drive and observe the server protocol from the outside.
@@ -26,10 +28,10 @@ class WireClient {
   final Socket _socket;
   final _buffered = <String>[];
   final _pending = <Completer<String>>[];
-  String _leftOver = '';
+  final MessageFramer _framer = MessageFramer();
 
   WireClient._(this._socket) {
-    _socket.cast<List<int>>().transform(utf8.decoder).listen(
+    _socket.listen(
       _onChunk,
       onDone: () {
         for (final c in _pending) {
@@ -47,18 +49,8 @@ class WireClient {
     return WireClient._(socket);
   }
 
-  void _onChunk(String chunk) {
-    _leftOver += chunk;
-    while (true) {
-      const prefix = 'S3nD:';
-      const suffix = '[EOM]';
-      final start = _leftOver.indexOf(prefix);
-      if (start == -1) break;
-      final contentStart = start + prefix.length;
-      final end = _leftOver.indexOf(suffix, contentStart);
-      if (end == -1) break;
-      final content = _leftOver.substring(contentStart, end);
-      _leftOver = _leftOver.substring(end + suffix.length);
+  void _onChunk(List<int> chunk) {
+    for (final content in _framer.add(chunk)) {
       _deliver(content);
     }
   }
@@ -71,7 +63,7 @@ class WireClient {
     }
   }
 
-  /// Returns the raw content of the next framed message (S3nD:/[EOM] stripped).
+  /// Returns the raw content of the next framed message with framing stripped.
   Future<String> receive({Duration timeout = const Duration(seconds: 5)}) {
     if (_buffered.isNotEmpty) return Future.value(_buffered.removeAt(0));
     final c = Completer<String>();
@@ -82,11 +74,11 @@ class WireClient {
     });
   }
 
-  void send(String data) => _socket.write('S3nD:$data[EOM]');
+  void send(String data) => _socket.add(MessageFramer.encode(data));
 
   /// Sends the init handshake and returns the decoded init-response envelope.
   Future<StateEnvelope> doInit() async {
-    send('init protocolVersion:1');
+    send('init protocolVersion:${GameServer.protocolVersion}');
     final raw = await receive();
     final envelope = StateEnvelope.tryDecode(raw);
     assert(
@@ -142,7 +134,7 @@ Future<void> _setUpServer() async {
 
   _serverGameState.init();
   await getIt<GameData>().loadData('assets/testData/');
-  _serverGameState.load();
+  await _serverGameState.load();
 
   // Start server on loopback, port 0 (OS assigns a free port).
   // startServerInternal loops forever — do NOT await it.

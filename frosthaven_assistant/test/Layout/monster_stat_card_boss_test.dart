@@ -28,7 +28,7 @@ Future<void> _pumpBoss(WidgetTester tester, Monster monster,
 
   final originalOnError = FlutterError.onError;
   addTearDown(() => FlutterError.onError = originalOnError);
-  FlutterError.onError = ignoreOverflowErrors;
+  FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
   await tester.pumpWidget(
     MaterialApp(
       home: Scaffold(
@@ -267,7 +267,7 @@ void main() {
       final monster = _getBoss();
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

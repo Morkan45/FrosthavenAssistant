@@ -1,15 +1,11 @@
-
 import 'dart:convert';
-import 'dart:developer';
 
 class ServerState {
-
   int commandIndex = -1;
   List<ServerSaveState> gameSaveStates = [ServerSaveState()];
   final List<Command?> commands = [];
   final List<String> commandDescriptions = [];
 
-  
   static const String _noEventJson = '{"type":"none"}';
 
   String redoState() {
@@ -17,7 +13,9 @@ class ServerState {
       commandIndex++;
       //gameSaveStates[commandIndex + 1].saveToDisk(this);
       //send last game state if connected
-      print('server sends, redo index: $commandIndex, description:${commandDescriptions[commandIndex]}');
+      print(
+        'server sends, redo index: $commandIndex, description:${commandDescriptions[commandIndex]}',
+      );
       return jsonEncode({
         'i': commandIndex,
         'd': commandDescriptions[commandIndex],
@@ -30,24 +28,16 @@ class ServerState {
 
   String undoState() {
     if (commandIndex >= 0) {
-      //gameSaveStates[commandIndex].saveToDisk(this);
-      //run generic update all function instead, as commands list is not retained
-
-      //send last game state if connected
-      print('server sends, undo index: $commandIndex, description:${commandDescriptions[commandIndex]}');
-      //should send a special undo message? yes
+      print(
+        'server sends, undo index: $commandIndex, description:${commandDescriptions[commandIndex]}',
+      );
       commandIndex--;
-      if (commandIndex >= 0){
-        return jsonEncode({
-          'i': commandIndex,
-          'd': commandDescriptions[commandIndex],
-          'e': jsonDecode(_noEventJson),
-          's': gameSaveStates[commandIndex].getState(),
-        });
-      } else {
-        commandIndex = 0;
-        return "";
-      }
+      return jsonEncode({
+        'i': commandIndex,
+        'd': commandIndex >= 0 ? commandDescriptions[commandIndex] : '',
+        'e': jsonDecode(_noEventJson),
+        's': gameSaveStates[commandIndex + 1].getState(),
+      });
     }
     return "";
   }
@@ -56,9 +46,8 @@ class ServerState {
     commandIndex = -1;
     commands.clear();
     commandDescriptions.clear();
-    if (gameSaveStates.isNotEmpty){
-      gameSaveStates
-          .removeRange(0, gameSaveStates.length - 1);
+    if (gameSaveStates.isNotEmpty) {
+      gameSaveStates.removeRange(0, gameSaveStates.length - 1);
     }
   }
 
@@ -69,6 +58,20 @@ class ServerState {
     gameSaveStates.add(state); //do this from action handler instead
   }
 
+  void acceptUpdate(int index, String description, String data) {
+    if (index < 0 || index > commandDescriptions.length) {
+      throw RangeError.range(index, 0, commandDescriptions.length, 'index');
+    }
+    if (commandDescriptions.length > index) {
+      commandDescriptions.removeRange(index, commandDescriptions.length);
+    }
+    commandDescriptions.add(description);
+    if (gameSaveStates.length > index + 1) {
+      gameSaveStates.removeRange(index + 1, gameSaveStates.length);
+    }
+    commandIndex = index;
+    save(data);
+  }
 }
 
 class Command {}
@@ -76,7 +79,7 @@ class Command {}
 class ServerSaveState {
   String _savedState = "";
 
-  String getState(){
+  String getState() {
     return _savedState;
   }
 
@@ -88,5 +91,4 @@ class ServerSaveState {
   void save(ServerState gameState) {
     _savedState = gameState.toString();
   }
-
 }

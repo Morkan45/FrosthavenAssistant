@@ -36,7 +36,7 @@ void main() {
 
   // A helper function to pump the AbilityCardsMenu widget within a test.
   Future<void> pumpAbilityCardsMenu(WidgetTester tester) async {
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [

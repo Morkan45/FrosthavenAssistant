@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -21,9 +22,10 @@ class Settings {
 
   final userScalingMainList = ValueNotifier<double>(1.0);
   final userScalingBars = ValueNotifier<double>(
-      (Platform.isWindows || Platform.isLinux || Platform.isMacOS)
-          ? _kDesktopBarScale
-          : 1.0);
+    (Platform.isWindows || Platform.isLinux || Platform.isMacOS)
+        ? _kDesktopBarScale
+        : 1.0,
+  );
   final userScalingMenus = ValueNotifier<double>(1.0);
   final fullScreen = ValueNotifier<bool>(true);
   final darkMode = ValueNotifier<bool>(false);
@@ -34,7 +36,8 @@ class Settings {
   final expireConditions = ValueNotifier<bool>(true);
   final hideLootDeck = ValueNotifier<bool>(false);
   final shimmer = ValueNotifier<bool>(
-      (Platform.isWindows || Platform.isLinux || Platform.isMacOS));
+    (Platform.isWindows || Platform.isLinux || Platform.isMacOS),
+  );
   final showScenarioNames = ValueNotifier<bool>(true);
   final showCustomContent = ValueNotifier<bool>(true);
   final showSectionsInMainView = ValueNotifier<bool>(true);
@@ -64,6 +67,7 @@ class Settings {
   String lastKnownHostIP = "";
 
   bool connectClientOnStartup = false;
+  Timer? _startupConnectTimer;
 
   Future<void> init({Network? network}) async {
     await loadFromDisk();
@@ -144,8 +148,9 @@ class Settings {
         await windowManager.center();
         await windowManager.show();
         await windowManager.setSkipTaskbar(false);
-        await windowManager
-            .setPosition(const Offset(0, 0)); //weird this was needed
+        await windowManager.setPosition(
+          const Offset(0, 0),
+        ); //weird this was needed
         await windowManager.show();
       } else {
         await windowManager.setTitleBarStyle(TitleBarStyle.normal);
@@ -163,35 +168,43 @@ class Settings {
       if (fullscreen) {
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
       } else {
-        SystemChrome.setEnabledSystemUIMode(nonFullscreen,
-            overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
+        SystemChrome.setEnabledSystemUIMode(
+          nonFullscreen,
+          overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top],
+        );
       }
       //to fix issue with system bottom bar on top after keyboard shown on earlier os (24)
-      SystemChrome.setSystemUIChangeCallback((systemOverlaysAreVisible) =>
-          Future.delayed(const Duration(milliseconds: 1001), () {
+      SystemChrome.setSystemUIChangeCallback(
+        (
+          systemOverlaysAreVisible,
+        ) => Future.delayed(const Duration(milliseconds: 1001), () {
+          if (fullscreen) {
+            SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+            if (kDebugMode) {
+              print("force fullscreen 1 sec");
+            }
+          } else {
+            SystemChrome.setEnabledSystemUIMode(
+              nonFullscreen,
+              overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top],
+            );
+          }
+          //in case the first went too early?
+          Future.delayed(const Duration(milliseconds: 301), () {
             if (fullscreen) {
               SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
               if (kDebugMode) {
-                print("force fullscreen 1 sec");
+                print("force fullscreen 1.3 sec");
               }
             } else {
-              SystemChrome.setEnabledSystemUIMode(nonFullscreen,
-                  overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
+              SystemChrome.setEnabledSystemUIMode(
+                nonFullscreen,
+                overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top],
+              );
             }
-            //in case the first went too early?
-            Future.delayed(const Duration(milliseconds: 301), () {
-              if (fullscreen) {
-                SystemChrome.setEnabledSystemUIMode(
-                    SystemUiMode.immersiveSticky);
-                if (kDebugMode) {
-                  print("force fullscreen 1.3 sec");
-                }
-              } else {
-                SystemChrome.setEnabledSystemUIMode(nonFullscreen,
-                    overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
-              }
-            });
-          }));
+          });
+        }),
+      );
     }
   }
 
@@ -342,8 +355,14 @@ class Settings {
 
       if (data["connectClientOnStartup"] != null &&
           data["connectClientOnStartup"] != false) {
-        Future.delayed(const Duration(milliseconds: 2000), () {
-          (client ?? getIt<Client>()).connect(lastKnownConnection);
+        _startupConnectTimer?.cancel();
+        _startupConnectTimer = Timer(const Duration(milliseconds: 2000), () {
+          final reconnectClient = client ?? getIt<Client>();
+          if (this.client.value == ClientState.disconnected &&
+              !reconnectClient.hasActiveConnection) {
+            this.client.value = ClientState.connecting;
+            reconnectClient.connect(lastKnownConnection);
+          }
         });
       }
     }

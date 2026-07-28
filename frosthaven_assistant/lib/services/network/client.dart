@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert' show utf8;
 import 'dart:io';
 import 'dart:ui' show Locale;
 
@@ -7,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:frosthaven_assistant/services/network/communication.dart';
 import 'package:frosthaven_assistant/services/network/network.dart';
 import 'package:frosthaven_assistant_server/game_server.dart';
+import 'package:frosthaven_assistant_server/message_framer.dart';
 
 import '../../Resource/game_event.dart';
 import '../../Resource/settings.dart';
@@ -16,7 +16,6 @@ import '../service_locator.dart';
 import 'connection.dart';
 
 class Client {
-  String _leftOverMessage = "";
   bool _serverResponsive = true;
   bool _connectCancelled = false;
   final GameState _gameState;
@@ -24,6 +23,9 @@ class Client {
   final Connection _connection;
   final Network _network;
   final Settings _settings;
+  int _session = 0;
+
+  bool get hasActiveConnection => _connection.established();
 
   AppLocalizations get _l10n {
     final code = _settings.locale.value;
@@ -52,17 +54,27 @@ class Client {
   }
 
   Future<void> connect(String address) async {
+    if (_connection.established() &&
+        _settings.client.value == ClientState.connected) {
+      return;
+    }
+    final session = ++_session;
     _serverResponsive = true;
     _connectCancelled = false;
     try {
       int port = int.parse(_settings.lastKnownPort);
       debugPrint("port nr: ${port.toString()}");
       final socket = await _connection.connect(address, port);
+      if (session != _session) {
+        socket.destroy();
+        return;
+      }
       runZonedGuarded(
         () {
           _settings.client.value = ClientState.connected;
           String info = _l10n.clientConnectedTo(
-              '${socket.remoteAddress.address}:${socket.remotePort}');
+            '${socket.remoteAddress.address}:${socket.remotePort}',
+          );
           debugPrint(info);
           _gameState.clearLocalCommands();
           _setNetworkMessage(info);
@@ -71,15 +83,19 @@ class Client {
           }
           _settings.saveToDisk();
           _send("init protocolVersion:${GameServer.protocolVersion}");
-          _sendPing();
-          _listen();
+          _sendPing(session);
+          _listen(socket, session);
         },
         (error, stack) {
           debugPrint('Client zone error: $error\n$stack');
-          _setNetworkMessage(_l10n.clientError(error.toString()), isError: true);
+          _setNetworkMessage(
+            _l10n.clientError(error.toString()),
+            isError: true,
+          );
         },
       );
     } catch (error) {
+      if (session != _session) return;
       if (_connectCancelled) {
         debugPrint("client connect cancelled by user");
         _setNetworkMessage(_l10n.connectionCancelled);
@@ -104,17 +120,22 @@ class Client {
 
   bool _pinging =
       false; //to not restart this ping sub process, if one is running
-  void _sendPing() {
+  void _sendPing(int session) {
     if (_connection.established() &&
         _settings.client.value == ClientState.connected &&
+        session == _session &&
         !_pinging) {
       _pinging = true;
       Future.delayed(const Duration(seconds: 12), () {
+        if (session != _session) {
+          _pinging = false;
+          return;
+        }
         if (_serverResponsive) {
           _communication.sendToAll("ping");
           _serverResponsive = false; //set back to true when get response
           _pinging = false;
-          _sendPing();
+          _sendPing(session);
         } else {
           _pinging = false;
           disconnect(_l10n.serverUnresponsive);
@@ -123,53 +144,54 @@ class Client {
     }
   }
 
-  void _listen() {
+  void _listen(Socket socket, int session) {
     // listen for responses from the server
     try {
-      _communication.listen(onListenData, onListenError, onListenDone);
+      final framer = MessageFramer();
+      socket.listen(
+        (data) {
+          if (session != _session) return;
+          try {
+            for (final message in framer.add(data)) {
+              _serverResponsive = true;
+              _handleContent(message);
+            }
+          } on FormatException catch (error) {
+            _onListenError(error, session);
+            disconnect(_l10n.clientError(error.toString()));
+          }
+        },
+        onError: (Object error) => _onListenError(error, session),
+        onDone: () => _onListenDone(socket, session),
+      );
     } catch (error) {
       debugPrint(error.toString());
       //_socket?.destroy();
-      _setNetworkMessage(_l10n.clientListenError(error.toString()), isError: true);
+      _setNetworkMessage(
+        _l10n.clientListenError(error.toString()),
+        isError: true,
+      );
       //_cleanup();
     }
   }
 
-  void onListenDone() {
+  void _onListenDone(Socket socket, int session) {
+    if (session != _session) return;
     debugPrint('Lost connection to server.');
     if (_serverResponsive) {
       _setNetworkMessage(
-          '${_network.networkMessage.value} ${_l10n.lostConnectionToServer}',
-          isError: true);
+        '${_network.networkMessage.value} ${_l10n.lostConnectionToServer}',
+        isError: true,
+      );
     }
-    _connection.removeAll();
-    _cleanup();
+    _connection.remove(socket);
+    _cleanup(session);
   }
 
-  void onListenError(Object error) {
+  void _onListenError(Object error, int session) {
+    if (session != _session) return;
     debugPrint('Client error: ${error.toString()}');
     _setNetworkMessage(_l10n.clientError(error.toString()), isError: true);
-  }
-
-  void onListenData(Uint8List data) {
-    _leftOverMessage += utf8.decode(data);
-
-    // Use indexOf-based framing so that "S3nD:" inside a payload (e.g. in a
-    // JSON game-state string) never creates false message boundaries.
-    const String prefix = 'S3nD:';
-    const String suffix = '[EOM]';
-    while (true) {
-      final int start = _leftOverMessage.indexOf(prefix);
-      if (start == -1) break;
-      final int contentStart = start + prefix.length;
-      final int end = _leftOverMessage.indexOf(suffix, contentStart);
-      if (end == -1) break;
-
-      final String content = _leftOverMessage.substring(contentStart, end);
-      _leftOverMessage = _leftOverMessage.substring(end + suffix.length);
-      _serverResponsive = true;
-      _handleContent(content);
-    }
   }
 
   void _handleContent(String message) {
@@ -184,7 +206,10 @@ class Client {
       debugPrint(
         'Client Receive Data, index: ${envelope.index}, event:${event.runtimeType}',
       );
-      _gameState.loadFromData(envelope.state);
+      if (!_gameState.loadFromData(envelope.state)) {
+        disconnect('Error: server sent an invalid game state.');
+        return;
+      }
       // Set event before commandIndex fires so VLB callbacks see it.
       _gameState.lastEvent.value = event;
       _gameState.commandIndex.value = envelope.index;
@@ -208,6 +233,7 @@ class Client {
   }
 
   void disconnect(String? message) {
+    final session = ++_session;
     message ??= _l10n.clientDisconnected;
     if (_connection.established()) {
       debugPrint(message);
@@ -215,15 +241,17 @@ class Client {
       _connection.removeAll();
       _settings.connectClientOnStartup = false;
       _settings.saveToDisk();
-      _cleanup();
+      _cleanup(session);
+    } else {
+      _cleanup(session);
     }
   }
 
-  void _cleanup() {
+  void _cleanup(int session) {
+    if (session != _session) return;
     _settings.client.value = ClientState.disconnected;
     _gameState.commandIndex.value = -1;
     _gameState.resetCommandHistory();
-    _leftOverMessage = "";
     _pinging = false;
 
     if (_network.appInBackground) {

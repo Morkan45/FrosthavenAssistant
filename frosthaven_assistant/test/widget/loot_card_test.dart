@@ -47,7 +47,7 @@ void main() {
     testWidgets('renders card front image', (WidgetTester tester) async {
       final card = makeCard();
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         _l10nApp(Scaffold(body: LootCardFront(card: card, scale: 1.0))),
       );
@@ -58,7 +58,7 @@ void main() {
     testWidgets('money card shows +1 value text', (WidgetTester tester) async {
       final card = makeCard(lootType: LootType.materiel);
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         _l10nApp(Scaffold(body: LootCardFront(card: card, scale: 1.0))),
       );
@@ -71,7 +71,7 @@ void main() {
         (WidgetTester tester) async {
       final card = makeCard(lootType: LootType.other, enhanced: 0);
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         _l10nApp(Scaffold(body: LootCardFront(card: card, scale: 1.0))),
       );
@@ -84,7 +84,7 @@ void main() {
         (WidgetTester tester) async {
       final card = makeCard(lootType: LootType.other, enhanced: 3);
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         _l10nApp(Scaffold(body: LootCardFront(card: card, scale: 1.0))),
       );
@@ -96,7 +96,7 @@ void main() {
         (WidgetTester tester) async {
       final card = makeCard(gfx: 'loot_1418');
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         _l10nApp(Scaffold(body: LootCardFront(card: card, scale: 1.0))),
       );
@@ -108,7 +108,7 @@ void main() {
         (WidgetTester tester) async {
       final card = makeCard(gfx: 'loot_1419');
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         _l10nApp(Scaffold(body: LootCardFront(card: card, scale: 1.0))),
       );
@@ -120,7 +120,7 @@ void main() {
         (WidgetTester tester) async {
       final card = makeCard(owner: 'Blinkblade');
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         _l10nApp(Scaffold(body: LootCardFront(card: card, scale: 1.0))),
       );
@@ -133,7 +133,7 @@ void main() {
         (WidgetTester tester) async {
       final card = makeCard(owner: 'Blinkblade');
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         _l10nApp(Scaffold(body: LootCardFront(card: card, scale: 1.0))),
       );
@@ -149,7 +149,7 @@ void main() {
         (WidgetTester tester) async {
       final card = makeCard(owner: '');
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         _l10nApp(Scaffold(body: LootCardFront(card: card, scale: 1.0))),
       );
@@ -162,7 +162,7 @@ void main() {
   group('LootCardWidget buildRear', () {
     testWidgets('renders card back image', (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         _l10nApp(Scaffold(body: LootCardRear(scale: 1.0))),
       );
@@ -176,7 +176,7 @@ void main() {
         (WidgetTester tester) async {
       final card = makeCard();
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         _l10nApp(Scaffold(body: LootCardWidget(card: card, revealed: true))),
       );
@@ -189,7 +189,7 @@ void main() {
         (WidgetTester tester) async {
       final card = makeCard();
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         _l10nApp(Scaffold(body: LootCardWidget(card: card, revealed: false))),
       );

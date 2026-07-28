@@ -25,10 +25,10 @@ void main() {
   Future<void> pumpScaffold(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
-      const MaterialApp(
-        home: MainScaffold(),
+      testMaterialApp(
+        home: const MainScaffold(),
       ),
     );
     await tester.pump();
@@ -81,10 +81,10 @@ void main() {
       loading.value = true;
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
-        const MaterialApp(
-          home: MainScaffold(),
+        testMaterialApp(
+          home: const MainScaffold(),
         ),
       );
       await tester.pump();
@@ -105,7 +105,7 @@ void main() {
     testWidgets('renders SizedBox(0, 0)', (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(body: ToastNotifier()),
@@ -127,7 +127,7 @@ void main() {
       (getIt<GameState>().toastMessage as ValueNotifier<String>).value = '';
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         const MaterialApp(home: Scaffold(body: ToastNotifier())),
       );

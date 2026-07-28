@@ -25,7 +25,7 @@ void main() {
 
   Future<void> pumpCharacterWidget(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
-    FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -56,7 +56,7 @@ void main() {
       WidgetTester tester,
     ) async {
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpCharacterWidget(tester);
       await tester.tap(find.byType(InkWell).first);
       await tester.pump();
@@ -69,7 +69,7 @@ void main() {
       WidgetTester tester,
     ) async {
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(body: CharacterWidget(characterId: 'NonExistent')),
@@ -89,7 +89,7 @@ void main() {
       DrawCommand(gameState: gs).execute();
       TurnDoneCommand('Blinkblade', gameState: gs).execute();
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -118,7 +118,7 @@ void main() {
       // Draw changes roundState to playTurns, triggering buildWithHealthWheel path
       DrawCommand(gameState: getIt<GameState>()).execute();
       final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors;
+      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
