@@ -11,8 +11,12 @@ import 'package:frosthaven_assistant/Layout/background.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_character_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_monster_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_standee_command.dart';
+import 'package:frosthaven_assistant/Resource/commands/draw_command.dart';
+import 'package:frosthaven_assistant/Resource/commands/next_round_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/reorder_list_command.dart';
+import 'package:frosthaven_assistant/Resource/commands/turn_done_command.dart';
 import 'package:frosthaven_assistant/Resource/enums.dart';
+import 'package:frosthaven_assistant/Resource/game_data.dart';
 import 'package:frosthaven_assistant/Resource/scaling.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
@@ -149,6 +153,79 @@ void main() {
       AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
       await pumpWidget(tester);
       expect(find.byType(MainListItem), findsAtLeast(1));
+    });
+
+    testWidgets('character tracks stay aligned at minimum and maximum scale', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(2560, 1080);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final settings = getIt<Settings>();
+      settings.fitMainListToWidth.value = true;
+      settings.mainListColumns.value = 3;
+      settings.userScalingMainList.value = 3;
+      AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
+      await pumpWidget(tester);
+
+      void expectAlignedTracks() {
+        final itemContext = tester.element(find.byType(MainListItem));
+        final scale = getMainListLayout(itemContext).scale;
+        final icon = tester.getRect(
+          find.byKey(const Key('character-icon-column')),
+        );
+        final initiative = tester.getRect(
+          find.byKey(const Key('character-initiative-column')),
+        );
+        final details = tester.getRect(
+          find.byKey(const Key('character-details-column')),
+        );
+
+        expect(icon.width, closeTo(62 * scale, 0.01));
+        expect(initiative.width, closeTo(45 * scale, 0.01));
+        expect(details.width, closeTo(200 * scale, 0.01));
+        expect(initiative.left, closeTo(icon.right, 0.01));
+        expect(details.left, closeTo(initiative.right, 0.01));
+      }
+
+      expectAlignedTracks();
+      settings.userScalingMainList.value = 0.2;
+      await tester.pumpAndSettle();
+      expectAlignedTracks();
+
+      final name = tester.widget<Text>(find.byKey(const Key('character-name')));
+      expect(name.maxLines, 1);
+      expect(name.overflow, TextOverflow.ellipsis);
+    });
+
+    testWidgets('turn state uses distinct play and completed markers', (
+      WidgetTester tester,
+    ) async {
+      final state = getIt<GameState>();
+      AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
+      await pumpWidget(tester);
+      final id = state.currentList.single.id;
+
+      expect(find.byKey(Key('turn-state-current-$id')), findsNothing);
+      expect(find.byKey(Key('turn-state-done-$id')), findsNothing);
+
+      DrawCommand(gameState: state).execute();
+      await tester.pump(const Duration(milliseconds: 700));
+      expect(find.byKey(Key('turn-state-current-$id')), findsOneWidget);
+
+      TurnDoneCommand(id, gameState: state).execute();
+      await tester.pump(const Duration(milliseconds: 700));
+      expect(find.byKey(Key('turn-state-current-$id')), findsNothing);
+      expect(find.byKey(Key('turn-state-done-$id')), findsOneWidget);
+
+      NextRoundCommand(
+        gameState: state,
+        gameData: getIt<GameData>(),
+        settings: getIt<Settings>(),
+      ).execute();
+      await tester.pump(const Duration(milliseconds: 700));
     });
 
     testWidgets('desktop uses immediate drag with a grab cursor', (

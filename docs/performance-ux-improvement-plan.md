@@ -155,12 +155,14 @@ Alt+Up/Down. The top-bar menu is keyboard operable, element controls expose
 localized tooltips and hover/focus states, and wide desktop layouts provide a
 compact overflow menu for Action Log, Settings, and Fullscreen.
 
-### P2: Improve row scanning and targeting
+### Completed: Improve row scanning and targeting
 
-Keep initiative, name, health, conditions, and turn state aligned to stable
-columns within each row at every supported scale. Increase the distinction
-between selected/current/completed states without relying only on color. Reserve
-animation for state changes and avoid layout movement during hover or updates.
+Character rows now keep icon, initiative, and character details in stable
+tracks at every supported scale. Names remain on one line and condition icons
+fit within the details track instead of shifting later content. Current and
+completed rows add play/check markers alongside the existing color and grayscale
+treatment, while keyboard focus remains a separate full-row outline. None of
+these states changes row geometry.
 
 ### P3: Consolidate visual and interaction tokens
 
@@ -175,7 +177,7 @@ operational controls visually consistent.
 2. Unified bounded history model and direct rollback. Completed.
 3. Virtualized 500-action history panel. Core completed.
 4. Settings information architecture and responsive presentation. Completed.
-5. Layout presets and desktop command access. Completed; row alignment remains.
+5. Layout presets, desktop command access, and row alignment. Completed.
 6. Module splits and measured serialization/rebuild optimizations.
 
 ## Verification baseline

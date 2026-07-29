@@ -50,6 +50,9 @@ class CharacterHealthWidget extends StatelessWidget {
                 builder: (context, value, child) {
                   return Text(
                     getIt<TranslationService>().t(value),
+                    key: const Key('character-name'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: getCardTitleStyle(
                         vm.frosthavenStyle
                             ? CharacterHealthWidget._kFontSizeFH * scale
@@ -141,8 +144,18 @@ class CharacterHealthInnerWidget extends StatelessWidget {
       ValueListenableBuilder<List<Condition>>(
           valueListenable: character.characterState.conditions,
           builder: (context, value, child) {
-            return Row(
-              children: createConditionList(scale),
+            return Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: FittedBox(
+                  alignment: Alignment.centerLeft,
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: createConditionList(scale),
+                  ),
+                ),
+              ),
             );
           }),
     ]);

@@ -24,6 +24,9 @@ class CharacterWidgetInternal extends StatefulWidget {
   static const double _kSummonsRight = 19.0;
   static const double _kSummonsTop = 4.0;
   static const double _kInkwellWidth = 70.0;
+  static const double _kIconColumnWidth = 62.0;
+  static const double _kInitiativeColumnWidth = 45.0;
+  static const double _kDetailsColumnWidth = 200.0;
   static const int _kInitMaxLength = 2;
 
   const CharacterWidgetInternal(
@@ -116,27 +119,40 @@ class CharacterInternalWidgetState extends State<CharacterWidgetInternal> {
                 character: character, scale: scale, shadow: shadow),
             Row(
               children: [
-                CharacterIconWidget(
-                  character: character,
-                  scale: scale,
-                  shadow: shadow,
-                  scaledHeight: scaledHeight,
-                  isCharacter: isCharacter,
+                SizedBox(
+                  key: const Key('character-icon-column'),
+                  width: CharacterWidgetInternal._kIconColumnWidth * scale,
+                  child: CharacterIconWidget(
+                    character: character,
+                    scale: scale,
+                    shadow: shadow,
+                    scaledHeight: scaledHeight,
+                    isCharacter: isCharacter,
+                  ),
                 ),
-                InitiativeWidget(
-                  scale: scale,
-                  scaledHeight: scaledHeight,
-                  shadow: shadow,
-                  isCharacter: isCharacter,
-                  character: character,
-                  initTextFieldController: _initTextFieldController,
-                  focusNode: _focusNode,
+                SizedBox(
+                  key: const Key('character-initiative-column'),
+                  width:
+                      CharacterWidgetInternal._kInitiativeColumnWidth * scale,
+                  child: InitiativeWidget(
+                    scale: scale,
+                    scaledHeight: scaledHeight,
+                    shadow: shadow,
+                    isCharacter: isCharacter,
+                    character: character,
+                    initTextFieldController: _initTextFieldController,
+                    focusNode: _focusNode,
+                  ),
                 ),
-                CharacterHealthWidget(
-                  character: character,
-                  scale: scale,
-                  shadow: shadow,
-                  scaledHeight: scaledHeight,
+                SizedBox(
+                  key: const Key('character-details-column'),
+                  width: CharacterWidgetInternal._kDetailsColumnWidth * scale,
+                  child: CharacterHealthWidget(
+                    character: character,
+                    scale: scale,
+                    shadow: shadow,
+                    scaledHeight: scaledHeight,
+                  ),
                 )
               ],
             ),
