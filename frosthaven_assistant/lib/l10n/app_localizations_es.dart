@@ -57,6 +57,30 @@ class AppLocalizationsEs extends AppLocalizations {
   String get menuActionLog => 'Ver registro de acciones';
 
   @override
+  String get topBarOpenMainMenu => 'Open main menu';
+
+  @override
+  String get topBarMoreActions => 'More actions';
+
+  @override
+  String get elementFire => 'Fire';
+
+  @override
+  String get elementIce => 'Ice';
+
+  @override
+  String get elementAir => 'Air';
+
+  @override
+  String get elementEarth => 'Earth';
+
+  @override
+  String get elementLight => 'Light';
+
+  @override
+  String get elementDark => 'Dark';
+
+  @override
   String get actionLogTitle => 'Últimas 20 acciones';
 
   @override

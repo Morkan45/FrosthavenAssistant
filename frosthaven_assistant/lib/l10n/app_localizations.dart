@@ -209,6 +209,54 @@ abstract class AppLocalizations {
   /// **'View Action Log'**
   String get menuActionLog;
 
+  /// No description provided for @topBarOpenMainMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Open main menu'**
+  String get topBarOpenMainMenu;
+
+  /// No description provided for @topBarMoreActions.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get topBarMoreActions;
+
+  /// No description provided for @elementFire.
+  ///
+  /// In en, this message translates to:
+  /// **'Fire'**
+  String get elementFire;
+
+  /// No description provided for @elementIce.
+  ///
+  /// In en, this message translates to:
+  /// **'Ice'**
+  String get elementIce;
+
+  /// No description provided for @elementAir.
+  ///
+  /// In en, this message translates to:
+  /// **'Air'**
+  String get elementAir;
+
+  /// No description provided for @elementEarth.
+  ///
+  /// In en, this message translates to:
+  /// **'Earth'**
+  String get elementEarth;
+
+  /// No description provided for @elementLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get elementLight;
+
+  /// No description provided for @elementDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get elementDark;
+
   /// No description provided for @actionLogTitle.
   ///
   /// In en, this message translates to:

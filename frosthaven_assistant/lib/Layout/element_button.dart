@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 
 import '../Resource/app_constants.dart';
 import '../Resource/enums.dart';
@@ -7,13 +8,14 @@ import '../Resource/state/game_state.dart';
 import 'view_models/element_button_view_model.dart';
 
 class ElementButton extends StatefulWidget {
-  const ElementButton(
-      {super.key,
-      required this.icon,
-      required this.color,
-      required this.element,
-      this.gameState,
-      this.settings});
+  const ElementButton({
+    super.key,
+    required this.icon,
+    required this.color,
+    required this.element,
+    this.gameState,
+    this.settings,
+  });
   final String icon;
   final Color color;
   final Elements element;
@@ -36,7 +38,10 @@ class AnimatedContainerButtonState extends State<ElementButton> {
 
   ElementButtonViewModel? _vmInstance;
   ElementButtonViewModel get _vm => _vmInstance ??= ElementButtonViewModel(
-      widget.element, gameState: widget.gameState, settings: widget.settings);
+    widget.element,
+    gameState: widget.gameState,
+    settings: widget.settings,
+  );
   double _height = 0;
   Color _color = Colors.transparent;
   BorderRadiusGeometry _borderRadius = BorderRadius.zero;
@@ -48,18 +53,38 @@ class AnimatedContainerButtonState extends State<ElementButton> {
     _height = widget.width * scale;
     _color = Colors.transparent;
     _borderRadius = BorderRadius.all(
-        Radius.circular(widget.width * scale - widget.borderWidth * scale * _kBorderSides));
+      Radius.circular(
+        widget.width * scale - widget.borderWidth * scale * _kBorderSides,
+      ),
+    );
   }
 
   double get _userScalingBars => _vm.userScalingBars;
+
+  String _elementLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) {
+      return widget.element.name[0].toUpperCase() +
+          widget.element.name.substring(1);
+    }
+    return switch (widget.element) {
+      Elements.fire => l10n.elementFire,
+      Elements.ice => l10n.elementIce,
+      Elements.air => l10n.elementAir,
+      Elements.earth => l10n.elementEarth,
+      Elements.light => l10n.elementLight,
+      Elements.dark => l10n.elementDark,
+    };
+  }
 
   void _setHalf() {
     final scale = _userScalingBars;
     _color = widget.color;
     _height = widget.width * scale / _kHalfDivisor + kSmallMargin * scale;
     _borderRadius = BorderRadius.only(
-        bottomLeft: Radius.circular(widget.width * scale / _kHalfDivisor),
-        bottomRight: Radius.circular(widget.width * scale / _kHalfDivisor));
+      bottomLeft: Radius.circular(widget.width * scale / _kHalfDivisor),
+      bottomRight: Radius.circular(widget.width * scale / _kHalfDivisor),
+    );
   }
 
   void _setFull() {
@@ -67,7 +92,8 @@ class AnimatedContainerButtonState extends State<ElementButton> {
     _color = widget.color;
     _height = widget.width * scale;
     _borderRadius = BorderRadius.all(
-        Radius.circular(widget.width * scale - widget.borderWidth * scale));
+      Radius.circular(widget.width * scale - widget.borderWidth * scale),
+    );
   }
 
   void _setInert() {
@@ -79,13 +105,20 @@ class AnimatedContainerButtonState extends State<ElementButton> {
   @override
   Widget build(BuildContext context) {
     final scale = _userScalingBars;
-    return Container(
-        margin: EdgeInsets.only(right: kSmallMargin * scale),
-        child: InkWell(
-            hoverColor: Colors.transparent,
+    final label = _elementLabel(context);
+    return Tooltip(
+      message: label,
+      child: Semantics(
+        button: true,
+        label: label,
+        child: Container(
+          margin: EdgeInsets.only(right: kSmallMargin * scale),
+          child: InkWell(
+            hoverColor: Colors.white.withValues(alpha: 0.12),
             splashColor: Colors.transparent,
-            focusColor: const Color(0x44000000),
+            focusColor: Colors.white.withValues(alpha: 0.18),
             highlightColor: Colors.transparent,
+            customBorder: const CircleBorder(),
             onLongPress: () {
               setState(() {
                 _vm.imbue(half: true);
@@ -98,58 +131,71 @@ class AnimatedContainerButtonState extends State<ElementButton> {
               alignment: Alignment.center,
               children: [
                 Container(
-                    padding: EdgeInsets.only(bottom: kSmallMargin * scale),
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: ValueListenableBuilder<ElementState>(
-                          valueListenable: _vm.elementStateNotifier,
-                          builder: (context, state, child) {
-                            if (state == ElementState.inert) {
-                              _setInert();
-                            } else if (state == ElementState.half) {
-                              _setHalf();
-                            } else if (state == ElementState.full) {
-                              _setFull();
-                            }
+                  padding: EdgeInsets.only(bottom: kSmallMargin * scale),
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: ValueListenableBuilder<ElementState>(
+                      valueListenable: _vm.elementStateNotifier,
+                      builder: (context, state, child) {
+                        if (state == ElementState.inert) {
+                          _setInert();
+                        } else if (state == ElementState.half) {
+                          _setHalf();
+                        } else if (state == ElementState.full) {
+                          _setFull();
+                        }
 
-                            return RepaintBoundary(
-                                child: AnimatedContainer(
-                                    width: widget.width * scale -
-                                        widget.borderWidth * scale * _kBorderSides,
-                                    height:
-                                        _height - widget.borderWidth * scale * _kBorderSides,
-                                    decoration: BoxDecoration(
-                                        shape: BoxShape.rectangle,
-                                        color: _color,
-                                        borderRadius: _borderRadius,
-                                        boxShadow: [
-                                          state != ElementState.inert
-                                              ? BoxShadow(
-                                                  blurRadius: _kBoxShadowBlur * scale)
-                                              : const BoxShadow(
-                                                  color: Colors.transparent,
-                                                )
-                                        ]),
-                                    duration:
-                                        const Duration(milliseconds: 350),
-                                    curve: Curves.decelerate));
-                          }),
-                    )),
+                        return RepaintBoundary(
+                          child: AnimatedContainer(
+                            width:
+                                widget.width * scale -
+                                widget.borderWidth * scale * _kBorderSides,
+                            height:
+                                _height -
+                                widget.borderWidth * scale * _kBorderSides,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.rectangle,
+                              color: _color,
+                              borderRadius: _borderRadius,
+                              boxShadow: [
+                                state != ElementState.inert
+                                    ? BoxShadow(
+                                        blurRadius: _kBoxShadowBlur * scale,
+                                      )
+                                    : const BoxShadow(
+                                        color: Colors.transparent,
+                                      ),
+                              ],
+                            ),
+                            duration: const Duration(milliseconds: 350),
+                            curve: Curves.decelerate,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
                 ValueListenableBuilder<bool>(
-                    valueListenable: _vm.darkMode,
-                    builder: (context, value, child) {
-                      return ValueListenableBuilder<ElementState>(
-                          valueListenable: _vm.elementStateNotifier,
-                          builder: (context, state, child) {
-                            return Image(
-                              height: widget.width * scale * _kIconScale,
-                              image: AssetImage(widget.icon),
-                              color: _vm.iconColor,
-                              width: widget.width * scale * _kIconScale,
-                            );
-                          });
-                    })
+                  valueListenable: _vm.darkMode,
+                  builder: (context, value, child) {
+                    return ValueListenableBuilder<ElementState>(
+                      valueListenable: _vm.elementStateNotifier,
+                      builder: (context, state, child) {
+                        return Image(
+                          height: widget.width * scale * _kIconScale,
+                          image: AssetImage(widget.icon),
+                          color: _vm.iconColor,
+                          width: widget.width * scale * _kIconScale,
+                        );
+                      },
+                    );
+                  },
+                ),
               ],
-            )));
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

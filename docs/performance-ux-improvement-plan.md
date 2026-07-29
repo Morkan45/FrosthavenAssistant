@@ -143,15 +143,17 @@ fewest columns that fit vertically and horizontally, while manual modes retain
 the viewport scale cap. Compact, Default, and Large presets adjust the main
 list, app bars, and menus together while retaining all fine-grained sliders.
 
-### P2: Improve desktop command access (in progress)
+### Completed: Improve desktop command access
 
 Add consistent hover states and tooltips for icon-only controls, predictable
 Escape-to-close behavior, visible keyboard focus, and a compact overflow menu
 for infrequent commands. Audit existing shortcuts before assigning new ones so
 Undo, Redo, fullscreen, scenario setup, and round progression do not conflict.
-Settings now closes predictably with Escape and participates in focus traversal.
+Settings closes predictably with Escape and participates in focus traversal.
 Focused main-list rows have a visible outline and can be reordered with
-Alt+Up/Down. The broader hover, tooltip, and overflow-menu audit remains.
+Alt+Up/Down. The top-bar menu is keyboard operable, element controls expose
+localized tooltips and hover/focus states, and wide desktop layouts provide a
+compact overflow menu for Action Log, Settings, and Fullscreen.
 
 ### P2: Improve row scanning and targeting
 
@@ -173,8 +175,7 @@ operational controls visually consistent.
 2. Unified bounded history model and direct rollback. Completed.
 3. Virtualized 500-action history panel. Core completed.
 4. Settings information architecture and responsive presentation. Completed.
-5. Layout presets and keyboard/focus foundation. Core completed; row alignment
-   and the broader command-control audit remain.
+5. Layout presets and desktop command access. Completed; row alignment remains.
 6. Module splits and measured serialization/rebuild optimizations.
 
 ## Verification baseline
