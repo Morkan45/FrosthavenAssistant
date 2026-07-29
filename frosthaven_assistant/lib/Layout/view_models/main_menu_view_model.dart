@@ -32,46 +32,25 @@ class MainMenuViewModel {
 
   // Derived state
   bool get undoEnabled {
-    final index = _gameState.commandIndex.value;
     if (_settings.client.value == ClientState.connected) return true;
-    if (_settings.server.value) {
-      return index >= 0 &&
-          index < _gameState.commandDescriptions.length &&
-          (index == 0 ||
-              _gameState.commandDescriptions[index - 1] != "");
-    }
-    return index >= 0 &&
-        index < _gameState.commands.length &&
-        (index == 0 || _gameState.commands[index - 1] != null);
+    return _gameState.canUndo;
   }
 
   bool get redoEnabled {
     if (_settings.client.value == ClientState.connected) return true;
-    if (_settings.server.value) {
-      return _gameState.commandDescriptions.isNotEmpty &&
-          _gameState.gameSaveStates.length >=
-              _gameState.commandDescriptions.length &&
-          _gameState.commandIndex.value <
-              _gameState.commandDescriptions.length - 1;
-    }
-    return _gameState.commandIndex.value <
-        _gameState.commandDescriptions.length - 1;
+    return _gameState.canRedo;
   }
 
   String? get undoDescription {
     if (_settings.client.value == ClientState.connected) return null;
     final index = _gameState.commandIndex.value;
-    final descriptions = _gameState.commandDescriptions;
-    if (index >= 0 && descriptions.length > index) return descriptions[index];
-    return null;
+    return _gameState.descriptionAt(index);
   }
 
   String? get redoDescription {
     if (_settings.client.value == ClientState.connected) return null;
     final index = _gameState.commandIndex.value;
-    final descriptions = _gameState.commandDescriptions;
-    if (index < descriptions.length - 1) return descriptions[index + 1];
-    return null;
+    return _gameState.descriptionAt(index + 1);
   }
 
   bool get isRandomDungeon => _gameState.scenario.value == '#Random Dungeon';

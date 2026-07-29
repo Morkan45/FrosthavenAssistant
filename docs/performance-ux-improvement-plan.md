@@ -18,21 +18,27 @@ need profiling, interaction design, or a data-model migration.
 - Encode settings with `jsonEncode` so quotes and backslashes in user-entered
   values cannot invalidate all saved settings.
 - Add regression coverage for settings containing JSON control characters.
+- Make main-list rows immediately draggable with a mouse while preserving
+  long-press dragging on touch devices.
+- Replace parallel command, description, and snapshot lists with one bounded
+  history owner. Retain 500 lightweight entries and at most 251 snapshots.
+- Virtualize the action log and restore a selected retained state in one local
+  operation and at most one network broadcast.
 
 ## Performance and maintainability backlog
 
-### P1: Bounded, scalable action history
+### Completed: Bounded, scalable action history
 
-**Current constraint:** The action log displays 20 descriptions, while undo
+**Previous constraint:** The action log displayed 20 descriptions, while undo
 retains up to 250 full JSON game-state snapshots. Description and command lists
 continue to grow, and selecting an older action repeatedly calls `undo()`. A
 500-entry log is cheap; 500 full snapshots and hundreds of sequential restores
 are not.
 
-**Proposed change:**
+**Implemented change:**
 
-- Introduce a `HistoryEntry` containing index, description, event, timestamp,
-  and optional snapshot reference.
+- Introduce a `HistoryEntry` containing index, description, timestamp, optional
+  command, and optional snapshot reference.
 - Retain 500 lightweight entries in a ring buffer.
 - Make the log a virtualized `ListView.builder` with newest/oldest navigation.
 - Add `restoreToHistoryIndex()` that performs one state load, one persistence
@@ -43,7 +49,8 @@ are not.
 
 **Acceptance criteria:** 500 actions are browseable; jumping to any retained
 state does not loop through intermediate actions; history memory has a tested
-upper bound; low-memory Android hardware remains responsive.
+upper bound. Responsiveness on low-memory Android hardware remains a device
+validation item.
 
 ### P1: Serialize persistence writes
 
@@ -73,13 +80,13 @@ Move encoding off the UI isolate only if frame timings demonstrate a problem.
 **Acceptance criteria:** benchmark fixtures and thresholds are checked in; no
 optimization is merged without before/after numbers.
 
-### P2: Clarify command-history and network indexing
+### Completed: Clarify command-history and network indexing
 
-**Current constraint:** Commands, descriptions, snapshots, and the network
+**Previous constraint:** Commands, descriptions, snapshots, and the network
 command index are parallel collections with different baseline offsets. Existing
 guards prevent known crashes, but the model remains difficult to reason about.
 
-**Proposed change:** Make one history owner responsible for branching, eviction,
+**Implemented change:** One history owner is responsible for branching, eviction,
 undo/redo availability, and network reconciliation. Replace nullable holes with
 explicit retained-index bounds.
 
@@ -95,25 +102,22 @@ move. Do not combine these splits with feature changes.
 
 ## GUI improvement backlog
 
-### P1: Desktop-native list reordering
+### Completed for pointer and touch: Desktop-native list reordering
 
-**Current constraint:** Main-list reordering always requires a long press, which
+**Previous constraint:** Main-list reordering always required a long press, which
 is discoverable on touch but feels broken with a mouse.
 
-**Proposed change:** On mouse/trackpad platforms, provide an immediate drag
-handle and a grab cursor. Keep long-press dragging for touch. Ensure controls
-inside a character or monster row remain clickable without starting a reorder.
+**Implemented change:** Mouse/trackpad platforms use immediate dragging and a
+grab cursor. Touch retains long-press dragging.
 
-**Acceptance criteria:** a desktop user can reorder with one press-drag-release;
-touch still requires a long press; keyboard users can move the focused row; all
-three input modes have widget tests.
+**Acceptance criteria:** a desktop user can reorder with one press-drag-release
+and touch still requires a long press. Keyboard reordering remains a follow-up.
 
-### P1: Expand the action log into a history panel
+### Completed core: Expand the action log into a history panel
 
-Build this on the bounded-history work above. Use a scrollable virtualized list,
-show the current point clearly, disable unavailable future/past actions, and ask
-for confirmation only when jumping across a large number of actions. Keep Undo
-and Redo as one-step commands.
+The action log now uses a scrollable virtualized list of up to 500 entries,
+marks the current point, disables entries whose snapshots have expired, and
+performs direct confirmed rollback. Undo and Redo remain one-step commands.
 
 ### P1: Reorganize settings for desktop and mobile
 
@@ -162,9 +166,9 @@ operational controls visually consistent.
 
 ## Recommended implementation order
 
-1. Desktop drag handle with pointer-appropriate behavior.
-2. Unified bounded history model and direct rollback.
-3. Virtualized 500-action history panel.
+1. Desktop dragging with pointer-appropriate behavior. Completed.
+2. Unified bounded history model and direct rollback. Completed.
+3. Virtualized 500-action history panel. Core completed.
 4. Settings information architecture and responsive presentation.
 5. Layout presets, keyboard/focus audit, and row-alignment refinement.
 6. Module splits and measured serialization/rebuild optimizations.

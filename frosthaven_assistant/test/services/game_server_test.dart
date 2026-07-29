@@ -30,16 +30,30 @@ void main() {
       verify(socket.destroy());
     });
   });
+
+  test('rollback handler delegates the absolute target index', () {
+    final server = _StubGameServer();
+
+    server.handleRollbackMessage(12);
+
+    expect(server.rollbackIndex, 12);
+  });
 }
 
 // Minimal concrete GameServer for testing handleConnection in isolation.
 class _StubGameServer extends GameServer {
+  int? rollbackIndex;
+
   @override
   void resetState() {}
   @override
   void undoState() {}
   @override
   void redoState() {}
+  @override
+  void rollbackState(int index) {
+    rollbackIndex = index;
+  }
   @override
   void updateStateFromMessage(StateUpdateMessage message, Socket client) {}
   @override

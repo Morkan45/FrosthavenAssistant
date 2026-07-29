@@ -275,6 +275,36 @@ void main() {
 
   // ── Command-index sync (issue #10) ────────────────────────────────────────────
 
+  group('history rollback', () {
+    test('client rollback restores once and broadcasts one target state',
+        () async {
+      final client = await WireClient.connect('127.0.0.1', _serverPort);
+      addTearDown(client.close);
+      await client.doInit();
+
+      _serverGameState.action(SetLevelCommand(2, null));
+      _serverGameState.action(SetLevelCommand(3, null));
+      _serverGameState.action(SetLevelCommand(4, null));
+      await client.receive();
+      await client.receive();
+      await client.receive();
+
+      client.send('rollback:0');
+      final rolledBack = StateEnvelope.tryDecode(await client.receive());
+
+      expect(rolledBack, isNotNull);
+      expect(rolledBack!.index, 0);
+      expect(rolledBack.state, contains('"level":2'));
+      expect(_serverGameState.commandIndex.value, 0);
+      expect(_serverGameState.level.value, 2);
+      expect(_serverGameState.canRedo, isTrue);
+      await expectLater(
+        client.receive(timeout: const Duration(milliseconds: 300)),
+        throwsA(isA<TimeoutException>()),
+      );
+    });
+  });
+
   group('command-index sync', () {
     test(
         'conflicting client action triggers Mismatch carrying the current index',

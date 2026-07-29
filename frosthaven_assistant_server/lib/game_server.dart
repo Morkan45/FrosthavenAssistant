@@ -17,7 +17,7 @@ abstract class GameServer {
   /// Wire-protocol version. Increment this ONLY when the message format itself
   /// changes (e.g. envelope fields added/removed). Game-data additions (new
   /// classes, campaigns) must NOT bump this number.
-  static const int protocolVersion = 2;
+  static const int protocolVersion = 3;
 
   // Sockets rejected for version mismatch.  Checked in onDone so that
   // "Client left." does not overwrite the rejection message.
@@ -47,6 +47,7 @@ abstract class GameServer {
   void resetState();
   void undoState();
   void redoState();
+  void rollbackState(int index);
   void updateStateFromMessage(StateUpdateMessage message, Socket client);
 
   void setNetworkMessage(String data);
@@ -259,6 +260,9 @@ abstract class GameServer {
       handleUndoMessage();
     } else if (message.startsWith("redo")) {
       handleRedoMessage();
+    } else if (message.startsWith("rollback:")) {
+      final index = int.tryParse(message.substring('rollback:'.length));
+      if (index != null) handleRollbackMessage(index);
     } else if (message.startsWith("pong")) {
       handlePongMessage(client);
     } else if (message.startsWith("ping")) {
@@ -336,6 +340,11 @@ abstract class GameServer {
   void handleRedoMessage() {
     log('Server Receive redo command');
     redoState();
+  }
+
+  void handleRollbackMessage(int index) {
+    log('Server Receive rollback command to index $index');
+    rollbackState(index);
   }
 
   void handlePongMessage(Socket client) {

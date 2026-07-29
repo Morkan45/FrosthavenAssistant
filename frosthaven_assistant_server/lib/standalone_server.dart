@@ -16,8 +16,9 @@ class StandaloneServer extends GameServer {
   static const String _noEventJson = '{"type":"none"}';
 
   String _lastSavedState() {
-    return _state.gameSaveStates.isNotEmpty
-        ? _state.gameSaveStates.last.getState()
+    final stateIndex = _state.commandIndex + 1;
+    return stateIndex >= 0 && stateIndex < _state.gameSaveStates.length
+        ? _state.gameSaveStates[stateIndex].getState()
         : "{}";
   }
 
@@ -59,6 +60,12 @@ class StandaloneServer extends GameServer {
   }
 
   @override
+  void rollbackState(int index) {
+    final message = _state.rollbackState(index);
+    if (message.isNotEmpty) send(message);
+  }
+
+  @override
   void removeAllClientConnections() {
     print("Remove all Client Connections");
     for (var client in _clientConnections) {
@@ -90,19 +97,14 @@ class StandaloneServer extends GameServer {
 
   @override
   void resetState() {
-    _state.commandIndex = -1;
-    _state.commands.clear();
-    _state.commandDescriptions.clear();
-    if (_state.gameSaveStates.isNotEmpty) {
-      _state.gameSaveStates.removeRange(0, _state.gameSaveStates.length - 1);
-    }
+    _state.resetState();
     _pinging = false;
   }
 
   @override
   void sendInitResponse(Socket client) {
     String commandDescription = "";
-    if (_state.commandIndex > 0 &&
+    if (_state.commandIndex >= 0 &&
         _state.commandDescriptions.length > _state.commandIndex) {
       commandDescription = _state.commandDescriptions[_state.commandIndex];
     }
@@ -175,7 +177,7 @@ class StandaloneServer extends GameServer {
 
   @override
   void updateStateFromMessage(StateUpdateMessage message, Socket client) {
-    if (message.index > _state.commandDescriptions.length) {
+    if (message.index > _state.commandIndex + 1) {
       //invalid: index too high. send correction to clients
       String commandDescription = "";
       if (_state.commandDescriptions.isNotEmpty) {
@@ -189,7 +191,7 @@ class StandaloneServer extends GameServer {
           state: _lastSavedState(),
         ),
       );
-    } else if (message.index > _state.commandIndex) {
+    } else if (message.index == _state.commandIndex + 1) {
       _state.acceptUpdate(message.index, message.description, message.data);
       sendToOthers(
         GameServer.encodeStateEnvelope(

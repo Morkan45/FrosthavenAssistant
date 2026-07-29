@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Layout/menus/action_log_menu.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_character_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_monster_command.dart';
+import 'package:frosthaven_assistant/Resource/commands/set_level_command.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
@@ -43,7 +44,10 @@ void main() {
     gs().action(AddCharacterCommand('Blinkblade', 'Frosthaven', 'Blinky', 1));
     gs().action(AddMonsterCommand('Zealot', 1, false, gameState: gs()));
 
-    final descriptions = gs().commandDescriptions;
+    final descriptions = gs()
+        .historyEntries
+        .map((entry) => entry.description)
+        .toList(growable: false);
     expect(descriptions.length >= 2, true);
 
     await pump(tester);
@@ -59,5 +63,22 @@ void main() {
     await pump(tester);
     expect(find.text('No actions yet'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('rolls back directly to the selected action', (tester) async {
+    gs().action(SetLevelCommand(2, null));
+    gs().action(SetLevelCommand(4, null));
+
+    await pump(tester);
+    await tester.tap(
+      find.ancestor(of: find.text('1.'), matching: find.byType(InkWell)),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Roll back'));
+    await tester.pumpAndSettle();
+
+    expect(gs().commandIndex.value, 0);
+    expect(gs().level.value, 2);
+    expect(gs().canRedo, isTrue);
   });
 }

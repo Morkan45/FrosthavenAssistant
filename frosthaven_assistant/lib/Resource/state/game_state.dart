@@ -20,6 +20,7 @@ import '../../services/network/communication.dart';
 import '../../services/network/network.dart';
 import '../../services/service_locator.dart';
 import '../action_handler.dart';
+import '../action_history.dart';
 import '../card_stack.dart';
 import '../commands/add_standee_command.dart';
 import '../enums.dart';
@@ -144,15 +145,27 @@ class GameState {
   void clearLocalCommands() => _actionHandler.clearLocalCommands();
   void insertReceivedDescription(int index, String description) =>
       _actionHandler.insertReceivedDescription(index, description);
+  void synchronizeReceivedDescription(int index, String description) =>
+      _actionHandler.synchronizeReceivedDescription(index, description);
   void addSaveState(GameSaveState state) => _actionHandler.addSaveState(state);
 
   ValueNotifier<int> get commandIndex => _actionHandler.commandIndex;
   ValueNotifier<GameEvent> get lastEvent => _actionHandler.lastEvent;
   ListUpdateNotifier get updateList => _actionHandler.updateList;
   int get maxUndo => _actionHandler.maxUndo;
-  List<Command?> get commands => _actionHandler.commands;
-  List<String> get commandDescriptions => _actionHandler.commandDescriptions;
-  List<GameSaveState?> get gameSaveStates => _actionHandler.gameSaveStates;
+  int get maxHistoryEntries => _actionHandler.maxHistoryEntries;
+  int get retainedSnapshotCount => _actionHandler.retainedSnapshotCount;
+  bool get canUndo => _actionHandler.canUndo;
+  bool get canRedo => _actionHandler.canRedo;
+  List<HistoryEntry> get historyEntries => _actionHandler.historyEntries;
+  HistoryEntry? historyEntryAt(int index) =>
+      _actionHandler.historyEntryAt(index);
+  Command? commandAt(int index) => _actionHandler.commandAt(index);
+  String? descriptionAt(int index) => _actionHandler.descriptionAt(index);
+  GameSaveState? snapshotAt(int index) => _actionHandler.snapshotAt(index);
+  GameSaveState? get currentSnapshot => _actionHandler.currentSnapshot;
+  bool rollbackToHistoryIndex(int index) =>
+      _actionHandler.rollbackToHistoryIndex(index);
 
   void init() {
     _elementState[Elements.fire] = ValueNotifier(ElementState.inert);

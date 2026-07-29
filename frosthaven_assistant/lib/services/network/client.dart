@@ -76,7 +76,7 @@ class Client {
             '${socket.remoteAddress.address}:${socket.remotePort}',
           );
           debugPrint(info);
-          _gameState.clearLocalCommands();
+          _gameState.resetCommandHistory();
           _setNetworkMessage(info);
           if (Platform.isAndroid || Platform.isIOS) {
             _settings.connectClientOnStartup = true;
@@ -210,6 +210,10 @@ class Client {
         disconnect('Error: server sent an invalid game state.');
         return;
       }
+      _gameState.synchronizeReceivedDescription(
+        envelope.index,
+        envelope.description,
+      );
       // Set event before commandIndex fires so VLB callbacks see it.
       _gameState.lastEvent.value = event;
       _gameState.commandIndex.value = envelope.index;
@@ -250,7 +254,6 @@ class Client {
   void _cleanup(int session) {
     if (session != _session) return;
     _settings.client.value = ClientState.disconnected;
-    _gameState.commandIndex.value = -1;
     _gameState.resetCommandHistory();
     _pinging = false;
 

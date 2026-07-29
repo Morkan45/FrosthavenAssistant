@@ -17,7 +17,10 @@ void main() {
   });
 
   setUp(() {
-    getIt<GameState>().clearList();
+    final gs = getIt<GameState>();
+    gs.clearList();
+    gs.resetCommandHistory();
+    gs.save();
   });
 
   group('ActionHandler', () {
@@ -79,9 +82,8 @@ void main() {
         gs.undo(); // undo SetLevel(4), now commandIndex = indexBefore - 1
         // Do a new action — should clear SetLevel(4) from the redo list
         gs.action(SetLevelCommand(5, null));
-        // commands length should equal commandIndex + 1 (no redo entries)
-        expect(gs.commands.length - 1, gs.commandIndex.value);
-        expect(gs.commandDescriptions.length - 1, gs.commandIndex.value);
+        expect(gs.historyEntries.last.index, gs.commandIndex.value);
+        expect(gs.historyEntries.length, 2);
         // Undo back to baseline
         gs.undo();
         gs.undo();
@@ -102,9 +104,9 @@ void main() {
         gs.commandIndex.value = 1;
         gs.save();
 
-        expect(gs.commandDescriptions.length, 2);
-        expect(gs.commandDescriptions.last, 'Set level 6 remotely');
-        expect(gs.gameSaveStates.length, 3);
+        expect(gs.historyEntries.length, 2);
+        expect(gs.historyEntries.last.description, 'Set level 6 remotely');
+        expect(gs.snapshotAt(1), isNotNull);
         gs.undo();
         expect(gs.level.value, 2);
         gs.redo();
@@ -117,19 +119,19 @@ void main() {
     });
 
     group('maxUndo eviction', () {
-      test('commands and gameSaveStates beyond maxUndo are nulled', () {
+      test('old metadata remains after its heavier snapshot is evicted', () {
         final gs = getIt<GameState>();
         final maxUndo = gs.maxUndo;
         final startIndex = gs.commandIndex.value;
 
-        // Execute maxUndo + 1 commands to trigger eviction
-        for (int i = 0; i <= maxUndo; i++) {
+        for (int i = 0; i <= maxUndo + 1; i++) {
           gs.action(SetLevelCommand((i % 7) + 1, null));
         }
-        // After maxUndo+1 actions, the oldest command entry should be nulled
-        expect(gs.commands[startIndex + 1], isNull);
-        // gameSaveStates at oldest entry should also be nulled
-        expect(gs.gameSaveStates[startIndex + 1], isNull);
+        final oldestActionIndex = startIndex + 1;
+        expect(gs.commandAt(oldestActionIndex), isNull);
+        expect(gs.descriptionAt(oldestActionIndex), isNotEmpty);
+        expect(gs.snapshotAt(oldestActionIndex), isNull);
+        expect(gs.retainedSnapshotCount, lessThanOrEqualTo(maxUndo + 1));
 
         // Undo back to near the start (only valid undo states)
         for (int i = 0; i < maxUndo; i++) {
@@ -191,7 +193,7 @@ void main() {
       });
     });
 
-    group('undo with commandIndex beyond gameSaveStates (Sentry regression)', () {
+    group('undo with commandIndex beyond retained history', () {
       // Regression test for:
       // ArgumentError: RangeError (length): Invalid value: Not in inclusive range 0..1079: 1080
       // ActionHandler.undo — crash when commandIndex >= gameSaveStates.length.
@@ -202,7 +204,7 @@ void main() {
       // whose index ends up beyond the current gameSaveStates length after save().
       // A subsequent "undo" message from any client then crashes at
       // _gameSaveStates[commandIndex.value] with no upper-bound guard.
-      test('does not crash when commandIndex >= gameSaveStates.length', () {
+      test('does not crash or move the index when no snapshot exists', () {
         final gs = getIt<GameState>();
         final settings = getIt<Settings>();
 
@@ -212,13 +214,14 @@ void main() {
 
         // Advance commandIndex past the end of gameSaveStates, simulating the
         // server receiving a state message whose index was not matched by a save().
-        gs.commandIndex.value =
-            gs.gameSaveStates.length; // one beyond valid range
+        gs.commandIndex.value = gs.historyEntries.last.index + 2;
+        final invalidIndex = gs.commandIndex.value;
 
         // A client sends "undo" — the server calls undoState() → undo().
         // This must not throw a RangeError.
         settings.server.value = true;
         expect(() => gs.undo(), returnsNormally);
+        expect(gs.commandIndex.value, invalidIndex);
         settings.server.value = false;
 
         // Restore a clean state for subsequent tests.
@@ -247,6 +250,24 @@ void main() {
         settings.server.value = true;
         expect(() => gs.redo(), returnsNormally);
         settings.server.value = false;
+      });
+    });
+
+    group('direct rollback', () {
+      test('restores one target state and preserves the redo branch', () {
+        final gs = getIt<GameState>();
+        gs.action(SetLevelCommand(2, null));
+        gs.action(SetLevelCommand(3, null));
+        gs.action(SetLevelCommand(4, null));
+
+        expect(gs.rollbackToHistoryIndex(0), isTrue);
+        expect(gs.commandIndex.value, 0);
+        expect(gs.level.value, 2);
+        expect(gs.canRedo, isTrue);
+
+        gs.redo();
+        expect(gs.commandIndex.value, 1);
+        expect(gs.level.value, 3);
       });
     });
   });

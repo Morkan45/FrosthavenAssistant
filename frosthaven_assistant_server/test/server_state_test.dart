@@ -36,4 +36,20 @@ void main() {
     ]);
     expect(state.redoState(), isEmpty);
   });
+
+  test('rollback restores the target in one operation and preserves redo', () {
+    final state = ServerState();
+    state.gameSaveStates.first.loadFromData('base', state);
+    state.acceptUpdate(0, 'A', 'state-a');
+    state.acceptUpdate(1, 'B', 'state-b');
+    state.acceptUpdate(2, 'C', 'state-c');
+
+    final message = jsonDecode(state.rollbackState(0)) as Map<String, dynamic>;
+
+    expect(message['i'], 0);
+    expect(message['d'], 'A');
+    expect(message['s'], 'state-a');
+    expect(state.commandIndex, 0);
+    expect(jsonDecode(state.redoState())['s'], 'state-b');
+  });
 }

@@ -31,12 +31,10 @@ Future<void> setUpGame() async {
 
 void checkSaveState() {
   String state = gameState.toString();
-  int nrStates = gameState.gameSaveStates.length;
   gameState.save();
   final loaded = gameState.loadFromData(state);
   String newState = gameState.toString();
   assert(loaded);
-  assert(gameState.gameSaveStates.length == nrStates + 1);
   assert(newState == state);
 }
 

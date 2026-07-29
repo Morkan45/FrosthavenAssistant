@@ -42,6 +42,21 @@ class ServerState {
     return "";
   }
 
+  String rollbackState(int targetIndex) {
+    if (targetIndex < -1 ||
+        targetIndex >= commandIndex ||
+        targetIndex + 1 >= gameSaveStates.length) {
+      return "";
+    }
+    commandIndex = targetIndex;
+    return jsonEncode({
+      'i': commandIndex,
+      'd': commandIndex >= 0 ? commandDescriptions[commandIndex] : '',
+      'e': jsonDecode(_noEventJson),
+      's': gameSaveStates[commandIndex + 1].getState(),
+    });
+  }
+
   void resetState() {
     commandIndex = -1;
     commands.clear();

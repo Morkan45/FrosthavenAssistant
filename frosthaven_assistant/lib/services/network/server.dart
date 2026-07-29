@@ -66,7 +66,6 @@ class Server extends GameServer {
 
   @override
   void resetState() {
-    _gameState.commandIndex.value = -1;
     _gameState.resetCommandHistory();
     _pinging = false;
   }
@@ -81,22 +80,24 @@ class Server extends GameServer {
     _gameState.redo();
   }
 
+  @override
+  void rollbackState(int index) {
+    _gameState.rollbackToHistoryIndex(index);
+  }
+
   static const String _noEventJson = '{"type":"none"}';
 
   String _lastSavedState() {
-    return _gameState.gameSaveStates.isNotEmpty
-        ? (_gameState.gameSaveStates.last?.getState() ?? _gameState.toString())
-        : _gameState.toString();
+    return _gameState.currentSnapshot?.getState() ?? _gameState.toString();
   }
 
   @override
   void updateStateFromMessage(StateUpdateMessage message, Socket client) {
-    if (message.index > _gameState.commandDescriptions.length) {
+    if (message.index > _gameState.commandIndex.value + 1) {
       //invalid: index too high. send correction to clients
       String commandDescription = "";
-      if (_gameState.commandDescriptions.isNotEmpty) {
-        commandDescription = _gameState.commandDescriptions.last;
-      }
+      commandDescription =
+          _gameState.descriptionAt(_gameState.commandIndex.value) ?? '';
       send(
         StateEnvelope(
           index: _gameState.commandIndex.value,
@@ -105,7 +106,7 @@ class Server extends GameServer {
           state: _lastSavedState(),
         ).encode(),
       );
-    } else if (message.index > _gameState.commandIndex.value) {
+    } else if (message.index == _gameState.commandIndex.value + 1) {
       if (!_gameState.loadFromData(message.data)) {
         sendToOnly('Error: rejected invalid game state.', client);
         return;
@@ -124,7 +125,7 @@ class Server extends GameServer {
       sendToOthers(
         StateEnvelope(
           index: _gameState.commandIndex.value,
-          description: _gameState.commandDescriptions.last,
+          description: message.description,
           eventJson: message.eventJson,
           state: _lastSavedState(),
         ).encode(),
@@ -137,10 +138,7 @@ class Server extends GameServer {
 
       //overwrite client state with current server state.
       final idx = _gameState.commandIndex.value;
-      final mismatchDesc =
-          (idx >= 0 && idx < _gameState.commandDescriptions.length)
-          ? _gameState.commandDescriptions[idx]
-          : '';
+      final mismatchDesc = _gameState.descriptionAt(idx) ?? '';
       sendToOnly(
         "Mismatch:${StateEnvelope(index: idx, description: mismatchDesc, eventJson: _noEventJson, state: _lastSavedState()).encode()}",
         client,
@@ -236,10 +234,9 @@ class Server extends GameServer {
   @override
   void sendInitResponse(Socket client) {
     String commandDescription = "";
-    if (_gameState.commandIndex.value > 0 &&
-        _gameState.commandDescriptions.length > _gameState.commandIndex.value) {
+    if (_gameState.commandIndex.value >= 0) {
       commandDescription =
-          _gameState.commandDescriptions[_gameState.commandIndex.value];
+          _gameState.descriptionAt(_gameState.commandIndex.value) ?? '';
     } else {
       //should not happen
       if (kDebugMode) {

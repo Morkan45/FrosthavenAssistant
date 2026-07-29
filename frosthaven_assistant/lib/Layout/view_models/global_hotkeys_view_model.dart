@@ -43,11 +43,7 @@ class GlobalHotkeysViewModel {
 
   void undoActivation() {
     final currentCommandIndex = _gameState.commandIndex.value;
-    if (currentCommandIndex < 0 ||
-        currentCommandIndex >= _gameState.commands.length) {
-      return;
-    }
-    if (_gameState.commands[currentCommandIndex] is TurnDoneCommand) {
+    if (_gameState.commandAt(currentCommandIndex) is TurnDoneCommand) {
       _gameState.undo();
     }
   }
