@@ -8,6 +8,24 @@ import '../../Resource/ui_utils.dart';
 import '../view_models/main_list_view_model.dart';
 import 'main_list_item.dart';
 
+bool _needsLongPressForReorder(TargetPlatform platform) =>
+    platform == TargetPlatform.android || platform == TargetPlatform.iOS;
+
+class _ReorderCursor extends StatelessWidget {
+  const _ReorderCursor({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final needsLongPress = _needsLongPressForReorder(Theme.of(context).platform);
+    return MouseRegion(
+      cursor: needsLongPress ? MouseCursor.defer : SystemMouseCursors.grab,
+      child: child,
+    );
+  }
+}
+
 /// Wraps a list item and plays a FLIP translation animation when [animateFrom]
 /// is called with the item's previous global position.
 ///
@@ -191,7 +209,9 @@ class _GameListState extends State<GameList> {
           itemId: id,
           onRegister: _registerFlipState,
           onUnregister: _unregisterFlipState,
-          child: MainListItem(key: Key(id), data: vm.itemAt(i)),
+          child: _ReorderCursor(
+            child: MainListItem(key: Key(id), data: vm.itemAt(i)),
+          ),
         ),
       );
     });
@@ -234,6 +254,8 @@ class _GameListState extends State<GameList> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final layout = getMainListLayout(context);
+    final needsLongPress =
+        _needsLongPressForReorder(Theme.of(context).platform);
     int? itemsPerColumn;
     if (layout.fitsScreenWidth) {
       itemsPerColumn = max(
@@ -258,7 +280,7 @@ class _GameListState extends State<GameList> {
       direction: Axis.vertical,
       crossAxisAlignment: WrapCrossAlignment.start,
       buildDraggableFeedback: defaultBuildDraggableFeedback,
-      needsLongPressDraggable: true,
+      needsLongPressDraggable: needsLongPress,
       onReorder: (int oldIndex, int newIndex) {
         _skipNextAnimation = true;
         widget.vm.reorderItem(oldIndex, newIndex);

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Layout/CharacterWidget/character_widget.dart';
@@ -14,6 +16,7 @@ import 'package:frosthaven_assistant/Resource/scaling.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
+import 'package:reorderables/reorderables.dart';
 
 import '../command/test_helpers.dart';
 
@@ -60,12 +63,18 @@ void main() {
     }
   }
 
-  Future<void> pumpWidget(WidgetTester tester) async {
+  Future<void> pumpWidget(
+    WidgetTester tester, {
+    TargetPlatform platform = TargetPlatform.windows,
+  }) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
     FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
-      const MaterialApp(home: Scaffold(body: MainList())),
+      MaterialApp(
+        theme: ThemeData(platform: platform),
+        home: const Scaffold(body: MainList()),
+      ),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
@@ -80,7 +89,7 @@ void main() {
 
     testWidgets('renders Scrollbar', (WidgetTester tester) async {
       await pumpWidget(tester);
-      expect(find.byType(Scrollbar), findsOneWidget);
+      expect(find.byType(Scrollbar), findsAtLeast(1));
     });
 
     testWidgets('renders SingleChildScrollView', (WidgetTester tester) async {
@@ -139,6 +148,92 @@ void main() {
       AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
       await pumpWidget(tester);
       expect(find.byType(MainListItem), findsAtLeast(1));
+    });
+
+    testWidgets('desktop uses immediate drag with a grab cursor', (
+      WidgetTester tester,
+    ) async {
+      AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
+      AddCharacterCommand('Banner Spear', 'Frosthaven', null, 1).execute();
+      await pumpWidget(tester);
+
+      final reorderable = tester.widget<ReorderableWrap>(
+        find.byType(ReorderableWrap),
+      );
+      expect(reorderable.needsLongPressDraggable, isFalse);
+      final rowCursor = find.ancestor(
+        of: find.byType(MainListItem),
+        matching: find.byType(MouseRegion),
+      );
+      expect(
+        tester.widget<MouseRegion>(rowCursor.first).cursor,
+        SystemMouseCursors.grab,
+      );
+
+      final items = find.byType(MainListItem);
+      final firstId = getIt<GameState>().currentList.first.id;
+      final secondId = getIt<GameState>().currentList[1].id;
+      final firstCenter = tester.getCenter(items.at(0));
+      final secondCenter = tester.getCenter(items.at(1));
+      final gesture = await tester.startGesture(
+        firstCenter,
+        kind: PointerDeviceKind.mouse,
+      );
+      await gesture.moveBy(const Offset(0, 20));
+      await tester.pump();
+      await gesture.moveTo(secondCenter);
+      await tester.pump(const Duration(milliseconds: 100));
+      await gesture.moveBy(
+        Offset(0, tester.getRect(items.at(1)).height * 0.75),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      expect(getIt<GameState>().currentList.first.id, secondId);
+      expect(getIt<GameState>().currentList[1].id, firstId);
+    });
+
+    testWidgets('mobile retains long-press drag behavior', (
+      WidgetTester tester,
+    ) async {
+      AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
+      AddCharacterCommand('Banner Spear', 'Frosthaven', null, 1).execute();
+      await pumpWidget(tester, platform: TargetPlatform.android);
+
+      final reorderable = tester.widget<ReorderableWrap>(
+        find.byType(ReorderableWrap),
+      );
+      expect(reorderable.needsLongPressDraggable, isTrue);
+
+      final items = find.byType(MainListItem);
+      final firstId = getIt<GameState>().currentList.first.id;
+      final secondId = getIt<GameState>().currentList[1].id;
+      final firstCenter = tester.getCenter(items.at(0));
+      final secondCenter = tester.getCenter(items.at(1));
+
+      final immediateGesture = await tester.startGesture(firstCenter);
+      await immediateGesture.moveBy(const Offset(0, 20));
+      await tester.pump();
+      await immediateGesture.moveTo(secondCenter);
+      await tester.pump();
+      await immediateGesture.up();
+      await tester.pumpAndSettle();
+      expect(getIt<GameState>().currentList.first.id, firstId);
+
+      final longPressGesture = await tester.startGesture(firstCenter);
+      await tester.pump(const Duration(milliseconds: 600));
+      await longPressGesture.moveBy(const Offset(0, 20));
+      await tester.pump();
+      await longPressGesture.moveTo(secondCenter);
+      await tester.pump(const Duration(milliseconds: 100));
+      await longPressGesture.moveBy(
+        Offset(0, tester.getRect(items.at(1)).height * 0.75),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+      await longPressGesture.up();
+      await tester.pumpAndSettle();
+      expect(getIt<GameState>().currentList.first.id, secondId);
     });
 
     testWidgets('scrollToTop does not crash when called with no clients', (
