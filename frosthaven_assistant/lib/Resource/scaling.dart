@@ -7,6 +7,7 @@ import 'package:frosthaven_assistant/services/service_locator.dart';
 const double _kMaxListWidth = 740.0;
 const double _kReferenceMinBarWidth = 370.0;
 const double _kDesktopTargetListWidth = 900.0;
+const double _kFitWidthContentReference = 520.0;
 const int _kMaxFitColumns = 3;
 double get maxWidth =>
     _kMaxListWidth * getIt<Settings>().userScalingMainList.value;
@@ -130,7 +131,7 @@ MainListLayout calculateMainListLayout(
     columnWidth: columnWidth,
     columnCount: columnCount,
     fitsScreenWidth: true,
-    scale: columnWidth / referenceWidth,
+    scale: columnWidth / _kFitWidthContentReference,
   );
 }
 

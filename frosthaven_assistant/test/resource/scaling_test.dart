@@ -130,7 +130,7 @@ void main() {
 
       expect(layout.columnWidth, closeTo(1280, 0.01));
       expect(layout.contentWidth, closeTo(3840, 0.01));
-      expect(layout.scale, closeTo(1280 / referenceWidth, 0.01));
+      expect(layout.scale, closeTo(1280 / 520, 0.01));
     });
   });
 }
