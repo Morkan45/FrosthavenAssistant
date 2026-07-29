@@ -119,17 +119,18 @@ The action log now uses a scrollable virtualized list of up to 500 entries,
 marks the current point, disables entries whose snapshots have expired, and
 performs direct confirmed rollback. Undo and Redo remain one-step commands.
 
-### P1: Reorganize settings for desktop and mobile
+### Completed: Reorganize settings for desktop and mobile
 
-**Current constraint:** Settings is one narrow, long scrolling column even on a
+**Previous constraint:** Settings was one narrow, long scrolling column even on a
 large desktop display. Related display controls are separated from the viewport
 they affect.
 
-**Proposed change:** Group settings into Display, Gameplay, Content, Network,
-and Advanced views. Use a wider desktop dialog with persistent category
-navigation and a single-column mobile presentation. Put main-list scale,
-automatic/manual columns, fit-to-width, bar scale, menu scale, and fullscreen in
-Display with live preview behavior.
+**Implemented change:** Settings are grouped into Display, Gameplay, Content,
+Network, and Advanced sections. Desktop uses a wider dialog with persistent
+category navigation and independently scrolling content. Mobile and tablet keep
+all sections in one scrollable column. Display now includes main-list scale,
+automatic/manual columns, fit-to-width, bar scale, menu scale, fullscreen,
+language, theme, and visual style.
 
 **Acceptance criteria:** no desktop settings view requires scrolling through
 unrelated categories; every setting remains available on mobile; current saved
@@ -169,7 +170,7 @@ operational controls visually consistent.
 1. Desktop dragging with pointer-appropriate behavior. Completed.
 2. Unified bounded history model and direct rollback. Completed.
 3. Virtualized 500-action history panel. Core completed.
-4. Settings information architecture and responsive presentation.
+4. Settings information architecture and responsive presentation. Completed.
 5. Layout presets, keyboard/focus audit, and row-alignment refinement.
 6. Module splits and measured serialization/rebuild optimizations.
 

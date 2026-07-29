@@ -146,6 +146,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsLanguage => 'Langue :';
 
   @override
+  String get settingsCategoryDisplay => 'Display';
+
+  @override
+  String get settingsCategoryGameplay => 'Gameplay';
+
+  @override
+  String get settingsCategoryContent => 'Content';
+
+  @override
+  String get settingsCategoryNetwork => 'Network';
+
+  @override
+  String get settingsCategoryAdvanced => 'Advanced';
+
+  @override
   String get settingsDarkMode => 'Mode sombre';
 
   @override
@@ -234,6 +249,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsAppBarScaling => 'Échelle de la barre d\'app :';
+
+  @override
+  String get settingsMenuScaling => 'Menu Scaling:';
 
   @override
   String get settingsStyleLabel => 'Style :';

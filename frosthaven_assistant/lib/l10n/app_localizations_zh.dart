@@ -146,6 +146,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsLanguage => '语言：';
 
   @override
+  String get settingsCategoryDisplay => 'Display';
+
+  @override
+  String get settingsCategoryGameplay => 'Gameplay';
+
+  @override
+  String get settingsCategoryContent => 'Content';
+
+  @override
+  String get settingsCategoryNetwork => 'Network';
+
+  @override
+  String get settingsCategoryAdvanced => 'Advanced';
+
+  @override
   String get settingsDarkMode => '深色模式';
 
   @override
@@ -225,6 +240,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsAppBarScaling => '应用栏缩放：';
+
+  @override
+  String get settingsMenuScaling => 'Menu Scaling:';
 
   @override
   String get settingsStyleLabel => '风格：';

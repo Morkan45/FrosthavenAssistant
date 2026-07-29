@@ -146,6 +146,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settingsLanguage => '언어:';
 
   @override
+  String get settingsCategoryDisplay => 'Display';
+
+  @override
+  String get settingsCategoryGameplay => 'Gameplay';
+
+  @override
+  String get settingsCategoryContent => 'Content';
+
+  @override
+  String get settingsCategoryNetwork => 'Network';
+
+  @override
+  String get settingsCategoryAdvanced => 'Advanced';
+
+  @override
   String get settingsDarkMode => '다크 모드';
 
   @override
@@ -225,6 +240,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get settingsAppBarScaling => '앱 바 크기:';
+
+  @override
+  String get settingsMenuScaling => 'Menu Scaling:';
 
   @override
   String get settingsStyleLabel => '스타일:';

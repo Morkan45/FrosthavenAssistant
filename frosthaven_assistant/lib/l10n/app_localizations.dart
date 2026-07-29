@@ -359,6 +359,36 @@ abstract class AppLocalizations {
   /// **'Language:'**
   String get settingsLanguage;
 
+  /// No description provided for @settingsCategoryDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Display'**
+  String get settingsCategoryDisplay;
+
+  /// No description provided for @settingsCategoryGameplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Gameplay'**
+  String get settingsCategoryGameplay;
+
+  /// No description provided for @settingsCategoryContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Content'**
+  String get settingsCategoryContent;
+
+  /// No description provided for @settingsCategoryNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get settingsCategoryNetwork;
+
+  /// No description provided for @settingsCategoryAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get settingsCategoryAdvanced;
+
   /// No description provided for @settingsDarkMode.
   ///
   /// In en, this message translates to:
@@ -520,6 +550,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'App Bar Scaling:'**
   String get settingsAppBarScaling;
+
+  /// No description provided for @settingsMenuScaling.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu Scaling:'**
+  String get settingsMenuScaling;
 
   /// No description provided for @settingsStyleLabel.
   ///

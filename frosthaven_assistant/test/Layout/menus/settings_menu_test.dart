@@ -23,7 +23,13 @@ void main() {
     settings.mainListColumns.value = 0;
   });
 
-  Future<void> pumpMenu(WidgetTester tester) async {
+  Future<void> pumpMenu(WidgetTester tester, {Size? size}) async {
+    if (size != null) {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+    }
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
     FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
@@ -55,6 +61,55 @@ void main() {
   }
 
   group('SettingsMenu', () {
+    testWidgets('desktop separates settings into persistent categories', (
+      WidgetTester tester,
+    ) async {
+      await pumpMenu(tester, size: const Size(1280, 720));
+
+      expect(find.byKey(const Key('desktop-settings-layout')), findsOneWidget);
+      expect(
+        find.byKey(const Key('settings-category-navigation')),
+        findsOneWidget,
+      );
+      expect(find.text('Display'), findsOneWidget);
+      expect(find.text('Gameplay'), findsOneWidget);
+      expect(find.text('Content'), findsOneWidget);
+      expect(find.text('Network'), findsOneWidget);
+      expect(find.text('Advanced'), findsOneWidget);
+      expect(find.text('Dark mode'), findsOneWidget);
+      expect(find.text('Expire Conditions'), findsNothing);
+
+      await tester.tap(find.text('Gameplay'));
+      await tester.pump();
+
+      expect(find.text('Dark mode'), findsNothing);
+      expect(find.text('Expire Conditions'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('mobile keeps every category in one scrollable column', (
+      WidgetTester tester,
+    ) async {
+      await pumpMenu(tester, size: const Size(500, 900));
+
+      expect(find.byKey(const Key('desktop-settings-layout')), findsNothing);
+      expect(find.byKey(const Key('settings-section-display')), findsOneWidget);
+      expect(
+        find.byKey(const Key('settings-section-gameplay')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('settings-section-content')), findsOneWidget);
+      expect(find.byKey(const Key('settings-section-network')), findsOneWidget);
+      expect(
+        find.byKey(const Key('settings-section-advanced')),
+        findsOneWidget,
+      );
+      expect(find.text('Dark mode'), findsOneWidget);
+      expect(find.text('Expire Conditions'), findsOneWidget);
+      expect(find.byType(TextField), findsNWidgets(2));
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('renders Dark mode checkbox', (WidgetTester tester) async {
       await pumpMenu(tester);
       expect(find.text('Dark mode'), findsOneWidget);
@@ -94,9 +149,9 @@ void main() {
       final before = settings.expireConditions.value;
       await pumpMenu(tester);
 
-      await tester.tap(
-        find.widgetWithText(CheckboxListTile, 'Expire Conditions'),
-      );
+      final finder = find.widgetWithText(CheckboxListTile, 'Expire Conditions');
+      await tester.ensureVisible(finder);
+      await tester.tap(finder);
       await tester.pump();
 
       expect(settings.expireConditions.value, !before);
@@ -110,9 +165,12 @@ void main() {
       final before = settings.softNumpadInput.value;
       await pumpMenu(tester);
 
-      await tester.tap(
-        find.widgetWithText(CheckboxListTile, 'Soft numpad for input'),
+      final finder = find.widgetWithText(
+        CheckboxListTile,
+        'Soft numpad for input',
       );
+      await tester.ensureVisible(finder);
+      await tester.tap(finder);
       await tester.pump();
 
       expect(settings.softNumpadInput.value, !before);
@@ -126,9 +184,12 @@ void main() {
       final before = settings.noInit.value;
       await pumpMenu(tester);
 
-      await tester.tap(
-        find.widgetWithText(CheckboxListTile, "Don't ask for initiative"),
+      final finder = find.widgetWithText(
+        CheckboxListTile,
+        "Don't ask for initiative",
       );
+      await tester.ensureVisible(finder);
+      await tester.tap(finder);
       await tester.pump();
 
       expect(settings.noInit.value, !before);
@@ -142,9 +203,9 @@ void main() {
       final before = settings.autoAddStandees.value;
       await pumpMenu(tester);
 
-      await tester.tap(
-        find.widgetWithText(CheckboxListTile, 'Auto Add Standees'),
-      );
+      final finder = find.widgetWithText(CheckboxListTile, 'Auto Add Standees');
+      await tester.ensureVisible(finder);
+      await tester.tap(finder);
       await tester.pump();
 
       expect(settings.autoAddStandees.value, !before);
@@ -548,6 +609,24 @@ void main() {
       );
       await gesture.up();
       settings.userScalingBars.value = before;
+    });
+
+    testWidgets('Menu Scaling updates while the pointer is down', (
+      WidgetTester tester,
+    ) async {
+      final settings = getIt<Settings>();
+      final before = settings.userScalingMenus.value;
+
+      await pumpMenu(tester);
+      final slider = find.byType(Slider).at(2);
+      await tester.ensureVisible(slider);
+      final gesture = await tester.startGesture(tester.getCenter(slider));
+      await gesture.moveBy(const Offset(-40, 0));
+      await tester.pump();
+
+      expect(settings.userScalingMenus.value, isNot(before));
+      await gesture.up();
+      settings.userScalingMenus.value = before;
     });
   });
 }

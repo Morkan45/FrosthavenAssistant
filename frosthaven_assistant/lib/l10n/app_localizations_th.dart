@@ -146,6 +146,21 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsLanguage => 'ภาษา:';
 
   @override
+  String get settingsCategoryDisplay => 'Display';
+
+  @override
+  String get settingsCategoryGameplay => 'Gameplay';
+
+  @override
+  String get settingsCategoryContent => 'Content';
+
+  @override
+  String get settingsCategoryNetwork => 'Network';
+
+  @override
+  String get settingsCategoryAdvanced => 'Advanced';
+
+  @override
   String get settingsDarkMode => 'โหมดมืด';
 
   @override
@@ -228,6 +243,9 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsAppBarScaling => 'ขนาดแถบแอป:';
+
+  @override
+  String get settingsMenuScaling => 'Menu Scaling:';
 
   @override
   String get settingsStyleLabel => 'สไตล์:';

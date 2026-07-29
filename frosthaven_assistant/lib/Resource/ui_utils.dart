@@ -109,7 +109,7 @@ double getModalMenuScale(BuildContext context) {
       scale = kModalScaleLargeTablet;
     }
   }
-  return scale;
+  return scale * getIt<Settings>().userScalingMenus.value;
 }
 
 void rebuildAllChildren(BuildContext context) {

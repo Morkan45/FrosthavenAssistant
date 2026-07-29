@@ -147,6 +147,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsLanguage => 'Язык:';
 
   @override
+  String get settingsCategoryDisplay => 'Display';
+
+  @override
+  String get settingsCategoryGameplay => 'Gameplay';
+
+  @override
+  String get settingsCategoryContent => 'Content';
+
+  @override
+  String get settingsCategoryNetwork => 'Network';
+
+  @override
+  String get settingsCategoryAdvanced => 'Advanced';
+
+  @override
   String get settingsDarkMode => 'Тёмная тема';
 
   @override
@@ -232,6 +247,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsAppBarScaling => 'Масштаб панели приложения:';
+
+  @override
+  String get settingsMenuScaling => 'Menu Scaling:';
 
   @override
   String get settingsStyleLabel => 'Стиль:';

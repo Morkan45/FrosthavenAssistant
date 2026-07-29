@@ -1,50 +1,29 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:frosthaven_assistant/Layout/menus/save_menu.dart';
-import 'package:frosthaven_assistant/Layout/menus/special_unlocks_menu.dart';
-import 'package:frosthaven_assistant/Layout/widgets/scrollable_menu_card.dart';
-import 'package:frosthaven_assistant/Resource/app_constants.dart';
-import 'package:frosthaven_assistant/Resource/commands/clear_unlocked_classes_command.dart';
-import 'package:frosthaven_assistant/Resource/commands/set_ally_deck_in_og_gloom_command.dart';
-import 'package:frosthaven_assistant/Resource/commands/track_standees_command.dart';
-import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 
-import '../../../Resource/enums.dart';
-import '../../../Resource/scaling.dart';
+import '../../../Resource/app_constants.dart';
 import '../../../Resource/settings.dart';
-import '../../../Resource/ui_utils.dart';
+import '../../../Resource/state/game_state.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../services/network/client.dart';
 import '../../../services/network/network.dart';
 import '../../../services/service_locator.dart';
-import '../../../services/translation_service.dart';
-import 'settings_checkbox.dart';
+import '../../widgets/scrollable_menu_card.dart';
+import 'settings_advanced_section.dart';
+import 'settings_content_section.dart';
+import 'settings_display_section.dart';
+import 'settings_gameplay_section.dart';
 import 'settings_network_section.dart';
 
-class SettingsMenu extends StatefulWidget {
-  static const double _kBarWidthBase = 40.0;
-  static const double _kBarWidthMultiplier = 6.5;
-  static const double _kScaleMin = 0.2;
-  static const double _kScaleMax = 3.0;
-  static const double _kBarScaleMin = 0.8;
-  static const double _kLabelPaddingLeft = 16.0;
-  static const double _kLabelPaddingTop = 10.0;
+enum SettingsCategory { display, gameplay, content, network, advanced }
 
-  // Maps locale code → native display name. Extend when adding translations.
-  static const Map<String, String> _kLocales = {
-    'en': 'English',
-    'de': 'Deutsch',
-    'fr': 'Français',
-    'es': 'Español',
-    'pl': 'Polski',
-    'ko': '한국어',
-    'ru': 'Русский',
-    'zh': '中文',
-    'zh_Hant': '中文 (繁體)',
-    'th': 'ภาษาไทย',
-  };
+class SettingsMenu extends StatefulWidget {
+  static const double desktopBreakpoint = 1000;
+  static const double _desktopMaxWidth = 920;
+  static const double _desktopMaxHeight = 640;
+  static const double _desktopHorizontalInset = 72;
+  static const double _desktopVerticalInset = 96;
 
   const SettingsMenu({
     super.key,
@@ -64,394 +43,198 @@ class SettingsMenu extends StatefulWidget {
 }
 
 class SettingsMenuState extends State<SettingsMenu> {
+  final _sectionScrollController = ScrollController();
+  SettingsCategory _selectedCategory = SettingsCategory.display;
+
   Settings get settings => widget.settings ?? getIt<Settings>();
   GameState get _gameState => widget.gameState ?? getIt<GameState>();
   Network get _network => widget.network ?? getIt<Network>();
   Client get _client => widget.client ?? getIt<Client>();
 
   @override
-  Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double referenceMinBarWidth =
-        SettingsMenu._kBarWidthBase * SettingsMenu._kBarWidthMultiplier;
-    double maxBarScale = screenWidth / referenceMinBarWidth;
+  void dispose() {
+    _sectionScrollController.dispose();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final desktop = size.width >= SettingsMenu.desktopBreakpoint;
     final l10n = AppLocalizations.of(context)!;
-    return ScrollableMenuCard(
-      maxWidth: kMenuNarrowWidth,
-      onClose: settings.saveToDisk,
-      child: Column(
-        children: [
-          Text(l10n.menuSettings, style: kTitleStyle),
-          Padding(
-            padding: const EdgeInsets.only(
-              left: SettingsMenu._kLabelPaddingLeft,
-              top: SettingsMenu._kLabelPaddingTop,
-            ),
-            child: Row(
-              children: [
-                Text(l10n.settingsLanguage),
-                const SizedBox(width: 8),
-                DropdownButton<String>(
-                  value: settings.locale.value,
-                  items: SettingsMenu._kLocales.entries
-                      .map(
-                        (e) => DropdownMenuItem<String>(
-                          value: e.key,
-                          child: Text(e.value),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (String? newLocale) {
-                    if (newLocale == null) return;
-                    setState(() {
-                      settings.locale.value = newLocale;
-                    });
-                    getIt<TranslationService>().load(newLocale);
-                    settings.saveToDisk();
-                  },
-                ),
-              ],
-            ),
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsDarkMode,
-            notifier: settings.darkMode,
-            onChanged: (v) {
-              settings.darkMode.value = v;
-              settings.saveToDisk();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsSoftNumpad,
-            notifier: settings.softNumpadInput,
-            onChanged: (v) {
-              settings.softNumpadInput.value = v;
-              settings.saveToDisk();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsNoInit,
-            notifier: settings.noInit,
-            onChanged: (v) {
-              settings.noInit.value = v;
-              settings.saveToDisk();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsExpireConditions,
-            notifier: settings.expireConditions,
-            onChanged: (v) {
-              settings.expireConditions.value = v;
-              settings.saveToDisk();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsNoStandees,
-            notifier: settings.noStandees,
-            onChanged: (v) {
-              _gameState.action(
-                TrackStandeesCommand(
-                  !v,
-                  gameState: _gameState,
-                  settings: settings,
-                ),
-              );
-              settings.saveToDisk();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsAutoAddStandees,
-            notifier: settings.autoAddStandees,
-            onChanged: (v) {
-              settings.autoAddStandees.value = v;
-              settings.saveToDisk();
-              _gameState.updateList.notify();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsAutoAddSpawns,
-            notifier: settings.autoAddSpawns,
-            onChanged: (v) {
-              settings.autoAddSpawns.value = v;
-              settings.saveToDisk();
-              _gameState.updateList.notify();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsRandomStandees,
-            notifier: settings.randomStandees,
-            onChanged: (v) {
-              settings.randomStandees.value = v;
-              settings.saveToDisk();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsNoCalculations,
-            notifier: settings.noCalculation,
-            onChanged: (v) {
-              settings.noCalculation.value = v;
-              settings.saveToDisk();
-              _gameState.updateAllUI();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsHideLootDeck,
-            notifier: settings.hideLootDeck,
-            onChanged: (v) {
-              settings.hideLootDeck.value = v;
-              settings.saveToDisk();
-              _gameState.updateAllUI();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsShimmer,
-            notifier: settings.shimmer,
-            onChanged: (v) {
-              settings.shimmer.value = v;
-              settings.saveToDisk();
-              _gameState.updateAllUI();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsFhHazTerrainCalc,
-            notifier: settings.fhHazTerrainCalcInOGGloom,
-            onChanged: (v) {
-              settings.fhHazTerrainCalcInOGGloom.value = v;
-              settings.saveToDisk();
-              _gameState.updateAllUI();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsAllyDeckOGGloom,
-            notifier: _gameState.allyDeckInOGGloom,
-            onChanged: (v) {
-              _gameState.action(
-                SetAllyDeckInOgGloomCommand(v, gameState: _gameState),
-              );
-              _gameState.updateAllUI();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsShowScenarioNames,
-            notifier: settings.showScenarioNames,
-            onChanged: (v) {
-              settings.showScenarioNames.value = v;
-              settings.saveToDisk();
-              _gameState.updateAllUI();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsShowBattleGoalReminder,
-            notifier: settings.showBattleGoalReminder,
-            onChanged: (v) {
-              settings.showBattleGoalReminder.value = v;
-              settings.saveToDisk();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsShowCustomContent,
-            notifier: settings.showCustomContent,
-            onChanged: (v) {
-              settings.showCustomContent.value = v;
-              settings.saveToDisk();
-              _gameState.updateAllUI();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsShowSections,
-            notifier: settings.showSectionsInMainView,
-            onChanged: (v) {
-              settings.showSectionsInMainView.value = v;
-              settings.saveToDisk();
-              _gameState.updateAllUI();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsShowReminders,
-            notifier: settings.showReminders,
-            onChanged: (v) {
-              settings.showReminders.value = v;
-              settings.saveToDisk();
-              _gameState.updateAllUI();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsShowAmdDeck,
-            notifier: settings.showAmdDeck,
-            onChanged: (v) {
-              settings.showAmdDeck.value = v;
-              if (!v) settings.showCharacterAMD.value = false;
-              settings.saveToDisk();
-              _gameState.updateAllUI();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsShowCharacterAmd,
-            notifier: settings.showCharacterAMD,
-            onChanged: (v) {
-              settings.showCharacterAMD.value = v;
-              if (v) settings.showAmdDeck.value = true;
-              settings.saveToDisk();
-              _gameState.updateAllUI();
-            },
-          ),
-          SettingsCheckbox(
-            title: l10n.settingsHealthWheel,
-            notifier: settings.enableHeathWheel,
-            onChanged: (v) {
-              settings.enableHeathWheel.value = v;
-              settings.saveToDisk();
-              _gameState.updateAllUI();
-            },
-          ),
-          if (!Platform.isIOS)
-            SettingsCheckbox(
-              title: l10n.settingsFullscreen,
-              notifier: settings.fullScreen,
-              onChanged: (v) {
-                settings.setFullscreen(v);
-                settings.saveToDisk();
-              },
-            ),
-          SettingsCheckbox(
-            title: l10n.settingsFitMainListWidth,
-            notifier: settings.fitMainListToWidth,
-            onChanged: (v) {
-              setState(() {
-                settings.fitMainListToWidth.value = v;
-                settings.saveToDisk();
-                _gameState.updateList.notify();
-              });
-            },
-          ),
-          if (settings.fitMainListToWidth.value)
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: SettingsMenu._kLabelPaddingLeft,
+    final pages = _pages(l10n);
+
+    if (!desktop) {
+      return ScrollableMenuCard(
+        maxWidth: kMenuNarrowWidth,
+        onClose: settings.saveToDisk,
+        child: Column(
+          children: [
+            Text(l10n.menuSettings, style: kTitleStyle),
+            for (final page in pages)
+              _MobileSettingsSection(
+                key: Key('settings-section-${page.category.name}'),
+                title: page.label,
+                child: page.child,
               ),
+          ],
+        ),
+      );
+    }
+
+    final width = min(
+      SettingsMenu._desktopMaxWidth,
+      size.width - SettingsMenu._desktopHorizontalInset,
+    );
+    final height = max(
+      280.0,
+      min(
+        SettingsMenu._desktopMaxHeight,
+        size.height - SettingsMenu._desktopVerticalInset,
+      ),
+    );
+    final selectedIndex = pages.indexWhere(
+      (page) => page.category == _selectedCategory,
+    );
+
+    return ScrollableMenuCard(
+      maxWidth: width,
+      onClose: settings.saveToDisk,
+      child: SizedBox(
+        key: const Key('desktop-settings-layout'),
+        width: width,
+        height: height,
+        child: Column(
+          children: [
+            Text(l10n.menuSettings, style: kTitleStyle),
+            const SizedBox(height: 8),
+            Expanded(
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(child: Text(l10n.settingsMainListColumns)),
-                  DropdownButton<int>(
-                    key: const Key('main-list-columns-dropdown'),
-                    value: settings.mainListColumns.value,
-                    items: [
-                      DropdownMenuItem(
-                        value: 0,
-                        child: Text(l10n.settingsMainListColumnsAuto),
-                      ),
-                      const DropdownMenuItem(value: 1, child: Text('1')),
-                      const DropdownMenuItem(value: 2, child: Text('2')),
-                      const DropdownMenuItem(value: 3, child: Text('3')),
-                    ],
-                    onChanged: (value) {
-                      if (value == null) return;
+                  NavigationRail(
+                    key: const Key('settings-category-navigation'),
+                    backgroundColor: Colors.transparent,
+                    selectedIndex: selectedIndex,
+                    labelType: NavigationRailLabelType.all,
+                    onDestinationSelected: (index) {
                       setState(() {
-                        settings.mainListColumns.value = value;
-                        settings.saveToDisk();
-                        _gameState.updateList.notify();
+                        _selectedCategory = pages[index].category;
                       });
+                      if (_sectionScrollController.hasClients) {
+                        _sectionScrollController.jumpTo(0);
+                      }
                     },
+                    destinations: [
+                      for (final page in pages)
+                        NavigationRailDestination(
+                          icon: Icon(page.icon),
+                          label: Text(page.label),
+                        ),
+                    ],
+                  ),
+                  const VerticalDivider(width: 1),
+                  Expanded(
+                    child: Scrollbar(
+                      controller: _sectionScrollController,
+                      child: SingleChildScrollView(
+                        key: Key(
+                          'settings-section-${pages[selectedIndex].category.name}',
+                        ),
+                        controller: _sectionScrollController,
+                        padding: const EdgeInsets.fromLTRB(24, 8, 16, 48),
+                        child: pages[selectedIndex].child,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-          Container(
-            constraints: const BoxConstraints(minWidth: double.infinity),
-            padding: const EdgeInsets.only(
-              left: SettingsMenu._kLabelPaddingLeft,
-              top: SettingsMenu._kLabelPaddingTop,
-            ),
-            alignment: Alignment.bottomLeft,
-            child: Text(l10n.settingsMainListScaling),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<_SettingsPage> _pages(AppLocalizations l10n) => [
+    _SettingsPage(
+      category: SettingsCategory.display,
+      label: l10n.settingsCategoryDisplay,
+      icon: Icons.monitor_outlined,
+      child: SettingsDisplaySection(
+        settings: settings,
+        gameState: _gameState,
+        onLayoutChanged: () => setState(() {}),
+      ),
+    ),
+    _SettingsPage(
+      category: SettingsCategory.gameplay,
+      label: l10n.settingsCategoryGameplay,
+      icon: Icons.tune,
+      child: SettingsGameplaySection(settings: settings, gameState: _gameState),
+    ),
+    _SettingsPage(
+      category: SettingsCategory.content,
+      label: l10n.settingsCategoryContent,
+      icon: Icons.view_list_outlined,
+      child: SettingsContentSection(settings: settings, gameState: _gameState),
+    ),
+    _SettingsPage(
+      category: SettingsCategory.network,
+      label: l10n.settingsCategoryNetwork,
+      icon: Icons.lan_outlined,
+      child: SettingsNetworkSection(
+        settings: settings,
+        network: _network,
+        client: _client,
+      ),
+    ),
+    _SettingsPage(
+      category: SettingsCategory.advanced,
+      label: l10n.settingsCategoryAdvanced,
+      icon: Icons.settings_suggest_outlined,
+      child: SettingsAdvancedSection(gameState: _gameState),
+    ),
+  ];
+}
+
+class _SettingsPage {
+  const _SettingsPage({
+    required this.category,
+    required this.label,
+    required this.icon,
+    required this.child,
+  });
+
+  final SettingsCategory category;
+  final String label;
+  final IconData icon;
+  final Widget child;
+}
+
+class _MobileSettingsSection extends StatelessWidget {
+  const _MobileSettingsSection({
+    required this.title,
+    required this.child,
+    super.key,
+  });
+
+  final String title;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(title, style: kTitleStyle),
           ),
-          Slider(
-            min: SettingsMenu._kScaleMin,
-            max: SettingsMenu._kScaleMax,
-            value: settings.userScalingMainList.value,
-            onChanged: (value) {
-              setState(() {
-                settings.userScalingMainList.value = value;
-                setMaxWidth();
-              });
-            },
-            onChangeEnd: (_) => settings.saveToDisk(),
-          ),
-          Container(
-            constraints: const BoxConstraints(minWidth: double.infinity),
-            padding: const EdgeInsets.only(
-              left: SettingsMenu._kLabelPaddingLeft,
-              top: SettingsMenu._kLabelPaddingTop,
-            ),
-            alignment: Alignment.bottomLeft,
-            child: Text(l10n.settingsAppBarScaling),
-          ),
-          Slider(
-            min: min(SettingsMenu._kBarScaleMin, maxBarScale),
-            max: min(maxBarScale, SettingsMenu._kScaleMax),
-            value: min(settings.userScalingBars.value, maxBarScale),
-            onChanged: (value) {
-              setState(() {
-                settings.userScalingBars.value = value;
-              });
-            },
-            onChangeEnd: (_) => settings.saveToDisk(),
-          ),
-          Text(l10n.settingsStyleLabel, style: kTitleStyle),
-          RadioGroup<Style>(
-            groupValue: settings.style.value,
-            onChanged: (value) {
-              if (value == null) return;
-              setState(() {
-                settings.style.value = value;
-                settings.saveToDisk();
-                _gameState.updateList.notify();
-              });
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Row(
-                  children: [
-                    Radio<Style>(value: Style.frosthaven),
-                    Text(l10n.styleFrosthaven),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Radio<Style>(value: Style.original),
-                    Text(l10n.styleOriginal),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          ListTile(
-            title: Text(l10n.settingsClearUnlocked),
-            onTap: () {
-              setState(() {
-                _gameState.action(ClearUnlockedClassesCommand());
-              });
-            },
-          ),
-          ListTile(
-            title: Text(l10n.settingsUnlockSpecials),
-            onTap: () {
-              openDialog(context, SpecialUnlocksMenu());
-            },
-          ),
-          SettingsNetworkSection(
-            settings: settings,
-            network: _network,
-            client: _client,
-          ),
-          ListTile(
-            title: Text(l10n.settingsLoadSaveState),
-            onTap: () {
-              openDialog(context, const SaveMenu());
-            },
-          ),
+          const Divider(),
+          child,
         ],
       ),
     );

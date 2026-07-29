@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/ui_utils.dart';
+import 'package:frosthaven_assistant/services/service_locator.dart';
 
 import '../command/test_helpers.dart';
 
@@ -101,6 +103,32 @@ void main() {
       final style = getButtonTextStyle(1.0);
       expect(style.color, Colors.blue);
     });
+  });
+
+  testWidgets('modal scale includes the user menu-scale preference', (
+    tester,
+  ) async {
+    final settings = getIt<Settings>();
+    final previous = settings.userScalingMenus.value;
+    settings.userScalingMenus.value = 1.25;
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(() {
+      settings.userScalingMenus.value = previous;
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      _l10nApp(
+        Builder(
+          builder: (context) {
+            expect(getModalMenuScale(context), 1.25);
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
   });
 
   // ── openDialogOld / openDialog / createToastContent ──────────────────────

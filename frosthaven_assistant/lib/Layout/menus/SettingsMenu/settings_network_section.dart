@@ -173,20 +173,6 @@ class SettingsNetworkSectionState extends State<SettingsNetworkSection> {
                   height: SettingsNetworkSection._kDropdownHeight,
                   child: Text(widget.network.networkInfo.outgoingIPv6.value));
             }),
-        Container(
-          margin: const EdgeInsets.only(top: kMenuTopPadding),
-          width: SettingsNetworkSection._kInputWidth,
-          height: SettingsNetworkSection._kInputHeight,
-          child: TextField(
-            controller: _portTextController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              counterText: "",
-              helperText: AppLocalizations.of(context)!.networkPortHint,
-            ),
-            maxLength: SettingsNetworkSection._kPortMaxLength,
-          ),
-        ),
       ],
     );
   }
