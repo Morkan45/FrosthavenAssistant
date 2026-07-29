@@ -41,12 +41,19 @@ class MainListState extends State<MainList> {
 
   MainListViewModel? _vmInstance;
   MainListViewModel get _vm => _vmInstance ??= MainListViewModel(
-        gameState: widget.gameState,
-        gameData: widget.gameData,
-        settings: widget.settings,
-      );
+    gameState: widget.gameState,
+    gameData: widget.gameData,
+    settings: widget.settings,
+  );
 
   static final scrollController = ScrollController();
+  final _horizontalScrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _horizontalScrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,13 +102,21 @@ class MainListState extends State<MainList> {
         alignment: Alignment.topCenter,
         child: RepaintBoundary(
           child: Scrollbar(
-            controller: scrollController,
+            controller: _horizontalScrollController,
+            scrollbarOrientation: ScrollbarOrientation.bottom,
+            thumbVisibility: layout.contentWidth > layout.availableWidth,
             child: SingleChildScrollView(
-              controller: scrollController,
-              child: Container(
-                alignment: Alignment.topCenter,
-                width: layout.availableWidth,
-                child: RepaintBoundary(child: GameList(vm: _vm)),
+              controller: _horizontalScrollController,
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: layout.contentWidth,
+                child: Scrollbar(
+                  controller: scrollController,
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    child: RepaintBoundary(child: GameList(vm: _vm)),
+                  ),
+                ),
               ),
             ),
           ),

@@ -15,6 +15,7 @@ const double referenceWidth = 412.0;
 class MainListLayout {
   const MainListLayout({
     required this.availableWidth,
+    required this.contentWidth,
     required this.columnWidth,
     required this.columnCount,
     required this.fitsScreenWidth,
@@ -22,6 +23,7 @@ class MainListLayout {
   });
 
   final double availableWidth;
+  final double contentWidth;
   final double columnWidth;
   final int columnCount;
   final bool fitsScreenWidth;
@@ -43,6 +45,7 @@ class MainListLayoutScope extends InheritedWidget {
   @override
   bool updateShouldNotify(MainListLayoutScope oldWidget) =>
       layout.availableWidth != oldWidget.layout.availableWidth ||
+      layout.contentWidth != oldWidget.layout.contentWidth ||
       layout.columnWidth != oldWidget.layout.columnWidth ||
       layout.columnCount != oldWidget.layout.columnCount ||
       layout.fitsScreenWidth != oldWidget.layout.fitsScreenWidth ||
@@ -99,6 +102,7 @@ MainListLayout calculateMainListLayout(
     final columnCount = safeWidth >= columnWidth * 2 ? 2 : 1;
     return MainListLayout(
       availableWidth: safeWidth,
+      contentWidth: max(safeWidth, columnWidth * columnCount),
       columnWidth: columnWidth,
       columnCount: columnCount,
       fitsScreenWidth: false,
@@ -107,25 +111,26 @@ MainListLayout calculateMainListLayout(
   }
 
   final requestedColumns = settings.mainListColumns.value;
-  final automaticColumns = automaticColumnCount ??
-      (safeWidth / _kDesktopTargetListWidth).round().clamp(
-            1,
-            _kMaxFitColumns,
-          );
+  final automaticColumns =
+      automaticColumnCount ??
+      (safeWidth / _kDesktopTargetListWidth).round().clamp(1, _kMaxFitColumns);
   final columnCount = requestedColumns == 0
       ? automaticColumns
       : requestedColumns.clamp(1, _kMaxFitColumns);
-  final columnWidth = safeWidth / columnCount;
-  final desiredScale =
-      _kDesktopTargetListWidth / referenceWidth *
-      settings.userScalingMainList.value;
+  final baseColumnWidth = min(
+    _kDesktopTargetListWidth,
+    safeWidth / columnCount,
+  );
+  final columnWidth = baseColumnWidth * settings.userScalingMainList.value;
+  final contentWidth = max(safeWidth, columnWidth * columnCount);
 
   return MainListLayout(
     availableWidth: safeWidth,
+    contentWidth: contentWidth,
     columnWidth: columnWidth,
     columnCount: columnCount,
     fitsScreenWidth: true,
-    scale: min(columnWidth / referenceWidth, desiredScale),
+    scale: columnWidth / referenceWidth,
   );
 }
 

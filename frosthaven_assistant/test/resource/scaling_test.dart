@@ -78,14 +78,15 @@ void main() {
       expect(layout.columnWidth, 740);
     });
 
-    test('fit-width auto layout uses two full columns at 1920', () {
+    test('fit-width auto layout centers two target-width columns at 1920', () {
       getIt<Settings>().fitMainListToWidth.value = true;
 
       final layout = calculateMainListLayout(1920);
 
       expect(layout.fitsScreenWidth, isTrue);
       expect(layout.columnCount, 2);
-      expect(layout.columnWidth, 960);
+      expect(layout.columnWidth, 900);
+      expect(layout.contentWidth, 1920);
     });
 
     test('fit-width auto layout uses three full columns at 2560', () {
@@ -96,6 +97,7 @@ void main() {
       expect(layout.columnCount, 3);
       expect(layout.columnWidth, closeTo(853.33, 0.01));
       expect(layout.columnWidth * layout.columnCount, 2560);
+      expect(layout.contentWidth, 2560);
     });
 
     test('fit-width layout respects an explicit column count', () {
@@ -106,7 +108,8 @@ void main() {
       final layout = calculateMainListLayout(2560);
 
       expect(layout.columnCount, 1);
-      expect(layout.columnWidth, 2560);
+      expect(layout.columnWidth, 900);
+      expect(layout.contentWidth, 2560);
     });
 
     test('fit-width auto layout preserves one column on compact screens', () {
@@ -116,6 +119,18 @@ void main() {
 
       expect(layout.columnCount, 1);
       expect(layout.columnWidth, 800);
+    });
+
+    test('three-column fit-width layout responds to main-list scaling', () {
+      final settings = getIt<Settings>();
+      settings.fitMainListToWidth.value = true;
+      settings.userScalingMainList.value = 1.5;
+
+      final layout = calculateMainListLayout(2560, automaticColumnCount: 3);
+
+      expect(layout.columnWidth, closeTo(1280, 0.01));
+      expect(layout.contentWidth, closeTo(3840, 0.01));
+      expect(layout.scale, closeTo(1280 / referenceWidth, 0.01));
     });
   });
 }

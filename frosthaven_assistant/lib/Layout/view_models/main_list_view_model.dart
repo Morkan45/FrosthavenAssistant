@@ -17,14 +17,15 @@ class MainListViewModel {
   static const double _kMonsterHeaderHeight = 96.0;
   static const double _kRowHeight = 32.0;
   static const double _kTopBarHeight = 80.0;
+  static const double _kAutoColumnOverflowAllowance = 120.0;
   static const int _kMaxAutoColumns = 3;
   MainListViewModel({
     GameState? gameState,
     GameData? gameData,
     Settings? settings,
-  })  : _gameState = gameState ?? getIt<GameState>(),
-        _gameData = gameData ?? getIt<GameData>(),
-        _settings = settings ?? getIt<Settings>();
+  }) : _gameState = gameState ?? getIt<GameState>(),
+       _gameData = gameData ?? getIt<GameData>(),
+       _settings = settings ?? getIt<Settings>();
 
   final GameState _gameState;
   final GameData _gameData;
@@ -101,7 +102,12 @@ class MainListViewModel {
         settings: _settings,
         automaticColumnCount: columns,
       );
-      if (_itemsFitInColumns(layout, usableHeight)) return layout;
+      if (_itemsFitInColumns(
+        layout,
+        usableHeight + _kAutoColumnOverflowAllowance,
+      )) {
+        return layout;
+      }
     }
 
     return calculateMainListLayout(
@@ -114,11 +120,13 @@ class MainListViewModel {
   bool _itemsFitInColumns(MainListLayout layout, double usableHeight) {
     if (_gameState.currentList.isEmpty) return true;
 
-    final itemsPerColumn =
-        (_gameState.currentList.length / layout.columnCount).ceil();
-    for (var start = 0;
-        start < _gameState.currentList.length;
-        start += itemsPerColumn) {
+    final itemsPerColumn = (_gameState.currentList.length / layout.columnCount)
+        .ceil();
+    for (
+      var start = 0;
+      start < _gameState.currentList.length;
+      start += itemsPerColumn
+    ) {
       var columnHeight = 0.0;
       final end = (start + itemsPerColumn < _gameState.currentList.length)
           ? start + itemsPerColumn
