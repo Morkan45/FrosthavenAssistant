@@ -136,20 +136,22 @@ language, theme, and visual style.
 unrelated categories; every setting remains available on mobile; current saved
 values migrate without reset.
 
-### P2: Make responsive layout controls understandable
+### Completed: Make responsive layout controls understandable
 
-Replace the raw column count with an Auto/1/2/3 mode selector. In Auto, keep the
-fewest columns that fit vertically and horizontally. In manual modes, cap scale
-to the viewport and explain the cap through control state rather than allowing
-content to leave the field of view. Add Compact, Default, and Large presets while
-retaining the fine-grained scale slider.
+The raw column dropdown is now an Auto/1/2/3 segmented selector. Auto keeps the
+fewest columns that fit vertically and horizontally, while manual modes retain
+the viewport scale cap. Compact, Default, and Large presets adjust the main
+list, app bars, and menus together while retaining all fine-grained sliders.
 
-### P2: Improve desktop command access
+### P2: Improve desktop command access (in progress)
 
 Add consistent hover states and tooltips for icon-only controls, predictable
 Escape-to-close behavior, visible keyboard focus, and a compact overflow menu
 for infrequent commands. Audit existing shortcuts before assigning new ones so
 Undo, Redo, fullscreen, scenario setup, and round progression do not conflict.
+Settings now closes predictably with Escape and participates in focus traversal.
+Focused main-list rows have a visible outline and can be reordered with
+Alt+Up/Down. The broader hover, tooltip, and overflow-menu audit remains.
 
 ### P2: Improve row scanning and targeting
 
@@ -171,7 +173,8 @@ operational controls visually consistent.
 2. Unified bounded history model and direct rollback. Completed.
 3. Virtualized 500-action history panel. Core completed.
 4. Settings information architecture and responsive presentation. Completed.
-5. Layout presets, keyboard/focus audit, and row-alignment refinement.
+5. Layout presets and keyboard/focus foundation. Core completed; row alignment
+   and the broader command-control audit remain.
 6. Module splits and measured serialization/rebuild optimizations.
 
 ## Verification baseline

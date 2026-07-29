@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frosthaven_assistant/Resource/scaling.dart';
 import 'package:reorderables/reorderables.dart';
 
@@ -11,17 +12,80 @@ import 'main_list_item.dart';
 bool _needsLongPressForReorder(TargetPlatform platform) =>
     platform == TargetPlatform.android || platform == TargetPlatform.iOS;
 
-class _ReorderCursor extends StatelessWidget {
-  const _ReorderCursor({required this.child});
+class _MoveListItemIntent extends Intent {
+  const _MoveListItemIntent(this.offset);
 
+  final int offset;
+}
+
+class _ReorderInteraction extends StatefulWidget {
+  const _ReorderInteraction({
+    required this.itemId,
+    required this.focusNode,
+    required this.canMoveUp,
+    required this.canMoveDown,
+    required this.onMove,
+    required this.child,
+  });
+
+  final String itemId;
+  final FocusNode focusNode;
+  final bool canMoveUp;
+  final bool canMoveDown;
+  final ValueChanged<int> onMove;
   final Widget child;
 
   @override
+  State<_ReorderInteraction> createState() => _ReorderInteractionState();
+}
+
+class _ReorderInteractionState extends State<_ReorderInteraction> {
+  bool _showFocus = false;
+
+  @override
   Widget build(BuildContext context) {
-    final needsLongPress = _needsLongPressForReorder(Theme.of(context).platform);
-    return MouseRegion(
-      cursor: needsLongPress ? MouseCursor.defer : SystemMouseCursors.grab,
-      child: child,
+    final needsLongPress = _needsLongPressForReorder(
+      Theme.of(context).platform,
+    );
+    return FocusableActionDetector(
+      key: Key('keyboard-reorder-${widget.itemId}'),
+      focusNode: widget.focusNode,
+      mouseCursor: needsLongPress ? MouseCursor.defer : SystemMouseCursors.grab,
+      shortcuts: const {
+        SingleActivator(LogicalKeyboardKey.arrowUp, alt: true):
+            _MoveListItemIntent(-1),
+        SingleActivator(LogicalKeyboardKey.arrowDown, alt: true):
+            _MoveListItemIntent(1),
+      },
+      actions: {
+        _MoveListItemIntent: CallbackAction<_MoveListItemIntent>(
+          onInvoke: (intent) {
+            if ((intent.offset < 0 && widget.canMoveUp) ||
+                (intent.offset > 0 && widget.canMoveDown)) {
+              widget.onMove(intent.offset);
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted && widget.focusNode.canRequestFocus) {
+                  widget.focusNode.requestFocus();
+                }
+              });
+            }
+            return null;
+          },
+        ),
+      },
+      onShowFocusHighlight: (value) => setState(() => _showFocus = value),
+      child: DecoratedBox(
+        position: DecorationPosition.foreground,
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: _showFocus
+                ? Theme.of(context).colorScheme.primary
+                : Colors.transparent,
+            width: 2,
+          ),
+        ),
+        child: widget.child,
+      ),
     );
   }
 }
@@ -132,6 +196,7 @@ class _GameListState extends State<GameList> {
   static const double _kHalfHeightFactor = 0.5;
 
   final Map<String, _FlipItemState> _flipStates = {};
+  final Map<String, FocusNode> _reorderFocusNodes = {};
   List<Widget> _cachedChildren = const [];
   bool _skipNextAnimation = false;
 
@@ -182,6 +247,9 @@ class _GameListState extends State<GameList> {
   @override
   void dispose() {
     widget.vm.updateList.removeListener(_onUpdateList);
+    for (final focusNode in _reorderFocusNodes.values) {
+      focusNode.dispose();
+    }
     super.dispose();
   }
 
@@ -204,12 +272,21 @@ class _GameListState extends State<GameList> {
       final id = vm.itemIdAt(i);
       currentIds.add(id);
       return RepaintBoundary(
+        key: ValueKey('reorder-$id'),
         child: _FlipItem(
           key: ValueKey(id),
           itemId: id,
           onRegister: _registerFlipState,
           onUnregister: _unregisterFlipState,
-          child: _ReorderCursor(
+          child: _ReorderInteraction(
+            itemId: id,
+            focusNode: _reorderFocusNodes.putIfAbsent(
+              id,
+              () => FocusNode(debugLabel: 'Reorder $id'),
+            ),
+            canMoveUp: i > 0,
+            canMoveDown: i < vm.currentListLength - 1,
+            onMove: (offset) => vm.reorderItem(i, i + offset),
             child: MainListItem(key: Key(id), data: vm.itemAt(i)),
           ),
         ),
@@ -218,6 +295,23 @@ class _GameListState extends State<GameList> {
     _flipStates.removeWhere(
       (id, state) => !currentIds.contains(id) && !state.mounted,
     );
+    final removedFocusIds = _reorderFocusNodes.keys
+        .where((id) => !currentIds.contains(id))
+        .toList();
+    if (removedFocusIds.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final retainedIds = List.generate(
+          widget.vm.currentListLength,
+          widget.vm.itemIdAt,
+        ).toSet();
+        for (final id in removedFocusIds) {
+          if (!retainedIds.contains(id)) {
+            _reorderFocusNodes.remove(id)?.dispose();
+          }
+        }
+      });
+    }
     return children;
   }
 
@@ -254,8 +348,9 @@ class _GameListState extends State<GameList> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final layout = getMainListLayout(context);
-    final needsLongPress =
-        _needsLongPressForReorder(Theme.of(context).platform);
+    final needsLongPress = _needsLongPressForReorder(
+      Theme.of(context).platform,
+    );
     int? itemsPerColumn;
     if (layout.fitsScreenWidth) {
       itemsPerColumn = max(

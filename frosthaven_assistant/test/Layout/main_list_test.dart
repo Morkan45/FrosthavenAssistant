@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Layout/CharacterWidget/character_widget.dart';
 import 'package:frosthaven_assistant/Layout/MainList/main_list.dart';
@@ -192,6 +193,35 @@ void main() {
 
       expect(getIt<GameState>().currentList.first.id, secondId);
       expect(getIt<GameState>().currentList[1].id, firstId);
+    });
+
+    testWidgets('focused rows can be reordered with Alt and arrow keys', (
+      WidgetTester tester,
+    ) async {
+      AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
+      AddCharacterCommand('Banner Spear', 'Frosthaven', null, 1).execute();
+      await pumpWidget(tester);
+
+      final state = getIt<GameState>();
+      final firstId = state.currentList.first.id;
+      final secondId = state.currentList[1].id;
+      final interaction = find.byKey(Key('keyboard-reorder-$firstId'));
+      final detector = tester.widget<FocusableActionDetector>(interaction);
+      detector.focusNode!.requestFocus();
+      await tester.pump();
+
+      expect(detector.focusNode!.hasFocus, isTrue);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+      await tester.pumpAndSettle();
+
+      expect(state.currentList.first.id, secondId);
+      expect(state.currentList[1].id, firstId);
+      expect(
+        tester.widget<FocusableActionDetector>(interaction).focusNode!.hasFocus,
+        isTrue,
+      );
     });
 
     testWidgets('mobile retains long-press drag behavior', (

@@ -236,6 +236,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settingsMainListColumnsAuto => '자동';
 
   @override
+  String get settingsLayoutScalePreset => 'Scale preset:';
+
+  @override
+  String get settingsScalePresetCompact => 'Compact';
+
+  @override
+  String get settingsScalePresetDefault => 'Default';
+
+  @override
+  String get settingsScalePresetLarge => 'Large';
+
+  @override
   String get settingsMainListScaling => '메인 목록 크기:';
 
   @override

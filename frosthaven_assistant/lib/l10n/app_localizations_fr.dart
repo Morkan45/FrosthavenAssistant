@@ -245,6 +245,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsMainListColumnsAuto => 'Automatique';
 
   @override
+  String get settingsLayoutScalePreset => 'Scale preset:';
+
+  @override
+  String get settingsScalePresetCompact => 'Compact';
+
+  @override
+  String get settingsScalePresetDefault => 'Default';
+
+  @override
+  String get settingsScalePresetLarge => 'Large';
+
+  @override
   String get settingsMainListScaling => 'Échelle de la liste principale :';
 
   @override

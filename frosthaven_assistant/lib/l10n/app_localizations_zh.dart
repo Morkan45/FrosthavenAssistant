@@ -236,6 +236,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsMainListColumnsAuto => '自动';
 
   @override
+  String get settingsLayoutScalePreset => 'Scale preset:';
+
+  @override
+  String get settingsScalePresetCompact => 'Compact';
+
+  @override
+  String get settingsScalePresetDefault => 'Default';
+
+  @override
+  String get settingsScalePresetLarge => 'Large';
+
+  @override
   String get settingsMainListScaling => '主列表缩放：';
 
   @override

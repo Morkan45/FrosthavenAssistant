@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../Resource/app_constants.dart';
 import '../../../Resource/settings.dart';
@@ -65,19 +66,21 @@ class SettingsMenuState extends State<SettingsMenu> {
     final pages = _pages(l10n);
 
     if (!desktop) {
-      return ScrollableMenuCard(
-        maxWidth: kMenuNarrowWidth,
-        onClose: settings.saveToDisk,
-        child: Column(
-          children: [
-            Text(l10n.menuSettings, style: kTitleStyle),
-            for (final page in pages)
-              _MobileSettingsSection(
-                key: Key('settings-section-${page.category.name}'),
-                title: page.label,
-                child: page.child,
-              ),
-          ],
+      return _withKeyboardBehavior(
+        ScrollableMenuCard(
+          maxWidth: kMenuNarrowWidth,
+          onClose: settings.saveToDisk,
+          child: Column(
+            children: [
+              Text(l10n.menuSettings, style: kTitleStyle),
+              for (final page in pages)
+                _MobileSettingsSection(
+                  key: Key('settings-section-${page.category.name}'),
+                  title: page.label,
+                  child: page.child,
+                ),
+            ],
+          ),
         ),
       );
     }
@@ -97,61 +100,79 @@ class SettingsMenuState extends State<SettingsMenu> {
       (page) => page.category == _selectedCategory,
     );
 
-    return ScrollableMenuCard(
-      maxWidth: width,
-      onClose: settings.saveToDisk,
-      child: SizedBox(
-        key: const Key('desktop-settings-layout'),
-        width: width,
-        height: height,
-        child: Column(
-          children: [
-            Text(l10n.menuSettings, style: kTitleStyle),
-            const SizedBox(height: 8),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  NavigationRail(
-                    key: const Key('settings-category-navigation'),
-                    backgroundColor: Colors.transparent,
-                    selectedIndex: selectedIndex,
-                    labelType: NavigationRailLabelType.all,
-                    onDestinationSelected: (index) {
-                      setState(() {
-                        _selectedCategory = pages[index].category;
-                      });
-                      if (_sectionScrollController.hasClients) {
-                        _sectionScrollController.jumpTo(0);
-                      }
-                    },
-                    destinations: [
-                      for (final page in pages)
-                        NavigationRailDestination(
-                          icon: Icon(page.icon),
-                          label: Text(page.label),
-                        ),
-                    ],
-                  ),
-                  const VerticalDivider(width: 1),
-                  Expanded(
-                    child: Scrollbar(
-                      controller: _sectionScrollController,
-                      child: SingleChildScrollView(
-                        key: Key(
-                          'settings-section-${pages[selectedIndex].category.name}',
-                        ),
+    return _withKeyboardBehavior(
+      ScrollableMenuCard(
+        maxWidth: width,
+        onClose: settings.saveToDisk,
+        child: SizedBox(
+          key: const Key('desktop-settings-layout'),
+          width: width,
+          height: height,
+          child: Column(
+            children: [
+              Text(l10n.menuSettings, style: kTitleStyle),
+              const SizedBox(height: 8),
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    NavigationRail(
+                      key: const Key('settings-category-navigation'),
+                      backgroundColor: Colors.transparent,
+                      selectedIndex: selectedIndex,
+                      labelType: NavigationRailLabelType.all,
+                      onDestinationSelected: (index) {
+                        setState(() {
+                          _selectedCategory = pages[index].category;
+                        });
+                        if (_sectionScrollController.hasClients) {
+                          _sectionScrollController.jumpTo(0);
+                        }
+                      },
+                      destinations: [
+                        for (final page in pages)
+                          NavigationRailDestination(
+                            icon: Icon(page.icon),
+                            label: Text(page.label),
+                          ),
+                      ],
+                    ),
+                    const VerticalDivider(width: 1),
+                    Expanded(
+                      child: Scrollbar(
                         controller: _sectionScrollController,
-                        padding: const EdgeInsets.fromLTRB(24, 8, 16, 48),
-                        child: pages[selectedIndex].child,
+                        child: SingleChildScrollView(
+                          key: Key(
+                            'settings-section-${pages[selectedIndex].category.name}',
+                          ),
+                          controller: _sectionScrollController,
+                          padding: const EdgeInsets.fromLTRB(24, 8, 16, 48),
+                          child: pages[selectedIndex].child,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _withKeyboardBehavior(Widget child) {
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.escape): () {
+          settings.saveToDisk();
+          Navigator.maybeOf(context)?.maybePop();
+        },
+      },
+      child: Focus(
+        autofocus: true,
+        skipTraversal: true,
+        child: FocusTraversalGroup(child: child),
       ),
     );
   }

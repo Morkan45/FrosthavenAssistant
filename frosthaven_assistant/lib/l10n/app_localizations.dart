@@ -539,6 +539,30 @@ abstract class AppLocalizations {
   /// **'Auto'**
   String get settingsMainListColumnsAuto;
 
+  /// No description provided for @settingsLayoutScalePreset.
+  ///
+  /// In en, this message translates to:
+  /// **'Scale preset:'**
+  String get settingsLayoutScalePreset;
+
+  /// No description provided for @settingsScalePresetCompact.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact'**
+  String get settingsScalePresetCompact;
+
+  /// No description provided for @settingsScalePresetDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get settingsScalePresetDefault;
+
+  /// No description provided for @settingsScalePresetLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Large'**
+  String get settingsScalePresetLarge;
+
   /// No description provided for @settingsMainListScaling.
   ///
   /// In en, this message translates to:

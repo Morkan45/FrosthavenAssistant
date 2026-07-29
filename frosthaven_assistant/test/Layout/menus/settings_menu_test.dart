@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -125,6 +126,18 @@ void main() {
     testWidgets('renders Close button', (WidgetTester tester) async {
       await pumpMenu(tester);
       expect(find.text('Close'), findsOneWidget);
+    });
+
+    testWidgets('Escape closes settings from keyboard focus', (
+      WidgetTester tester,
+    ) async {
+      await pumpMenu(tester, size: const Size(1280, 720));
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SettingsMenu), findsNothing);
+      expect(find.text('Open'), findsOneWidget);
     });
 
     testWidgets('tapping Dark mode checkbox toggles the setting', (
@@ -567,7 +580,7 @@ void main() {
 
       expect(settings.fitMainListToWidth.value, isTrue);
       expect(
-        find.byKey(const Key('main-list-columns-dropdown')),
+        find.byKey(const Key('main-list-columns-selector')),
         findsOneWidget,
       );
     });
@@ -579,14 +592,36 @@ void main() {
       settings.fitMainListToWidth.value = true;
       await pumpMenu(tester);
 
-      final dropdown = find.byKey(const Key('main-list-columns-dropdown'));
-      await tester.ensureVisible(dropdown);
-      await tester.tap(dropdown);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('3').last);
+      final selector = find.byKey(const Key('main-list-columns-selector'));
+      await tester.ensureVisible(selector);
+      await tester.tap(find.descendant(of: selector, matching: find.text('3')));
       await tester.pump();
 
       expect(settings.mainListColumns.value, 3);
+    });
+
+    testWidgets('scale presets update all layout scales and keep fine tuning', (
+      WidgetTester tester,
+    ) async {
+      final settings = getIt<Settings>();
+      await pumpMenu(tester);
+
+      final presets = find.byKey(const Key('layout-scale-presets'));
+      await tester.ensureVisible(presets);
+      await tester.tap(
+        find.descendant(of: presets, matching: find.text('Large')),
+      );
+      await tester.pump();
+
+      expect(settings.userScalingMainList.value, 1.5);
+      expect(settings.userScalingBars.value, 2);
+      expect(settings.userScalingMenus.value, 1.2);
+
+      final mainScaleSlider = find.byType(Slider).first;
+      await tester.drag(mainScaleSlider, const Offset(-30, 0));
+      await tester.pump();
+
+      expect(settings.userScalingMainList.value, isNot(1.5));
     });
 
     testWidgets('App Bar Scaling updates while the pointer is down', (

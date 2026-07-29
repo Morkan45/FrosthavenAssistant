@@ -12,6 +12,8 @@ import '../../../services/service_locator.dart';
 import '../../../services/translation_service.dart';
 import 'settings_checkbox.dart';
 
+enum _LayoutScalePreset { compact, standard, large }
+
 class SettingsDisplaySection extends StatelessWidget {
   static const double _barWidthBase = 40;
   static const double _barWidthMultiplier = 6.5;
@@ -20,6 +22,16 @@ class SettingsDisplaySection extends StatelessWidget {
   static const double _barScaleMin = 0.8;
   static const double _menuScaleMin = 0.7;
   static const double _menuScaleMax = 1.5;
+  static const double _compactMainScale = 0.75;
+  static const double _compactBarScale = 1;
+  static const double _compactMenuScale = 0.85;
+  static const double _standardMainScale = 1;
+  static const double _standardDesktopBarScale = 1.6;
+  static const double _standardMobileBarScale = 1;
+  static const double _standardMenuScale = 1;
+  static const double _largeMainScale = 1.5;
+  static const double _largeBarScale = 2;
+  static const double _largeMenuScale = 1.2;
 
   static const Map<String, String> _locales = {
     'en': 'English',
@@ -44,6 +56,63 @@ class SettingsDisplaySection extends StatelessWidget {
   final Settings settings;
   final GameState gameState;
   final VoidCallback onLayoutChanged;
+
+  double get _standardBarScale =>
+      Platform.isWindows || Platform.isLinux || Platform.isMacOS
+      ? _standardDesktopBarScale
+      : _standardMobileBarScale;
+
+  Set<_LayoutScalePreset> _selectedPreset(double maxBarScale) {
+    bool matches(double actual, double expected) =>
+        (actual - expected).abs() < 0.01;
+
+    if (matches(settings.userScalingMainList.value, _compactMainScale) &&
+        matches(
+          settings.userScalingBars.value,
+          min(_compactBarScale, maxBarScale),
+        ) &&
+        matches(settings.userScalingMenus.value, _compactMenuScale)) {
+      return const {_LayoutScalePreset.compact};
+    }
+    if (matches(settings.userScalingMainList.value, _standardMainScale) &&
+        matches(
+          settings.userScalingBars.value,
+          min(_standardBarScale, maxBarScale),
+        ) &&
+        matches(settings.userScalingMenus.value, _standardMenuScale)) {
+      return const {_LayoutScalePreset.standard};
+    }
+    if (matches(settings.userScalingMainList.value, _largeMainScale) &&
+        matches(
+          settings.userScalingBars.value,
+          min(_largeBarScale, maxBarScale),
+        ) &&
+        matches(settings.userScalingMenus.value, _largeMenuScale)) {
+      return const {_LayoutScalePreset.large};
+    }
+    return const {};
+  }
+
+  void _applyPreset(_LayoutScalePreset preset, double maxBarScale) {
+    switch (preset) {
+      case _LayoutScalePreset.compact:
+        settings.userScalingMainList.value = _compactMainScale;
+        settings.userScalingBars.value = min(_compactBarScale, maxBarScale);
+        settings.userScalingMenus.value = _compactMenuScale;
+      case _LayoutScalePreset.standard:
+        settings.userScalingMainList.value = _standardMainScale;
+        settings.userScalingBars.value = min(_standardBarScale, maxBarScale);
+        settings.userScalingMenus.value = _standardMenuScale;
+      case _LayoutScalePreset.large:
+        settings.userScalingMainList.value = _largeMainScale;
+        settings.userScalingBars.value = min(_largeBarScale, maxBarScale);
+        settings.userScalingMenus.value = _largeMenuScale;
+    }
+    setMaxWidth();
+    gameState.updateList.notify();
+    settings.saveToDisk();
+    onLayoutChanged();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,33 +179,79 @@ class SettingsDisplaySection extends StatelessWidget {
         ),
         if (settings.fitMainListToWidth.value)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(child: Text(l10n.settingsMainListColumns)),
-                DropdownButton<int>(
-                  key: const Key('main-list-columns-dropdown'),
-                  value: settings.mainListColumns.value,
-                  items: [
-                    DropdownMenuItem(
-                      value: 0,
-                      child: Text(l10n.settingsMainListColumnsAuto),
+                Text(l10n.settingsMainListColumns),
+                const SizedBox(height: 6),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: SegmentedButton<int>(
+                    key: const Key('main-list-columns-selector'),
+                    showSelectedIcon: false,
+                    segments: [
+                      ButtonSegment(
+                        value: 0,
+                        label: Text(l10n.settingsMainListColumnsAuto),
+                      ),
+                      const ButtonSegment(value: 1, label: Text('1')),
+                      const ButtonSegment(value: 2, label: Text('2')),
+                      const ButtonSegment(value: 3, label: Text('3')),
+                    ],
+                    selected: {settings.mainListColumns.value},
+                    onSelectionChanged: (selection) {
+                      settings.mainListColumns.value = selection.first;
+                      settings.saveToDisk();
+                      gameState.updateList.notify();
+                      onLayoutChanged();
+                    },
+                    style: const ButtonStyle(
+                      visualDensity: VisualDensity.compact,
                     ),
-                    const DropdownMenuItem(value: 1, child: Text('1')),
-                    const DropdownMenuItem(value: 2, child: Text('2')),
-                    const DropdownMenuItem(value: 3, child: Text('3')),
-                  ],
-                  onChanged: (value) {
-                    if (value == null) return;
-                    settings.mainListColumns.value = value;
-                    settings.saveToDisk();
-                    gameState.updateList.notify();
-                    onLayoutChanged();
-                  },
+                  ),
                 ),
               ],
             ),
           ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l10n.settingsLayoutScalePreset),
+              const SizedBox(height: 6),
+              SegmentedButton<_LayoutScalePreset>(
+                key: const Key('layout-scale-presets'),
+                emptySelectionAllowed: true,
+                showSelectedIcon: false,
+                segments: [
+                  ButtonSegment(
+                    value: _LayoutScalePreset.compact,
+                    icon: const Icon(Icons.compress),
+                    label: Text(l10n.settingsScalePresetCompact),
+                  ),
+                  ButtonSegment(
+                    value: _LayoutScalePreset.standard,
+                    icon: const Icon(Icons.crop_free),
+                    label: Text(l10n.settingsScalePresetDefault),
+                  ),
+                  ButtonSegment(
+                    value: _LayoutScalePreset.large,
+                    icon: const Icon(Icons.zoom_out_map),
+                    label: Text(l10n.settingsScalePresetLarge),
+                  ),
+                ],
+                selected: _selectedPreset(maxBarScale),
+                onSelectionChanged: (selection) {
+                  if (selection.isEmpty) return;
+                  _applyPreset(selection.first, maxBarScale);
+                },
+                style: const ButtonStyle(visualDensity: VisualDensity.compact),
+              ),
+            ],
+          ),
+        ),
         _SettingsSlider(
           label: l10n.settingsMainListScaling,
           value: settings.userScalingMainList.value,
