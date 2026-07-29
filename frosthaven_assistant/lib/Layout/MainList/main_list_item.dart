@@ -13,17 +13,23 @@ class MainListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double scale = getScaleByReference(context);
-    final double listWidth = getMainListWidth(context);
-    final vm = MainListItemViewModel(data: data, scale: scale, listWidth: listWidth);
+    final layout = getMainListLayout(context);
+    final double scale = layout.scale;
+    final double listWidth = layout.columnWidth;
+    final vm = MainListItemViewModel(
+      data: data,
+      scale: scale,
+      listWidth: listWidth,
+    );
 
     Widget child;
     if (data is Character) {
       final character = data as Character;
       child = CharacterWidget(
-          key: Key(character.id),
-          characterId: character.id,
-          initPreset: vm.initPreset);
+        key: Key(character.id),
+        characterId: character.id,
+        initPreset: vm.initPreset,
+      );
     } else if (data is Monster) {
       final monster = data as Monster;
       child = MonsterWidget(key: Key(monster.id), data: monster);
@@ -32,12 +38,15 @@ class MainListItem extends StatelessWidget {
     }
 
     return RepaintBoundary(
-        child: AnimatedContainer(
-      key: child.key,
-      width: listWidth,
-      height: vm.height,
-      duration: const Duration(milliseconds: 500),
-      child: child,
-    ));
+      child: AnimatedContainer(
+        key: child.key,
+        width: listWidth,
+        height: vm.height,
+        duration: layout.fitsScreenWidth
+            ? Duration.zero
+            : const Duration(milliseconds: 500),
+        child: child,
+      ),
+    );
   }
 }

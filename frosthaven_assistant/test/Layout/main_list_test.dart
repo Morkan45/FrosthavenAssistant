@@ -80,7 +80,7 @@ void main() {
 
     testWidgets('renders Scrollbar', (WidgetTester tester) async {
       await pumpWidget(tester);
-      expect(find.byType(Scrollbar), findsOneWidget);
+      expect(find.byType(Scrollbar), findsNWidgets(2));
     });
 
     testWidgets('renders SingleChildScrollView', (WidgetTester tester) async {
@@ -190,11 +190,12 @@ void main() {
         find.byType(MainListLayoutScope),
       );
       expect(scope.layout.columnCount, 1);
-      expect(scope.layout.columnWidth, 2560);
+      expect(scope.layout.columnWidth, 900);
       final distinctColumns = <int>{
         for (var i = 0; i < 4; i++) tester.getTopLeft(items.at(i)).dx.round(),
       };
       expect(distinctColumns, hasLength(1));
+      expect(distinctColumns.single, 830);
     });
 
     testWidgets('fit-width auto layout uses two columns for a dense board', (
@@ -207,6 +208,7 @@ void main() {
 
       final settings = getIt<Settings>();
       settings.fitMainListToWidth.value = true;
+      settings.userScalingMainList.value = 1.2;
       populateDenseBoard();
 
       await pumpWidget(tester);
@@ -236,6 +238,24 @@ void main() {
         find.byType(MainListLayoutScope),
       );
       expect(scope.layout.columnCount, 3);
+      expect(scope.layout.columnWidth, closeTo(1536, 0.01));
+      expect(scope.layout.contentWidth, closeTo(4608, 0.01));
+
+      final frameworkErrors = <FlutterErrorDetails>[];
+      final originalOnError = FlutterError.onError;
+      FlutterError.onError = frameworkErrors.add;
+      addTearDown(() => FlutterError.onError = originalOnError);
+
+      settings.userScalingMainList.value = 2;
+      await tester.pump();
+
+      final scaledScope = tester.widget<MainListLayoutScope>(
+        find.byType(MainListLayoutScope),
+      );
+      expect(scaledScope.layout.columnCount, 3);
+      expect(scaledScope.layout.columnWidth, closeTo(1706.67, 0.01));
+      expect(scaledScope.layout.contentWidth, closeTo(5120, 0.01));
+      expect(frameworkErrors, isEmpty);
     });
   });
 
@@ -293,8 +313,9 @@ void main() {
       // At the midpoint the FLIP offset should be ~half the item height.
       // We look for any Transform whose y-translation exceeds a small
       // threshold to avoid false positives from identity matrices.
-      final transforms =
-          tester.widgetList<Transform>(find.byType(Transform)).toList();
+      final transforms = tester
+          .widgetList<Transform>(find.byType(Transform))
+          .toList();
       // Matrix4 is column-major; y-translation is at storage index 13.
       final nonZeroYTranslations = transforms
           .map((t) => t.transform.storage[13].abs())
@@ -304,7 +325,8 @@ void main() {
       expect(
         nonZeroYTranslations,
         isNotEmpty,
-        reason: 'Expected at least one Transform with a non-zero '
+        reason:
+            'Expected at least one Transform with a non-zero '
             'y-translation at animation midpoint.\n'
             'All y-translations: ${transforms.map((t) => t.transform.storage[13]).toList()}',
       );
@@ -316,9 +338,9 @@ void main() {
       WidgetTester tester,
     ) async {
       AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
-      final character = getIt<GameState>()
-          .currentList
-          .firstWhere((e) => e is Character) as Character;
+      final character =
+          getIt<GameState>().currentList.firstWhere((e) => e is Character)
+              as Character;
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
       FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
@@ -342,9 +364,9 @@ void main() {
         false,
         gameState: getIt<GameState>(),
       ).execute();
-      final monster = getIt<GameState>()
-          .currentList
-          .firstWhere((e) => e is Monster) as Monster;
+      final monster =
+          getIt<GameState>().currentList.firstWhere((e) => e is Monster)
+              as Monster;
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
       FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);

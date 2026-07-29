@@ -253,6 +253,7 @@ class _GameListState extends State<GameList> {
       scrollAnimationDuration: const Duration(milliseconds: 400),
       reorderAnimationDuration: const Duration(milliseconds: 400),
       maxMainAxisCount: itemsPerColumn,
+      runAlignment: WrapAlignment.center,
       ignorePrimaryScrollController: false,
       direction: Axis.vertical,
       crossAxisAlignment: WrapCrossAlignment.start,
