@@ -40,6 +40,8 @@ class AbilityCardsMenuState extends State<AbilityCardsMenu> {
 
   GameState get _gameState => widget.gameState ?? getIt<GameState>();
   final List<MonsterAbilityCardModel> revealedList = [];
+  final ScrollController _drawPileScrollController = ScrollController();
+  final ScrollController _discardPileScrollController = ScrollController();
 
   void _onDrawPileVersionChanged() {
     if (mounted) setState(() => revealedList.clear());
@@ -56,6 +58,8 @@ class AbilityCardsMenuState extends State<AbilityCardsMenu> {
   void dispose() {
     widget.monsterAbilityState.drawPileVersion
         .removeListener(_onDrawPileVersionChanged);
+    _drawPileScrollController.dispose();
+    _discardPileScrollController.dispose();
     super.dispose();
   }
 
@@ -146,7 +150,7 @@ class AbilityCardsMenuState extends State<AbilityCardsMenu> {
             child: reorderable
                 ? ReorderableColumn(
                     needsLongPressDraggable: true,
-                    scrollController: ScrollController(),
+                    scrollController: _drawPileScrollController,
                     scrollAnimationDuration: const Duration(milliseconds: 400),
                     reorderAnimationDuration: const Duration(milliseconds: 400),
                     buildDraggableFeedback: defaultBuildDraggableFeedback,
@@ -164,7 +168,7 @@ class AbilityCardsMenuState extends State<AbilityCardsMenu> {
                   )
                 : ListView(
                     clipBehavior: Clip.none,
-                    controller: ScrollController(),
+                    controller: _discardPileScrollController,
                     padding: EdgeInsets.zero,
                     children: generateList(list, allOpen).reversed.toList(),
                   )));

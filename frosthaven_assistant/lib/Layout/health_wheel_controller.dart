@@ -39,8 +39,10 @@ class HealthWheelControllerState extends State<HealthWheelController> {
 
   @override
   void dispose() {
-    super.dispose();
     hideOverlay();
+    wheelDelta.dispose();
+    wheelTimeDelta.dispose();
+    super.dispose();
   }
 
   void hideOverlay() {

@@ -63,6 +63,12 @@ class SelectHealthWheelState extends State<SelectHealthWheel> {
   }
 
   @override
+  void dispose() {
+    scrollController?.dispose();
+    super.dispose();
+  }
+
+  @override
   void deactivate() {
     super.deactivate();
     end();

@@ -47,6 +47,12 @@ class CounterButtonState extends State<CounterButton> {
   final totalChangeValue = ValueNotifier<int>(0);
 
   @override
+  void dispose() {
+    totalChangeValue.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final FigureState? figure =
         GameMethods.getFigure(widget.ownerId, widget.figureId);

@@ -41,6 +41,13 @@ class SettingsNetworkSectionState extends State<SettingsNetworkSection> {
     _portTextController.text = widget.settings.lastKnownPort;
   }
 
+  @override
+  void dispose() {
+    _serverTextController.dispose();
+    _portTextController.dispose();
+    super.dispose();
+  }
+
   List<DropdownMenuItem<String>> _getIPList() {
     return widget.network.networkInfo.wifiIPv6List
         .map((item) => DropdownMenuItem<String>(value: item, child: Text(item)))

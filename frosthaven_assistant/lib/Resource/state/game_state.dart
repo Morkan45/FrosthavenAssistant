@@ -240,10 +240,12 @@ class GameState {
   @override
   String toString() => json.encode(toJson());
 
-  void save() {
-    GameSaveState state = GameSaveState();
+  GameSaveState save() {
+    final state = GameSaveState();
+    state.save(this);
     state.saveToDisk(this);
     addSaveState(state);
+    return state;
   }
 
   Future<bool> load() async {

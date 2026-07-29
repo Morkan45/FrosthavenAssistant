@@ -63,6 +63,8 @@ class SaveCharacterModalMenuState extends State<SaveCharacterModalMenu> {
   @override
   void dispose() {
     focusNode.removeListener(_focusNodeListener);
+    nameController.dispose();
+    focusNode.dispose();
     super.dispose();
   }
 

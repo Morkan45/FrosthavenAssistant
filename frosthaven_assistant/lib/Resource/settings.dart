@@ -377,42 +377,40 @@ class Settings {
   }
 
   @override
-  String toString() {
-    return '{'
-        '"userScalingMainList": ${userScalingMainList.value}, '
-        '"fitMainListToWidth": ${fitMainListToWidth.value}, '
-        '"mainListColumns": ${mainListColumns.value}, '
-        '"userScalingBars": ${userScalingBars.value}, '
-        '"userScalingMenus": ${userScalingMenus.value}, '
-        '"fullScreen": ${fullScreen.value}, '
-        '"softNumpadInput": ${softNumpadInput.value}, '
-        '"noInit": ${noInit.value}, '
-        '"noStandees": ${noStandees.value}, '
-        '"randomStandees": ${randomStandees.value}, '
-        '"noCalculation": ${noCalculation.value}, '
-        '"expireConditions": ${expireConditions.value}, '
-        '"hideLootDeck": ${hideLootDeck.value}, '
-        '"style": ${style.value.index}, '
-        '"darkMode": ${darkMode.value}, '
-        '"shimmer": ${shimmer.value}, '
-        '"showScenarioNames": ${showScenarioNames.value}, '
-        '"showCustomContent": ${showCustomContent.value}, '
-        '"showSectionsInMainView": ${showSectionsInMainView.value}, '
-        '"showReminders": ${showReminders.value}, '
-        '"autoAddStandees": ${autoAddStandees.value}, '
-        '"autoAddSpawns": ${autoAddSpawns.value}, '
-        '"showAmdDeck": ${showAmdDeck.value}, '
-        '"showBattleGoalReminder": ${showBattleGoalReminder.value}, '
-        '"fhHazTerrainCalcInOGGloom": ${fhHazTerrainCalcInOGGloom.value}, '
-        '"showCharacterAMD": ${showCharacterAMD.value}, '
-        '"enableHeathWheel": ${enableHeathWheel.value}, '
-        '"locale": "${locale.value}", '
-        '"saves": ${jsonEncode(saves.value)}, '
-        '"characterSaves": ${jsonEncode(characterSaves.value)}, '
-        '"connectClientOnStartup": $connectClientOnStartup, '
-        '"lastKnownConnection": "$lastKnownConnection", '
-        '"lastKnownPort": "$lastKnownPort", '
-        '"lastKnownHostIP": "$lastKnownHostIP" '
-        '}';
-  }
+  String toString() => jsonEncode({
+        'userScalingMainList': userScalingMainList.value,
+        'fitMainListToWidth': fitMainListToWidth.value,
+        'mainListColumns': mainListColumns.value,
+        'userScalingBars': userScalingBars.value,
+        'userScalingMenus': userScalingMenus.value,
+        'fullScreen': fullScreen.value,
+        'softNumpadInput': softNumpadInput.value,
+        'noInit': noInit.value,
+        'noStandees': noStandees.value,
+        'randomStandees': randomStandees.value,
+        'noCalculation': noCalculation.value,
+        'expireConditions': expireConditions.value,
+        'hideLootDeck': hideLootDeck.value,
+        'style': style.value.index,
+        'darkMode': darkMode.value,
+        'shimmer': shimmer.value,
+        'showScenarioNames': showScenarioNames.value,
+        'showCustomContent': showCustomContent.value,
+        'showSectionsInMainView': showSectionsInMainView.value,
+        'showReminders': showReminders.value,
+        'autoAddStandees': autoAddStandees.value,
+        'autoAddSpawns': autoAddSpawns.value,
+        'showAmdDeck': showAmdDeck.value,
+        'showBattleGoalReminder': showBattleGoalReminder.value,
+        'fhHazTerrainCalcInOGGloom': fhHazTerrainCalcInOGGloom.value,
+        'showCharacterAMD': showCharacterAMD.value,
+        'enableHeathWheel': enableHeathWheel.value,
+        'locale': locale.value,
+        'saves': saves.value,
+        'characterSaves': characterSaves.value,
+        'connectClientOnStartup': connectClientOnStartup,
+        'lastKnownConnection': lastKnownConnection,
+        'lastKnownPort': lastKnownPort,
+        'lastKnownHostIP': lastKnownHostIP,
+      });
 }

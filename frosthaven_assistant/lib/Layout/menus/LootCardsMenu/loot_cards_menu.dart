@@ -37,7 +37,13 @@ class LootCardsMenuState extends State<LootCardsMenu> {
   static const int _kCard1419 = 1419;
 
   GameState get _gameState => widget.gameState ?? getIt<GameState>();
-  final scrollController = ScrollController();
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   List<Widget> generateList(List<LootCard> inputList) {
     List<Widget> list = [];
@@ -60,7 +66,7 @@ class LootCardsMenuState extends State<LootCardsMenu> {
         ),
         child: SizedBox(
           child: GridView.count(
-            controller: ScrollController(),
+            controller: _scrollController,
             childAspectRatio: _kGridAspectRatio,
             mainAxisSpacing: 0,
             crossAxisSpacing: 0,

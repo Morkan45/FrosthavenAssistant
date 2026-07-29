@@ -43,12 +43,20 @@ class SelectScenarioMenuState extends State<SelectScenarioMenu> {
   GameData get _gameData => widget.gameData ?? getIt<GameData>();
   Settings get _settings => widget.settings ?? getIt<Settings>();
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
 
   @override
   initState() {
     // at the beginning, all items are shown
     setCampaign(_gameState.currentCampaign.value);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 
   double? findNrFromScenarioName(String scenario) {
@@ -244,7 +252,7 @@ class SelectScenarioMenuState extends State<SelectScenarioMenu> {
               child: KeyboardListener(
                   //needed to trigger onEditingComplete on enter
                   //TODO: add this to the other menus
-                  focusNode: FocusNode(),
+                  focusNode: _focusNode,
                   child: TextField(
                     onChanged: (value) => _runFilter(value),
                     controller: _controller,

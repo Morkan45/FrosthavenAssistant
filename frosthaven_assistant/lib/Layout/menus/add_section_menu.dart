@@ -66,6 +66,12 @@ class AddSectionMenuState extends State<AddSectionMenu> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   // This function is called whenever the text field changes
   void _runFilter(String enteredKeyword) {
     if (_gameState.scenario.value == "custom") {

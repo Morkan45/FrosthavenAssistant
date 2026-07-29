@@ -43,7 +43,15 @@ class ModifierDeckMenu extends StatefulWidget {
 class ModifierDeckMenuState extends State<ModifierDeckMenu> {
   GameState get _gameState => widget.gameState ?? getIt<GameState>();
   Settings get _settings => widget.settings ?? getIt<Settings>();
-  final scrollController = ScrollController();
+  final _drawPileScrollController = ScrollController();
+  final _discardPileScrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _drawPileScrollController.dispose();
+    _discardPileScrollController.dispose();
+    super.dispose();
+  }
 
   bool isRevealed(ModifierCard item) {
     ModifierDeck deck = GameMethods.getModifierDeck(widget.name, _gameState);
@@ -114,7 +122,7 @@ class ModifierDeckMenuState extends State<ModifierDeckMenu> {
           child: reorderable
               ? ReorderableColumn(
                   needsLongPressDraggable: true,
-                  scrollController: scrollController,
+                  scrollController: _drawPileScrollController,
                   scrollAnimationDuration: const Duration(
                       milliseconds: ModifierDeckMenu._kReorderAnimationMs),
                   reorderAnimationDuration: const Duration(
@@ -133,7 +141,7 @@ class ModifierDeckMenuState extends State<ModifierDeckMenu> {
                   children: generateList(list, allOpen, name),
                 )
               : ListView(
-                  controller: ScrollController(),
+                  controller: _discardPileScrollController,
                   children: generateList(list, allOpen, name).reversed.toList(),
                 ),
         ));

@@ -83,6 +83,12 @@ class AddSummonMenuState extends State<AddSummonMenu> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     double scale = getModalMenuScale(context);
     bool darkMode = _settings.darkMode.value;

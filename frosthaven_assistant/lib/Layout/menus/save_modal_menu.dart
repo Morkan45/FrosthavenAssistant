@@ -55,6 +55,8 @@ class SaveModalMenuState extends State<SaveModalMenu> {
   @override
   void dispose() {
     focusNode.removeListener(_focusNodeListener);
+    nameController.dispose();
+    focusNode.dispose();
     super.dispose();
   }
 

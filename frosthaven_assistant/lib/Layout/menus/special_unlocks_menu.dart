@@ -9,17 +9,29 @@ import '../../Resource/settings.dart';
 import '../../Resource/ui_utils.dart';
 import '../../services/service_locator.dart';
 
-class SpecialUnlocksMenu extends StatelessWidget {
-  SpecialUnlocksMenu({super.key, this.gameState, this.settings});
+class SpecialUnlocksMenu extends StatefulWidget {
+  const SpecialUnlocksMenu({super.key, this.gameState, this.settings});
 
   final GameState? gameState;
   final Settings? settings;
+
+  @override
+  State<SpecialUnlocksMenu> createState() => _SpecialUnlocksMenuState();
+}
+
+class _SpecialUnlocksMenuState extends State<SpecialUnlocksMenu> {
   final ScrollController _scrollController = ScrollController();
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final gameState = this.gameState ?? getIt<GameState>();
-    final settings = this.settings ?? getIt<Settings>();
+    final gameState = widget.gameState ?? getIt<GameState>();
+    final settings = widget.settings ?? getIt<Settings>();
     List<List<String>> unlocks = [
       ["Demons", "assets/images/demons.png"],
       ["Merchant-Guild", "assets/images/merchant-guild.png"],

@@ -94,6 +94,8 @@ class CharacterInternalWidgetState extends State<CharacterWidgetInternal> {
   @override
   void dispose() {
     _initTextFieldController.removeListener(_textFieldControllerListener);
+    _initTextFieldController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 

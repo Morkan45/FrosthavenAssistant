@@ -18,4 +18,18 @@ void main() {
     expect(restored.fitMainListToWidth.value, isTrue);
     expect(restored.mainListColumns.value, 3);
   });
+
+  test('text settings with JSON characters persist', () async {
+    SharedPreferences.setMockInitialValues({});
+    final source = Settings();
+    source.lastKnownConnection = 'host "table"\\desktop';
+    source.lastKnownHostIP = '(Desk "A")';
+
+    await source.saveToDisk();
+
+    final restored = Settings();
+    await restored.loadFromDisk();
+    expect(restored.lastKnownConnection, source.lastKnownConnection);
+    expect(restored.lastKnownHostIP, source.lastKnownHostIP);
+  });
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frosthaven_assistant/Resource/app_constants.dart';
 import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 
-class ScrollableMenuCard extends StatelessWidget {
+class ScrollableMenuCard extends StatefulWidget {
   static const double _kTopSpacing = 20;
 
   const ScrollableMenuCard({
@@ -17,23 +17,35 @@ class ScrollableMenuCard extends StatelessWidget {
   final VoidCallback? onClose;
 
   @override
+  State<ScrollableMenuCard> createState() => _ScrollableMenuCardState();
+}
+
+class _ScrollableMenuCardState extends State<ScrollableMenuCard> {
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final scrollController = ScrollController();
-    final content = maxWidth != null
+    final content = widget.maxWidth != null
         ? Container(
-            constraints: BoxConstraints(maxWidth: maxWidth!),
-            child: child,
+            constraints: BoxConstraints(maxWidth: widget.maxWidth!),
+            child: widget.child,
           )
-        : child;
+        : widget.child;
     return Card(
       child: Scrollbar(
-        controller: scrollController,
+        controller: _scrollController,
         child: SingleChildScrollView(
-          controller: scrollController,
+          controller: _scrollController,
           child: Stack(children: [
             Column(
               children: [
-                const SizedBox(height: _kTopSpacing),
+                const SizedBox(height: ScrollableMenuCard._kTopSpacing),
                 content,
                 const SizedBox(height: kMenuCloseButtonSpacing),
               ],
@@ -48,7 +60,7 @@ class ScrollableMenuCard extends StatelessWidget {
                     style: kButtonLabelStyle),
                 onPressed: () {
                   Navigator.pop(context);
-                  onClose?.call();
+                  widget.onClose?.call();
                 },
               ),
             ),

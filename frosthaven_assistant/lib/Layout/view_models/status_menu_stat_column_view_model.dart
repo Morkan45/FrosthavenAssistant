@@ -4,6 +4,8 @@ import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 
 class StatusMenuStatColumnViewModel {
+  static final ValueNotifier<int> _zeroXp = ValueNotifier<int>(0);
+
   const StatusMenuStatColumnViewModel({
     required this.figure,
     required this.isMonster,
@@ -133,5 +135,5 @@ class StatusMenuStatColumnViewModel {
   ValueListenable<int> get xpNotifier =>
       figure is CharacterState
           ? (figure as CharacterState).xp
-          : ValueNotifier<int>(0);
+          : _zeroXp;
 }

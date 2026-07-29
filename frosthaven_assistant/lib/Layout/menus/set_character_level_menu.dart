@@ -52,6 +52,8 @@ class SetCharacterLevelMenuState extends State<SetCharacterLevelMenu> {
   @override
   void dispose() {
     focusNode.removeListener(_focusNodeListener);
+    nameController.dispose();
+    focusNode.dispose();
     super.dispose();
   }
 

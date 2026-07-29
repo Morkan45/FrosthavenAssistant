@@ -36,7 +36,13 @@ class RemovedModifierCardMenuState extends State<RemovedModifierCardMenu> {
   static const double _kItemMargin = 2.0;
 
   GameState get _gameState => widget.gameState ?? getIt<GameState>();
-  final scrollController = ScrollController();
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   List<Widget> generateList(List<ModifierCard> inputList, String name) {
     List<Widget> list = [];
@@ -74,7 +80,7 @@ class RemovedModifierCardMenuState extends State<RemovedModifierCardMenu> {
         child: SizedBox(
           width: screenWidth * _kListWidthRatio,
           child: ListView(
-            controller: ScrollController(),
+            controller: _scrollController,
             children: generateList(list, widget.name).reversed.toList(),
           ),
         ));

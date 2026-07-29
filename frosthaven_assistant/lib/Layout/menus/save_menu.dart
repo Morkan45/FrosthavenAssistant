@@ -43,6 +43,12 @@ class SaveMenuState extends State<SaveMenu> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   String getSuggestedSaveName() {
     final String campaign = _gameState.currentCampaign.value;
     int nr = _saves.length + 1;

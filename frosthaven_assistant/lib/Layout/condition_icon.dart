@@ -99,6 +99,7 @@ class ConditionIconState extends State<ConditionIcon>
     widget.owner.turnState.removeListener(_onTurnStateChanged);
     _vm.gameState.lastEvent.removeListener(_onLastEventChanged);
     _shakeController?.dispose();
+    animate.dispose();
     super.dispose();
   }
 

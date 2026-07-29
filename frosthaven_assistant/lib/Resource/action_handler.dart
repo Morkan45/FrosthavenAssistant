@@ -207,16 +207,18 @@ class ActionHandler {
     bool isClient = _settings.client.value == ClientState.connected;
 
     command.execute();
+    final description = command.describe();
+    final event = command.event;
     if (_commands.length > commandIndex.value) {
       _commands.insert(commandIndex.value + 1, command);
-      _commandDescriptions.insert(commandIndex.value + 1, command.describe());
+      _commandDescriptions.insert(commandIndex.value + 1, description);
     } else {
       _commands.add(command);
-      _commandDescriptions.add(command.describe());
+      _commandDescriptions.add(description);
     }
 
     // Set event before commandIndex fires so VLB callbacks see the correct value.
-    lastEvent.value = command.event;
+    lastEvent.value = event;
     commandIndex.value++;
 
     //remove possible redo list
@@ -235,11 +237,10 @@ class ActionHandler {
       );
     }
 
-    _gameState.save(); //save after each action
+    final savedState = _gameState.save(); //save after each action
 
     //send last game state if connected
-    String description = command.describe();
-    String eventJson = command.event.toJsonString();
+    final eventJson = event.toJsonString();
     if (isServer) {
       log(
         'server sends, index: ${commandIndex.value}, description:$description',
@@ -249,7 +250,7 @@ class ActionHandler {
           index: commandIndex.value,
           description: description,
           eventJson: eventJson,
-          state: _gameState.toString(),
+          state: savedState.getState(),
         ).encode(),
       );
     } else if (isClient) {
@@ -261,7 +262,7 @@ class ActionHandler {
           index: commandIndex.value,
           description: description,
           eventJson: eventJson,
-          state: _gameState.toString(),
+          state: savedState.getState(),
         ).encode(),
       );
     }
