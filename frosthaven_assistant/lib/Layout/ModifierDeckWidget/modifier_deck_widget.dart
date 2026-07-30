@@ -6,6 +6,7 @@ import 'package:frosthaven_assistant/Resource/game_data.dart';
 import 'package:frosthaven_assistant/Resource/scaling.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
+import 'package:frosthaven_assistant/Resource/ui_tokens.dart';
 import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 
 import 'modifier_draw_animation_widget.dart';
@@ -36,7 +37,6 @@ class ModifierDeckWidgetState extends State<ModifierDeckWidget> {
   static const double _kWidgetWidth = 153.0;
   static const double _kCharIconSize = 27.0;
   static const double _kCharIconLeft = 16.0;
-  static const double _kDiscardBorderRadius = 5.0;
   static const double _kEmptyDiscardWidth = 66.6666;
   static const double _kDiscardPileWidth = 57.6666;
   static const double _kCardRotationTurns = 15 / 360;
@@ -265,8 +265,7 @@ class ModifierDeckWidgetState extends State<ModifierDeckWidget> {
                               userScalingBars,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.all(Radius.circular(
-                                ModifierDeckWidgetState._kDiscardBorderRadius *
-                                    userScalingBars)),
+                                UiRadii.deckStack * userScalingBars)),
                             border: Border.fromBorderSide(
                                 const BorderSide(color: Colors.white70)),
                             color: Color(

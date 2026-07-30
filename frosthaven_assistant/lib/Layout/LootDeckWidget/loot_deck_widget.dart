@@ -7,6 +7,7 @@ import 'package:frosthaven_assistant/Resource/game_data.dart';
 import 'package:frosthaven_assistant/Resource/scaling.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
+import 'package:frosthaven_assistant/Resource/ui_tokens.dart';
 
 import '../loot_card_widget.dart';
 import 'loot_draw_animation_widget.dart';
@@ -39,7 +40,6 @@ class LootDeckWidgetState extends State<LootDeckWidget> {
   static const Color _kIconShadowColor = Colors.black54;
   static const double _kDiscardWidth = 39.0;
   static const double _kDiscardHeight = 57.6666;
-  static const double _kDiscardBorderRadius = 5.0;
   static const double _kCardRotationTurns = 15 / 360;
   static const int _kTransparentBlack = 0x7A000000;
   static const int _kCenterDivisor = 2;
@@ -277,8 +277,7 @@ class LootDeckWidgetState extends State<LootDeckWidget> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.all(
                                 Radius.circular(
-                                  LootDeckWidgetState._kDiscardBorderRadius *
-                                      userScalingBars,
+                                  UiRadii.deckStack * userScalingBars,
                                 ),
                               ),
                               border: Border.fromBorderSide(

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:frosthaven_assistant/Resource/app_constants.dart';
+import 'package:frosthaven_assistant/Resource/ui_tokens.dart';
 import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 
 class MenuCard extends StatelessWidget {
-  static const double _kDefaultMaxWidth = 400;
-
   const MenuCard({
     super.key,
     required this.child,
-    this.maxWidth = _kDefaultMaxWidth,
+    this.maxWidth = UiModal.standardWidth,
     this.cardMargin,
   });
 
@@ -25,14 +23,14 @@ class MenuCard extends StatelessWidget {
         child: Stack(children: [
           child,
           Positioned(
-            width: kCloseButtonWidth,
-            height: kButtonSize,
+            width: UiTargetSize.closeButtonWidth,
+            height: UiTargetSize.compact,
             right: 0,
             bottom: 0,
             child: TextButton(
               child: Text(
                 AppLocalizations.of(context)!.close,
-                style: kButtonLabelStyle,
+                style: UiTypography.buttonLabel,
               ),
               onPressed: () {
                 Navigator.pop(context);

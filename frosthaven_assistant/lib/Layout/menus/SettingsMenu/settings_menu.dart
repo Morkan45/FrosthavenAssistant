@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../../Resource/app_constants.dart';
 import '../../../Resource/settings.dart';
 import '../../../Resource/state/game_state.dart';
+import '../../../Resource/ui_tokens.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../services/network/client.dart';
 import '../../../services/network/network.dart';
@@ -65,7 +65,7 @@ class SettingsMenuState extends State<SettingsMenu> {
     if (!desktop) {
       return _withKeyboardBehavior(
         ScrollableMenuCard(
-          maxWidth: kMenuNarrowWidth,
+          maxWidth: UiModal.narrowWidth,
           onClose: settings.saveToDisk,
           child: MobileSettingsBody(title: l10n.menuSettings, pages: pages),
         ),

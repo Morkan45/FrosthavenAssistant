@@ -11,6 +11,7 @@ import '../../../Resource/enums.dart';
 import '../../../Resource/settings.dart';
 import '../../../Resource/state/game_state.dart';
 import '../../../Resource/ui_utils.dart';
+import '../../../Resource/ui_tokens.dart';
 import '../../counter_button.dart';
 import '../../view_models/status_menu_stat_column_view_model.dart';
 import '../SetLevelMenu/set_level_menu.dart';
@@ -18,7 +19,6 @@ import '../set_character_level_menu.dart';
 import 'status_menu_stackable_condition_buttons.dart';
 
 class StatusMenuStatColumn extends StatelessWidget {
-  static const double _kTopSpacing = 2.0;
   static const int _kMaxXp = 900;
   static const int _kMaxBlessCurse = 10;
   static const int _kMaxPlague = 3;
@@ -108,7 +108,7 @@ class StatusMenuStatColumn extends StatelessWidget {
                   figureId: figureId,
                   ownerId: ownerId,
                   scale: scale),
-              const SizedBox(height: _kTopSpacing),
+              const SizedBox(height: UiSpacing.xxs),
               vm.hasXp
                   ? CounterButton(
                       notifier: vm.xpNotifier,
@@ -122,9 +122,11 @@ class StatusMenuStatColumn extends StatelessWidget {
                       ownerId: ownerId,
                       scale: scale)
                   : Container(),
-              SizedBox(height: vm.hasXp ? _kTopSpacing : 0),
+              SizedBox(height: vm.hasXp ? UiSpacing.xxs : 0),
               SizedBox(
-                  height: !vm.showCharacterAmd || isSummon ? _kTopSpacing : 0),
+                  height: !vm.showCharacterAmd || isSummon
+                      ? UiSpacing.xxs
+                      : 0),
               if (vm.showAmd)
                 CounterButton(
                     notifier: deck.getRemovable("bless"),
@@ -137,7 +139,7 @@ class StatusMenuStatColumn extends StatelessWidget {
                     figureId: figureId,
                     ownerId: ownerId,
                     scale: scale),
-              SizedBox(height: vm.showCharacterAmd ? _kTopSpacing : 0),
+              SizedBox(height: vm.showCharacterAmd ? UiSpacing.xxs : 0),
               if ((vm.canBeCursed && vm.showMonsterAmd) || vm.showCharacterAmd)
                 CounterButton(
                     notifier: deck.getRemovable("curse"),
@@ -299,7 +301,7 @@ class StatusMenuStatColumn extends StatelessWidget {
                     ownerId: ownerId,
                     scale: scale,
                     gameState: gameState),
-              SizedBox(height: vm.canBeCursed ? _kTopSpacing : 0),
+              SizedBox(height: vm.canBeCursed ? UiSpacing.xxs : 0),
               Row(
                 children: [
                   SizedBox(

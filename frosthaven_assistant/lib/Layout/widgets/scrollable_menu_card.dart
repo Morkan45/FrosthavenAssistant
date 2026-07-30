@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:frosthaven_assistant/Resource/app_constants.dart';
+import 'package:frosthaven_assistant/Resource/ui_tokens.dart';
 import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 
 class ScrollableMenuCard extends StatefulWidget {
-  static const double _kTopSpacing = 20;
-
   const ScrollableMenuCard({
     super.key,
     required this.child,
@@ -45,19 +43,21 @@ class _ScrollableMenuCardState extends State<ScrollableMenuCard> {
           child: Stack(children: [
             Column(
               children: [
-                const SizedBox(height: ScrollableMenuCard._kTopSpacing),
+                const SizedBox(height: UiSpacing.menuTop),
                 content,
-                const SizedBox(height: kMenuCloseButtonSpacing),
+                const SizedBox(height: UiModal.closeButtonSpacing),
               ],
             ),
             Positioned(
-              width: kCloseButtonWidth,
-              height: kButtonSize,
+              width: UiTargetSize.closeButtonWidth,
+              height: UiTargetSize.compact,
               right: 0,
               bottom: 0,
               child: TextButton(
-                child: Text(AppLocalizations.of(context)!.close,
-                    style: kButtonLabelStyle),
+                child: Text(
+                  AppLocalizations.of(context)!.close,
+                  style: UiTypography.buttonLabel,
+                ),
                 onPressed: () {
                   Navigator.pop(context);
                   widget.onClose?.call();

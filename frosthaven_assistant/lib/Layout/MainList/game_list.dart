@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frosthaven_assistant/Resource/scaling.dart';
+import 'package:frosthaven_assistant/Resource/ui_tokens.dart';
 import 'package:reorderables/reorderables.dart';
 
 import '../../Resource/ui_utils.dart';
@@ -79,9 +80,9 @@ class _ReorderInteractionState extends State<_ReorderInteraction> {
         decoration: BoxDecoration(
           border: Border.all(
             color: _showFocus
-                ? Theme.of(context).colorScheme.primary
+                ? UiFocus.outlineColor(context)
                 : Colors.transparent,
-            width: 2,
+            width: UiFocus.outlineWidth,
           ),
         ),
         child: widget.child,

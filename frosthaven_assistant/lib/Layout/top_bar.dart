@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frosthaven_assistant/Resource/app_constants.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
+import 'package:frosthaven_assistant/Resource/ui_tokens.dart';
 import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 
 import '../Resource/enums.dart';
@@ -19,7 +20,7 @@ class TopBar extends StatelessWidget {
   static const double _kMenuIconSize = 24.0;
   static const double _kTitlePaddingLeft = 2.0;
   static const double _kFlexibleHeight = 42.0;
-  static const double desktopActionsBreakpoint = 900.0;
+  static const double desktopActionsBreakpoint = UiBreakpoints.desktopActions;
 
   const TopBar({super.key, this.settings});
 
@@ -207,8 +208,6 @@ class _TopBarMenuButton extends StatefulWidget {
 }
 
 class _TopBarMenuButtonState extends State<_TopBarMenuButton> {
-  static const Duration _highlightDuration = Duration(milliseconds: 100);
-
   final FocusNode _focusNode = FocusNode(debugLabel: 'Open main menu');
   bool _focused = false;
   bool _hovered = false;
@@ -258,14 +257,16 @@ class _TopBarMenuButtonState extends State<_TopBarMenuButton> {
               }
             },
             child: AnimatedContainer(
-              duration: _highlightDuration,
+              duration: UiFocus.transitionDuration,
               decoration: BoxDecoration(
                 color: highlighted
-                    ? Colors.white.withValues(alpha: 0.12)
+                    ? Colors.white.withValues(
+                        alpha: UiFocus.hoverOverlayOpacity,
+                      )
                     : Colors.transparent,
                 border: Border.all(
                   color: _focused ? Colors.white : Colors.transparent,
-                  width: 2,
+                  width: UiFocus.outlineWidth,
                 ),
               ),
               alignment: Alignment.center,

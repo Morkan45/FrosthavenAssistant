@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../../../Resource/app_constants.dart';
+import '../../../Resource/ui_tokens.dart';
 
 enum SettingsCategory { display, gameplay, content, network, advanced }
 
@@ -21,21 +21,22 @@ class SettingsPage {
 }
 
 class SettingsLayoutMetrics {
-  static const double desktopBreakpoint = 1000;
-  static const double _desktopMaxWidth = 920;
-  static const double _desktopMaxHeight = 640;
-  static const double _desktopHorizontalInset = 72;
-  static const double _desktopVerticalInset = 96;
-  static const double _desktopMinHeight = 280;
+  static const double desktopBreakpoint = UiBreakpoints.desktopSettings;
 
   static bool useDesktopLayout(Size size) => size.width >= desktopBreakpoint;
 
   static double desktopWidth(Size size) =>
-      min(_desktopMaxWidth, size.width - _desktopHorizontalInset);
+      min(
+        UiModal.settingsDesktopMaxWidth,
+        size.width - UiModal.settingsDesktopHorizontalInset,
+      );
 
   static double desktopHeight(Size size) => max(
-    _desktopMinHeight,
-    min(_desktopMaxHeight, size.height - _desktopVerticalInset),
+    UiModal.settingsDesktopMinHeight,
+    min(
+      UiModal.settingsDesktopMaxHeight,
+      size.height - UiModal.settingsDesktopVerticalInset,
+    ),
   );
 }
 
@@ -53,7 +54,7 @@ class MobileSettingsBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(title, style: kTitleStyle),
+        Text(title, style: UiTypography.title),
         for (final page in pages)
           _MobileSettingsSection(
             key: Key('settings-section-${page.category.name}'),
@@ -97,8 +98,8 @@ class DesktopSettingsBody extends StatelessWidget {
       height: height,
       child: Column(
         children: [
-          Text(title, style: kTitleStyle),
-          const SizedBox(height: 8),
+          Text(title, style: UiTypography.title),
+          const SizedBox(height: UiSpacing.sm),
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -127,7 +128,12 @@ class DesktopSettingsBody extends StatelessWidget {
                         'settings-section-${pages[selectedIndex].category.name}',
                       ),
                       controller: scrollController,
-                      padding: const EdgeInsets.fromLTRB(24, 8, 16, 48),
+                      padding: const EdgeInsets.fromLTRB(
+                        UiSpacing.lg,
+                        UiSpacing.sm,
+                        UiSpacing.md,
+                        UiSpacing.xl,
+                      ),
                       child: pages[selectedIndex].child,
                     ),
                   ),
@@ -154,13 +160,13 @@ class _MobileSettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 18),
+      padding: const EdgeInsets.only(top: UiSpacing.section),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(title, style: kTitleStyle),
+            padding: const EdgeInsets.symmetric(horizontal: UiSpacing.md),
+            child: Text(title, style: UiTypography.title),
           ),
           const Divider(),
           child,

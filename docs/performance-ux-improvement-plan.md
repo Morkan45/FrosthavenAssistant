@@ -183,12 +183,19 @@ completed rows add play/check markers alongside the existing color and grayscale
 treatment, while keyboard focus remains a separate full-row outline. None of
 these states changes row geometry.
 
-### P3: Consolidate visual and interaction tokens
+### Completed foundation: Consolidate visual and interaction tokens
 
 Centralize spacing, target sizes, typography roles, focus/hover states, modal
 widths, and responsive breakpoints. Apply this incrementally to the main list,
 settings, status menus, and deck views. Preserve the game artwork while making
 operational controls visually consistent.
+
+**Implemented change:** A structured token layer now owns the shared spacing
+scale, compact targets, typography roles, focus/hover treatment, card radii,
+modal dimensions, and desktop breakpoints. Legacy constants remain compatible.
+The first migration covers the main-list focus outline, settings layouts,
+shared menu cards, status spacing, top-bar interaction states, and loot/modifier
+deck stack radii without changing their existing numeric values.
 
 ## Recommended implementation order
 

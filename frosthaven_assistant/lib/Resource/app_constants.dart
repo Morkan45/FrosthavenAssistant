@@ -2,18 +2,20 @@ import 'dart:math' show pi;
 
 import 'package:flutter/material.dart';
 
+import 'ui_tokens.dart';
+
 // Shared UI constants for the Frosthaven Assistant app.
 
 // Font sizes (static, unscaled — multiply by the scale factor where needed)
-const double kFontSizeSmall = 14;        // trailing edition labels, small body text
-const double kFontSizeBody = 16;         // body text in menus and cards
-const double kFontSizeTitle = 18;        // list-tile titles, menu headings
-const double kFontSizeButtonLabel = 20;  // action button labels (Close, Send, etc.)
-const double kFontSizeHeading = 24;      // section headers, "no results" messages
-const double kFontSizeToast = 28;        // toast / snackbar messages
+const double kFontSizeSmall = UiTypography.smallSize;
+const double kFontSizeBody = UiTypography.bodySize;
+const double kFontSizeTitle = UiTypography.titleSize;
+const double kFontSizeButtonLabel = UiTypography.buttonLabelSize;
+const double kFontSizeHeading = UiTypography.headingSize;
+const double kFontSizeToast = UiTypography.toastSize;
 
 /// Widget dimensions (multiply by the screen scale factor where used as kButtonSize * scale)
-const double kButtonSize = 40;   // icon buttons and numpad buttons
+const double kButtonSize = UiTargetSize.compact;
 const double kIconSize = 30;     // stat icons and list-tile leading images
 
 /// Bar and toolbar height (multiply by userScalingBars where needed)
@@ -36,8 +38,8 @@ const double kModifierCardBaseWidth = 58.6666;
 const double kAbilityCardWidth = 142.4;
 
 /// Card border radii
-const double kCardBorderRadius = 4.0;      // modifier/loot cards
-const double kGameCardBorderRadius = 8.0;  // monster stat/ability cards
+const double kCardBorderRadius = UiRadii.card;
+const double kGameCardBorderRadius = UiRadii.gameCard;
 
 /// Monster card margin (multiply by scale)
 const double kMonsterCardMargin = 1.6;
@@ -51,7 +53,7 @@ const int kAnimationDurationMs = 300;
 
 /// Menu layout
 const double kMenuTopPadding = 20.0;     // top spacing inside modal menus
-const double kMenuNarrowWidth = 300.0;   // narrow menu/modal width
+const double kMenuNarrowWidth = UiModal.narrowWidth;
 const double kMenuMaxHeightRatio = 0.9;  // max height for scrollable menus
 
 /// Button sizes and radii for action/condition buttons
@@ -72,16 +74,17 @@ const double kHalfPi = pi / 2;
 const double kTwoPI = pi * 2;
 
 /// Menu layout
-const double kMenuCloseButtonSpacing = 34; // bottom padding that clears the positioned close button
-const double kCloseButtonWidth = 100;      // width of the positioned close button
+const double kMenuCloseButtonSpacing = UiModal.closeButtonSpacing;
+const double kCloseButtonWidth = UiTargetSize.closeButtonWidth;
 
 /// Image cache heights
 const int kMonsterImageCacheHeight = 75;   // cache height for monster list-tile images
 const int kCharacterIconCacheHeight = 80;  // cache height for character class icon images
 
 /// Screen breakpoints (shortest dimension compared against orientation-corrected value)
-const double kPhoneScreenMaxDimension = 600;
-const double kLargeTabletMinDimension = 1200;
+const double kPhoneScreenMaxDimension = UiBreakpoints.phoneMaxDimension;
+const double kLargeTabletMinDimension =
+    UiBreakpoints.largeTabletMinDimension;
 
 /// Modal menu scale factors
 const double kModalScaleTablet = 1.5;
@@ -94,9 +97,9 @@ const double kModalBackgroundOpacity = 0.8;
 const double kDialogInsetPadding = 18;
 
 // Static TextStyles (no scale factor — use as-is or pass to style: parameter)
-const TextStyle kButtonLabelStyle = TextStyle(fontSize: kFontSizeButtonLabel);
-const TextStyle kTitleStyle = TextStyle(fontSize: kFontSizeTitle);
-const TextStyle kHeadingStyle = TextStyle(fontSize: kFontSizeHeading);
-const TextStyle kBodyStyle = TextStyle(fontSize: kFontSizeBody);
-const TextStyle kSubtitleStyle = TextStyle(fontSize: kFontSizeSmall, color: Colors.grey);
-const TextStyle kBodyBlackStyle = TextStyle(fontSize: kFontSizeBody, color: Colors.black);
+const TextStyle kButtonLabelStyle = UiTypography.buttonLabel;
+const TextStyle kTitleStyle = UiTypography.title;
+const TextStyle kHeadingStyle = UiTypography.heading;
+const TextStyle kBodyStyle = UiTypography.body;
+const TextStyle kSubtitleStyle = UiTypography.small;
+const TextStyle kBodyBlackStyle = UiTypography.bodyBlack;
