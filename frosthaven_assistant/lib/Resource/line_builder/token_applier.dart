@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../ui_utils.dart';
-import 'line_builder.dart';
+import 'ability_token_catalog.dart';
 
 class TokenApplier {
   static const int _kModRangeStart = -2;
@@ -67,7 +67,7 @@ class TokenApplier {
 
               bool hasOldVersion = hasGHVersion(iconGfx);
 
-              final tokenValue = LineBuilder.tokens[iconToken];
+              final tokenValue = AbilityTokenCatalog.tokens[iconToken];
               if (tokenValue != null) {
                 RegExp regEx = RegExp(
                     r"(?=.*[a-z])"); //black versions exist for all tokens containing lower case letters

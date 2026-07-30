@@ -1,7 +1,9 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:frosthaven_assistant/Resource/enums.dart';
+import 'package:frosthaven_assistant/Resource/line_builder/ability_token_catalog.dart';
 import 'package:frosthaven_assistant/Resource/line_builder/frosthaven_converter.dart';
+import 'package:frosthaven_assistant/Resource/line_builder/line_icon_layout.dart';
 import 'package:frosthaven_assistant/Resource/line_builder/line_styles.dart';
 import 'package:frosthaven_assistant/Resource/line_builder/stat_applier.dart';
 import 'package:frosthaven_assistant/Resource/ui_utils.dart';
@@ -22,13 +24,11 @@ class LineBuilder {
   static const double _kDividerImageHeight = 6.0;
   static const double _kDividerThinImageHeight = 2.0;
   static const double _kDividerImageWidth = 55.0;
-  static const double _kAoeScaleRatio = 2.0;
   static const double _kSubLineHeightMod = 1.35 * 1.15;
 
   // "Use" token layout
   static const double _kUseFHWidthRatio = 0.8;
   static const double _kUseFHWidthAdd = 5.0;
-  static const double _kUseGHRatio = 1.2;
   static const double _kUseLeft = 2.8;
   static const double _kUseFHHeightRatio = 0.5;
 
@@ -39,75 +39,12 @@ class LineBuilder {
   // Margins and spacing
   static const double _kRightMarginNormal = 3.0;
   static const double _kRightMarginElementUse = 1.0;
-  static const double _kMarginCenterRatio = 0.2;
-  static const double _kMarginStatRatio = 0.1;
-  static const double _kConditionMarginRatio = 0.25;
+  static const Map<String, String> tokens = AbilityTokenCatalog.tokens;
 
-  static const Map<String, String> tokens = {
-    "attack": "Attack",
-    "move": "Move",
-    "teleport": "Teleport",
-    "range": "Range",
-    "heal": "Heal",
-    "target": "Target",
-    "shield": "Shield",
-    "loot": "Loot",
-    "retaliate": "Retaliate",
-    "jump": "Jump",
-    "stun": "STUN",
-    "wound": "WOUND",
-    "disarm": "DISARM",
-    "immobilize": "IMMOBILIZE",
-    "poison": "POISON",
-    "invisible": "INVISIBLE",
-    "strengthen": "STRENGTHEN",
-    "muddle": "MUDDLE",
-    "regenerate": "REGENERATE",
-    "ward": "WARD",
-    "impair": "IMPAIR",
-    "bane": "BANE",
-    "brittle": "BRITTLE",
-    "chill": "CHILL",
-    "infect": "INFECT",
-    "rupture": "RUPTURE",
-    "push": "PUSH",
-    "pull": "PULL",
-    "pierce": "PIERCE",
-    "curse": "CURSE",
-    "enfeeble": "ENFEEBLE",
-    "empower": "EMPOWER",
-    "bless": "BLESS",
-    "safeguard": "SAFEGUARD",
-    "flip": "ROLLING",
-    "damage": "damage",
-    "and": "and"
-  };
+  static bool isElement(String item) => AbilityTokenCatalog.isElement(item);
 
-  static bool isElement(String item) {
-    if (item.contains("air") ||
-        item.contains("earth") ||
-        item.contains("fire") ||
-        item.contains("ice") ||
-        item.contains("dark") ||
-        item.contains("light") ||
-        item == "any") {
-      return true;
-    }
-    return false;
-  }
-
-  static double getTopPaddingForStyle(TextStyle style) {
-    double height = style.fontSize ?? 0.0;
-    bool markazi = style.fontFamily == "Markazi";
-
-    if (!markazi && style.height == 0.85) {
-      return height * 0.25;
-    }
-    if (markazi && style.height == 0.84) {
-      return height * 0.1;
-    }
-    return 0;
-  }
+  static double getTopPaddingForStyle(TextStyle style) =>
+      LineIconLayout.topPadding(style);
 
   static Widget createLinesColumn(
       CrossAxisAlignment alignment, List<Widget> lines) {
@@ -496,7 +433,8 @@ class LineBuilder {
                               ? (styleToUse.fontSize ?? 0.0) *
                                       _kUseFHWidthRatio +
                                   scale * _kUseFHWidthAdd
-                              : (styleToUse.fontSize ?? 0.0) * _kUseGHRatio,
+                              : (styleToUse.fontSize ?? 0.0) *
+                                    LineIconLayout.oldStyleElementScale,
                           bottom: 0,
                           left: frosthavenStyle ? _kUseLeft * scale : 0.0,
                           //why left?!
@@ -505,7 +443,8 @@ class LineBuilder {
                             height: frosthavenStyle
                                 ? (styleToUse.fontSize ?? 0.0) *
                                     _kUseFHHeightRatio
-                                : (styleToUse.fontSize ?? 0.0) * _kUseGHRatio,
+                                : (styleToUse.fontSize ?? 0.0) *
+                                      LineIconLayout.oldStyleElementScale,
                             fit: BoxFit.fitHeight,
                             filterQuality: FilterQuality.medium,
                             semanticLabel: iconGfx,
@@ -522,7 +461,7 @@ class LineBuilder {
                   child: Text(frosthavenStyle ? " :" : " : ",
                       style: styles.normal)));
             } else {
-              double height = _getIconHeight(
+              double height = LineIconLayout.iconHeight(
                   iconToken, styleToUse.fontSize ?? 0.0, frosthavenStyle);
               if (addText) {
                 String? iconTokenText = tokens[iconToken];
@@ -572,7 +511,7 @@ class LineBuilder {
               }
               bool mainLine =
                   styleToUse == styles.normal || styleToUse == styles.elite;
-              EdgeInsetsGeometry margin = _getMarginForToken(
+              EdgeInsetsGeometry margin = LineIconLayout.marginForToken(
                   iconToken, height, mainLine, alignment, frosthavenStyle);
 
               String imagePath = "assets/images/abilities/$iconGfx.png";
@@ -737,76 +676,4 @@ class LineBuilder {
     return createLinesColumn(alignment, lines);
   }
 
-  static double _getIconHeight(
-      String iconToken, double height, bool isFrosthavenStyle) {
-    if (isElement(iconToken)) {
-      //FH style: elements have same size as regular icons
-      return isFrosthavenStyle ? height : height * _kUseGHRatio;
-    }
-    if (iconToken.contains("aoe")) {
-      return height * _kAoeScaleRatio;
-    }
-    return height;
-  }
-
-  static EdgeInsetsGeometry _getMarginForToken(String iconToken, double height,
-      bool mainLine, CrossAxisAlignment alignment, bool isFrostHavenStyle) {
-    double margin = _kMarginCenterRatio;
-
-    if (alignment != CrossAxisAlignment.center) {
-      margin = _kMarginStatRatio;
-    }
-    if (isFrostHavenStyle) {
-      margin = 0;
-    }
-    if (iconToken.contains("aoe")) {
-      return EdgeInsets.only(left: margin * height, right: margin * height);
-    }
-    if (mainLine &&
-        (iconToken == "attack" ||
-            iconToken == "heal" ||
-            iconToken == "loot" ||
-            iconToken == "shield" ||
-            iconToken == "move")) {
-      return EdgeInsets.only(left: margin * height, right: margin * height);
-    }
-    if (iconToken == "pierce" ||
-        iconToken == "target" ||
-        iconToken == "curse" ||
-        iconToken == "enfeeble" ||
-        iconToken == "bless" ||
-        iconToken == "enfeeble" ||
-        iconToken == "push" ||
-        iconToken == "pull" ||
-        iconToken.contains("poison") ||
-        iconToken.contains("wound") ||
-        iconToken == "infect" ||
-        iconToken == "chill" ||
-        iconToken == "disarm" ||
-        iconToken == "immobilize" ||
-        iconToken == "stun" ||
-        iconToken == "strengthen" ||
-        iconToken == "impair" ||
-        iconToken == "bane" ||
-        iconToken == "brittle" ||
-        iconToken == "invisible" ||
-        iconToken == "safeguard" ||
-        iconToken == "muddle") {
-      //todo; optimize with else and no strcmp
-      if (mainLine) {
-        //smaller margins for secondary modifiers
-        return const EdgeInsets.all(0);
-      } else if (isFrostHavenStyle && iconToken != "target") {
-        //need more margin around the over sized condition gfx
-        return EdgeInsets.only(
-            left: _kConditionMarginRatio * height,
-            right: _kConditionMarginRatio * height);
-      }
-    }
-    if (isFrostHavenStyle) {
-      return EdgeInsets.zero;
-    }
-    return EdgeInsets.only(
-        left: _kMarginStatRatio * height, right: _kMarginStatRatio * height);
-  }
 }

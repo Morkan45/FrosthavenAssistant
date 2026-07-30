@@ -1,6 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:frosthaven_assistant/Resource/line_builder/line_builder.dart';
+
+import 'ability_token_catalog.dart';
 
 class FrosthavenConverter {
   static const int _kBossStatCardColor = 0x45D2D2D2;
@@ -395,8 +396,8 @@ class FrosthavenConverter {
     //sniff the child if it is a element to element thing
     List<String> graphics = getAllImagesInWidget(child);
     if (graphics.length == _kElementPairCount) {
-      if (LineBuilder.isElement(graphics.first) &&
-          LineBuilder.isElement(graphics[1])) {
+      if (AbilityTokenCatalog.isElement(graphics.first) &&
+          AbilityTokenCatalog.isElement(graphics[1])) {
         belongs = false;
       }
     }
