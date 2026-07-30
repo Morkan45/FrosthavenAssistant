@@ -42,6 +42,8 @@ part "character_state.dart";
 part "figure_state.dart";
 part "game_save_state.dart";
 part "list_item_data.dart";
+part "loot_card_state.dart";
+part "loot_deck_codec.dart";
 part "loot_deck_state.dart";
 part "modifier_card.dart";
 part "modifier_deck.dart";

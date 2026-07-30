@@ -1,65 +1,6 @@
 part of 'game_state.dart';
 // ignore_for_file: library_private_types_in_public_api
 
-class LootCard {
-  // ignore: prefer-match-file-name, file contains multiple loot deck state types
-  static const int _kHighCharCount = 4;
-  static const int _kLowCharCount = 2;
-
-  final String gfx;
-  final int id;
-  final LootBaseValue baseValue;
-  final LootType lootType;
-  String owner = "";
-  int _enhanced = 0;
-  int get enhanced => _enhanced;
-
-  LootCard(
-      {required this.id,
-      required this.lootType,
-      required this.baseValue,
-      required enhanced,
-      required this.gfx}) {
-    _enhanced = enhanced;
-  }
-
-  Map<String, dynamic> toJson() => {
-        'gfx': gfx,
-        'owner': owner,
-        'id': id,
-        'enhanced': enhanced,
-        'baseValue': baseValue.index,
-        'lootType': lootType.index,
-      };
-
-  @override
-  String toString() => json.encode(toJson());
-
-  int? getValue() {
-    int value = 1;
-    if (lootType == LootType.other) {
-      if (enhanced > 0) {
-        return enhanced;
-      }
-      return null;
-    }
-    if (enhanced > 0) {
-      value += enhanced;
-    }
-    int characters = GameMethods.getCurrentCharacterAmount();
-    if (characters >= _kHighCharCount) {
-      return value;
-    }
-    if (baseValue == LootBaseValue.oneIf4twoIfNot) {
-      value++;
-    } else if (characters <= _kLowCharCount &&
-        baseValue == LootBaseValue.oneIf3or4twoIfNot) {
-      value++;
-    }
-    return value;
-  }
-}
-
 class LootDeck {
   static const int _kSpecialCard1418 = 1418;
   static const int _kSpecialCard1419 = 1419;
@@ -149,71 +90,8 @@ class LootDeck {
   }
 
   /// Updates this deck in-place from [lootDeckData].
-  void updateFromJson(Map<String, dynamic> lootDeckData) {
-    _hasCard1418 = lootDeckData["1418"] as bool;
-    _hasCard1419 = lootDeckData["1419"] as bool;
-
-    _addedCards = lootDeckData.containsKey('addedCards')
-        ? List<int>.from(lootDeckData['addedCards'] as List)
-        : [0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-    _enhancements = lootDeckData.containsKey('enhancements')
-        ? Map<String, int>.from(lootDeckData['enhancements'] as Map)
-        : {};
-
-    _initPools();
-
-    LootCard cardFromJson(Map<dynamic, dynamic> item, int fallbackId) {
-      final String gfx = item["gfx"] as String;
-      final String owner =
-          item.containsKey('owner') ? item["owner"] as String : "";
-      final int id = item.containsKey('id') ? item["id"] as int : fallbackId;
-
-      // 'enhanced' was stored as bool in older saves, int in newer ones.
-      int enhanced = 0;
-      if (item['enhanced'] is bool) {
-        enhanced = (item['enhanced'] as bool) ? 1 : 0;
-      } else if (item['enhanced'] is num) {
-        enhanced = (item['enhanced'] as num).toInt();
-      }
-
-      final baseIdx = item["baseValue"] is int ? item["baseValue"] as int : 0;
-      final lootTypeIdx = item["lootType"] is int ? item["lootType"] as int : 0;
-      final LootBaseValue baseValue =
-          (baseIdx >= 0 && baseIdx < LootBaseValue.values.length)
-              ? LootBaseValue.values[baseIdx]
-              : LootBaseValue.values.first;
-      final LootType lootType =
-          (lootTypeIdx >= 0 && lootTypeIdx < LootType.values.length)
-              ? LootType.values[lootTypeIdx]
-              : LootType.values.first;
-
-      return LootCard(
-          id: id,
-          gfx: gfx,
-          enhanced: enhanced,
-          baseValue: baseValue,
-          lootType: lootType)
-        ..owner = owner;
-    }
-
-    List<LootCard> newDrawList = [];
-    List drawPile = lootDeckData["drawPile"] as List;
-    int id = 0;
-    for (final item in drawPile) {
-      if (item.containsKey('id')) id = item["id"] as int;
-      newDrawList.add(cardFromJson(item as Map, id));
-    }
-    List<LootCard> newDiscardList = [];
-    for (final item in lootDeckData["discardPile"] as List) {
-      if (item.containsKey('id')) id = item["id"] as int;
-      newDiscardList.add(cardFromJson(item as Map, id));
-    }
-    _drawPile.clear();
-    _discardPile.clear();
-    _drawPile.setList(newDrawList);
-    _discardPile.setList(newDiscardList);
-  }
+  void updateFromJson(Map<String, dynamic> lootDeckData) =>
+      LootDeckCodec.restore(this, lootDeckData);
 
   void setDeck(_StateModifier _, LootDeckModel model) {
     _setDeck(model);
@@ -531,19 +409,8 @@ class LootDeck {
     _discardPile.push(card);
   }
 
-  Map<String, dynamic> toJson() => {
-        'drawPile': _drawPile.getList().map((c) => c.toJson()).toList(),
-        'discardPile': _discardPile.getList().map((c) => c.toJson()).toList(),
-        'addedCards': _addedCards,
-        'enhancements': _enhancements,
-        '1418': _hasCard1418,
-        '1419': _hasCard1419,
-      };
+  Map<String, dynamic> toJson() => LootDeckCodec.serialize(this);
 
   @override
   String toString() => json.encode(toJson());
 }
-
-enum LootType { materiel, other }
-
-enum LootBaseValue { one, oneIf4twoIfNot, oneIf3or4twoIfNot }
