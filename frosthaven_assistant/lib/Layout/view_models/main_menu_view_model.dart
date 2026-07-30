@@ -94,10 +94,11 @@ class MainMenuViewModel {
   }
 
   Future<void> toggleClientConnection() async {
+    await _gameState.flushPersistence();
     if (_settings.client.value != ClientState.connected) {
       _settings.client.value = ClientState.connecting;
       await _client.connect(_settings.lastKnownConnection);
-      _settings.saveToDisk();
+      await _settings.saveToDisk();
     } else {
       _client.disconnect(null);
     }
@@ -105,10 +106,11 @@ class MainMenuViewModel {
 
   void cancelClientConnection() => _client.cancelConnect();
 
-  void toggleServer() {
+  Future<void> toggleServer() async {
+    await _gameState.flushPersistence();
     _settings.lastKnownHostIP =
         "(${_network.networkInfo.wifiIPv6.value})";
-    _settings.saveToDisk();
+    await _settings.saveToDisk();
     if (!_settings.server.value) {
       _network.server.startServer();
     } else {
@@ -116,5 +118,5 @@ class MainMenuViewModel {
     }
   }
 
-  void save() => _gameState.save();
+  Future<void> save() => _gameState.saveAndFlush();
 }

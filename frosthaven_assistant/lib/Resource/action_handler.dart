@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
@@ -154,7 +155,7 @@ class ActionHandler {
     final saveState = snapshotAt(targetIndex);
     if (saveState == null || !saveState.load(_gameState)) return false;
 
-    saveState.saveToDisk(_gameState);
+    unawaited(saveState.saveToDisk(_gameState));
     lastEvent.value = const NoEvent();
     commandIndex.value = targetIndex;
     if (updateAllUi) updateAllUI();
@@ -226,6 +227,5 @@ class ActionHandler {
         ).encode(),
       );
     }
-
   }
 }

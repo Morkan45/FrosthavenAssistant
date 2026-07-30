@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
@@ -18,6 +19,7 @@ import '../../Model/room.dart';
 import '../../Model/scenario.dart';
 import '../../services/network/communication.dart';
 import '../../services/network/network.dart';
+import '../../services/latest_value_queue.dart';
 import '../../services/service_locator.dart';
 import '../action_handler.dart';
 import '../action_history.dart';
@@ -51,6 +53,7 @@ part "sanctuary_deck.dart";
 
 class GameState {
   late final ActionHandler _actionHandler;
+  late final LatestValueQueue<String> _persistenceQueue;
 
   //state
   final _currentCampaign = ValueNotifier<String>("Jaws of the Lion");
@@ -126,7 +129,9 @@ class GameState {
     required Communication communication,
     Settings? settings,
     Network? network,
+    Future<void> Function(String state)? stateWriter,
   }) {
+    _persistenceQueue = LatestValueQueue(stateWriter ?? _writeGameStateToDisk);
     _actionHandler = ActionHandler(
       gameState: this,
       communication: communication,
@@ -256,9 +261,30 @@ class GameState {
   GameSaveState save() {
     final state = GameSaveState();
     state.save(this);
-    state.saveToDisk(this);
+    unawaited(state.saveToDisk(this));
     addSaveState(state);
     return state;
+  }
+
+  Future<void> saveAndFlush() async {
+    save();
+    await flushPersistence();
+  }
+
+  Future<void> flushPersistence() => _persistenceQueue.flush();
+
+  Future<void> _persistState(String state) => _persistenceQueue.schedule(state);
+
+  Future<void> _writeGameStateToDisk(String state) async {
+    const sharedPrefsKey = 'gameState';
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(sharedPrefsKey, state);
+    } catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
+    }
   }
 
   Future<bool> load() async {

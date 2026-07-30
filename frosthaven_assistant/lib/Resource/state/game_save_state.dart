@@ -213,16 +213,7 @@ class GameSaveState {
     if (_savedState == null) {
       save(gameState);
     }
-    const sharedPrefsKey = 'gameState';
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      // save
-      await prefs.setString(sharedPrefsKey, _savedState ?? '');
-    } catch (error) {
-      if (kDebugMode) {
-        print(error);
-      }
-    }
+    await gameState._persistState(_savedState ?? '');
   }
 
   Future<bool> loadFromDisk(GameState gameState) async {

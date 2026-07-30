@@ -273,10 +273,10 @@ class MainMenu extends StatelessWidget {
                   ? ListTile(
                       title: Text(l10n.menuExit),
                       enabled: true,
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pop(context);
-                        vm.save();
-                        windowManager.close();
+                        await vm.save();
+                        await windowManager.close();
                       },
                     )
                   : Container(),

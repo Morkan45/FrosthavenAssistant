@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../Resource/app_constants.dart';
 import '../../../Resource/settings.dart';
+import '../../../Resource/state/game_state.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../services/network/client.dart';
 import '../../../services/network/network.dart';
@@ -19,11 +20,13 @@ class SettingsNetworkSection extends StatefulWidget {
     required this.settings,
     required this.network,
     required this.client,
+    required this.gameState,
   });
 
   final Settings settings;
   final Network network;
   final Client client;
+  final GameState gameState;
 
   @override
   SettingsNetworkSectionState createState() => SettingsNetworkSectionState();
@@ -52,6 +55,40 @@ class SettingsNetworkSectionState extends State<SettingsNetworkSection> {
     return widget.network.networkInfo.wifiIPv6List
         .map((item) => DropdownMenuItem<String>(value: item, child: Text(item)))
         .toList();
+  }
+
+  Future<void> _toggleClientConnection() async {
+    await widget.gameState.flushPersistence();
+    if (!mounted) return;
+
+    if (widget.settings.client.value != ClientState.connected) {
+      setState(() {
+        widget.settings.client.value = ClientState.connecting;
+        widget.settings.lastKnownPort = _portTextController.text;
+        widget.settings.lastKnownConnection = _serverTextController.text;
+      });
+      await widget.client.connect(_serverTextController.text);
+      await widget.settings.saveToDisk();
+    } else {
+      setState(() {
+        widget.client.disconnect(null);
+      });
+    }
+  }
+
+  Future<void> _toggleServer() async {
+    await widget.gameState.flushPersistence();
+    if (!mounted) return;
+
+    if (!widget.settings.server.value) {
+      widget.settings.lastKnownPort = _portTextController.text;
+      widget.settings.lastKnownHostIP =
+          "(${widget.network.networkInfo.wifiIPv6.value})";
+      await widget.settings.saveToDisk();
+      widget.network.server.startServer();
+    } else {
+      widget.network.server.stopServer(null);
+    }
   }
 
   @override
@@ -85,24 +122,8 @@ class SettingsNetworkSectionState extends State<SettingsNetworkSection> {
                       : null,
                   title: Text(connectionText),
                   value: connected,
-                  onChanged: (bool? value) {
-                    if (widget.settings.client.value != ClientState.connected) {
-                      setState(() {
-                        widget.settings.client.value = ClientState.connecting;
-                        widget.settings.lastKnownPort =
-                            _portTextController.text;
-                        widget.settings.lastKnownConnection =
-                            _serverTextController.text;
-                      });
-                      unawaited(widget.client
-                          .connect(_serverTextController.text)
-                        ..whenComplete(widget.settings.saveToDisk));
-                    } else {
-                      setState(() {
-                        widget.client.disconnect(null);
-                      });
-                    }
-                  });
+                  onChanged: (bool? value) =>
+                      unawaited(_toggleClientConnection()));
             }),
         Container(
           margin:
@@ -139,17 +160,7 @@ class SettingsNetworkSectionState extends State<SettingsNetworkSection> {
                       ? l10n.stopServerButton
                       : l10n.startHostServerButton),
                   value: widget.settings.server.value,
-                  onChanged: (bool? value) {
-                    if (!widget.settings.server.value) {
-                      widget.settings.lastKnownPort = _portTextController.text;
-                      widget.settings.lastKnownHostIP =
-                          "(${widget.network.networkInfo.wifiIPv6.value})";
-                      widget.settings.saveToDisk();
-                      widget.network.server.startServer();
-                    } else {
-                      widget.network.server.stopServer(null);
-                    }
-                  });
+                  onChanged: (bool? value) => unawaited(_toggleServer()));
             }),
         ValueListenableBuilder<String>(
             valueListenable: widget.network.networkInfo.wifiIPv6,

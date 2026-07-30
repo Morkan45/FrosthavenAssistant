@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
@@ -6,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
+import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/services/android_foreground_service.dart';
 import 'package:frosthaven_assistant/services/network/client.dart';
 import 'package:frosthaven_assistant/services/network/network.dart';
@@ -29,6 +31,7 @@ class MainState extends State<MyHomePage>
   late final Network _network;
   late final Settings _settings;
   late final Client _client;
+  late final GameState _gameState;
 
   @override
   void dispose() {
@@ -82,6 +85,7 @@ class MainState extends State<MyHomePage>
         break;
       case AppLifecycleState.paused:
         log("app in paused");
+        unawaited(_flushPersistence());
         break;
       case AppLifecycleState.detached:
         log("app in detached");
@@ -92,12 +96,12 @@ class MainState extends State<MyHomePage>
           );
           _network.clientDisconnectedWhileInBackground = true;
           _settings.connectClientOnStartup = true;
-          _settings.saveToDisk();
           _network.appInBackground = true;
         }
+        unawaited(_flushPersistence());
         break;
       case AppLifecycleState.hidden:
-        // no need to handle this case afaik
+        unawaited(_flushPersistence());
         break;
     }
   }
@@ -116,6 +120,7 @@ class MainState extends State<MyHomePage>
     _network = getIt<Network>();
     _settings = getIt<Settings>();
     _client = getIt<Client>();
+    _gameState = getIt<GameState>();
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
@@ -126,6 +131,7 @@ class MainState extends State<MyHomePage>
     if (!kIsWeb &&
         (Platform.isLinux || Platform.isWindows || Platform.isMacOS)) {
       windowManager.addListener(this);
+      unawaited(_preventUnflushedWindowClose());
     }
 
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
@@ -147,6 +153,26 @@ class MainState extends State<MyHomePage>
   @override
   Widget build(BuildContext context) {
     return const OverrideTextScaleFactor(child: MainScaffold());
+  }
+
+  Future<void> _flushPersistence() async {
+    await Future.wait([_gameState.flushPersistence(), _settings.saveToDisk()]);
+  }
+
+  Future<void> _preventUnflushedWindowClose() async {
+    try {
+      await windowManager.setPreventClose(true);
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint('Unable to configure window-close persistence: $error');
+      }
+    }
+  }
+
+  @override
+  void onWindowClose() async {
+    await _flushPersistence();
+    await windowManager.destroy();
   }
 
   @override

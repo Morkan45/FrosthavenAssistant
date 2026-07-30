@@ -208,6 +208,7 @@ class SettingsMenuState extends State<SettingsMenu> {
         settings: settings,
         network: _network,
         client: _client,
+        gameState: _gameState,
       ),
     ),
     _SettingsPage(
