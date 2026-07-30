@@ -113,6 +113,12 @@ Prioritize `line_builder.dart`, `modifier_deck.dart`, `game_methods.dart`,
 boundaries, keep public behavior stable, and require focused tests before each
 move. Do not combine these splits with feature changes.
 
+**Progress:** `settings_menu.dart` now owns only state, keyboard behavior, and
+orchestration. Responsive desktop/mobile layout and page construction live in
+separate modules, with the existing focused settings suite covering both modes.
+The remaining prioritized modules stay in the backlog for similarly scoped
+extractions.
+
 ## GUI improvement backlog
 
 ### Completed for pointer and touch: Desktop-native list reordering
