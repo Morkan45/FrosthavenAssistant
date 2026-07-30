@@ -168,4 +168,61 @@ void main() {
       expect(deck().getRemovable('bless').value, before + 1);
     });
   });
+
+  group('ModifierDeck serialization', () {
+    test('restores card types, legacy names, and persisted values', () {
+      final restored = ModifierDeck.fromJson('allies', {
+        'drawPile': [
+          {'gfx': 'curse'},
+          {'gfx': 'enfeeble'},
+          {'gfx': 'doubleAttack-allies'},
+        ],
+        'discardPile': [
+          {'gfx': 'nullAttack-allies'},
+        ],
+        'removedPile': [
+          {'gfx': 'bless-allies'},
+        ],
+        'imbuement': 2,
+        'badOmen': 1,
+        'corrosiveSpew': true,
+        'revealed': 99,
+        'cassandra': true,
+        'addedMinusOnes': 2,
+      });
+
+      expect(
+        restored.drawPileContents.map((card) => card.gfx),
+        ['curse', 'in-enfeeble', 'doubleAttack'],
+      );
+      expect(
+        restored.drawPileContents.map((card) => card.type),
+        [CardType.remove, CardType.remove, CardType.multiply],
+      );
+      expect(restored.discardPileTop.gfx, 'nullAttack');
+      expect(restored.discardPileTop.type, CardType.multiply);
+      expect(restored.removedPileContents.single.gfx, 'bless');
+      expect(restored.needsShuffle, isTrue);
+      expect(restored.revealedCount.value, restored.drawPileSize);
+      expect(restored.toJson()['imbuement'], 2);
+      expect(restored.toJson()['cassandra'], isTrue);
+    });
+
+    test('uses defaults for optional fields from older saves', () {
+      final restored = ModifierDeck.fromJson('', {
+        'drawPile': [
+          {'gfx': 'plus0'},
+        ],
+        'discardPile': <Map<String, String>>[],
+      });
+
+      expect(restored.imbuement.value, 0);
+      expect(restored.badOmen.value, 0);
+      expect(restored.corrosiveSpew.value, isFalse);
+      expect(restored.revealedCount.value, 0);
+      expect(restored.cassandraSpecial.value, isFalse);
+      expect(restored.addedMinusOnes.value, 0);
+      expect(restored.removedPileContents, isEmpty);
+    });
+  });
 }

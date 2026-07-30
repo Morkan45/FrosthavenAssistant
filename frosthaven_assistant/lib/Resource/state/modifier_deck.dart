@@ -81,61 +81,8 @@ class ModifierDeck {
 
   /// Updates this deck in-place from [modifierDeckData], firing all relevant
   /// [ValueNotifier] listeners so subscribed widgets rebuild automatically.
-  void updateFromJson(Map<String, dynamic> modifierDeckData) {
-    // Reset removable counts first (fires _handleRemovableCards on the current
-    // pile, but the piles are fully replaced below anyway).
-    for (final key in _removables.keys) {
-      _removables[key]?.value = 0;
-    }
-    _needsShuffle = false;
-
-    for (final item in modifierDeckData["drawPile"] as List) {
-      String gfx = item["gfx"];
-      if (gfx == "curse" ||
-          gfx.contains("empower") ||
-          gfx.contains("enfeeble") ||
-          gfx == "bless") {
-        addRemovableValue(_StateModifier(), gfx, 1);
-      }
-    }
-    for (final item in modifierDeckData["discardPile"] as List) {
-      String gfx = item["gfx"];
-      if (_isMultiplyType(gfx)) {
-        _needsShuffle = true;
-      }
-    }
-
-    _drawPile.clear();
-    _discardPile.clear();
-    _removedPile.clear();
-    _drawPile.setList(_getCardsFromJson(modifierDeckData, "drawPile"));
-    _discardPile.setList(_getCardsFromJson(modifierDeckData, "discardPile"));
-    if (modifierDeckData.containsKey('removedPile')) {
-      _removedPile.setList(_getCardsFromJson(modifierDeckData, "removedPile"));
-    }
-
-    _imbuement.value = modifierDeckData.containsKey("imbuement")
-        ? modifierDeckData['imbuement'] as int
-        : 0;
-    _badOmen.value = modifierDeckData.containsKey('badOmen')
-        ? modifierDeckData["badOmen"] as int
-        : 0;
-    _corrosiveSpew.value = modifierDeckData.containsKey('corrosiveSpew')
-        ? modifierDeckData["corrosiveSpew"] as bool
-        : false;
-    _revealedCount.value = min(
-      modifierDeckData.containsKey('revealed')
-          ? modifierDeckData["revealed"] as int
-          : 0,
-      drawPileSize,
-    );
-    _cassandraSpecial.value = modifierDeckData.containsKey('cassandra')
-        ? modifierDeckData["cassandra"] as bool
-        : false;
-    _addedMinusOnes.value = modifierDeckData.containsKey('addedMinusOnes')
-        ? modifierDeckData["addedMinusOnes"] as int
-        : 0;
-  }
+  void updateFromJson(Map<String, dynamic> modifierDeckData) =>
+      ModifierDeckCodec.restore(this, modifierDeckData);
 
   void setRemovableValue(_StateModifier _, String id, int value) {
     _removables[id]?.value = value;
@@ -528,17 +475,7 @@ class ModifierDeck {
     }
   }
 
-  Map<String, dynamic> toJson() => {
-    'addedMinusOnes': _addedMinusOnes.value,
-    'imbuement': _imbuement.value,
-    'badOmen': _badOmen.value,
-    'corrosiveSpew': _corrosiveSpew.value,
-    'revealed': _revealedCount.value,
-    'cassandra': _cassandraSpecial.value,
-    'drawPile': _drawPile.getList().map((c) => c.toJson()).toList(),
-    'removedPile': _removedPile.getList().map((c) => c.toJson()).toList(),
-    'discardPile': _discardPile.getList().map((c) => c.toJson()).toList(),
-  };
+  Map<String, dynamic> toJson() => ModifierDeckCodec.serialize(this);
 
   @override
   String toString() => json.encode(toJson());
@@ -554,35 +491,6 @@ class ModifierDeck {
         if (r != null) _handleRemovableCards(r, item);
       });
     }
-  }
-
-  List<ModifierCard> _getCardsFromJson(
-    Map<String, dynamic> modifierDeckData,
-    String deckId,
-  ) {
-    List<ModifierCard> newList = [];
-    for (final item in modifierDeckData[deckId] as List) {
-      String gfx = item["gfx"];
-      gfx = gfx.replaceAll("-allies", "");
-      if (gfx == "curse") {
-        newList.add(ModifierCard(CardType.remove, gfx));
-      } else if (gfx.contains("enfeeble")) {
-        if (gfx == "enfeeble") {
-          //if updating from old version
-          gfx = "in-enfeeble";
-        }
-        newList.add(ModifierCard(CardType.remove, gfx));
-      } else if (gfx.contains("empower")) {
-        newList.add(ModifierCard(CardType.remove, gfx));
-      } else if (gfx == "bless") {
-        newList.add(ModifierCard(CardType.remove, gfx));
-      } else if (_isMultiplyType(gfx)) {
-        newList.add(ModifierCard(CardType.multiply, gfx));
-      } else {
-        newList.add(ModifierCard(CardType.add, gfx));
-      }
-    }
-    return newList;
   }
 
   void _initDeck() {
@@ -724,18 +632,4 @@ class ModifierDeck {
     }
     return false;
   }
-}
-
-enum CardType { add, multiply, remove }
-
-class ModifierCard {
-  final CardType type;
-  final String gfx;
-
-  ModifierCard(this.type, this.gfx);
-
-  Map<String, dynamic> toJson() => {'gfx': gfx};
-
-  @override
-  String toString() => '{"gfx": "$gfx" }';
 }
