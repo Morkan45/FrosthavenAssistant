@@ -22,19 +22,38 @@ class SettingsPage {
 
 class SettingsLayoutMetrics {
   static const double desktopBreakpoint = UiBreakpoints.desktopSettings;
+  static const double largeDesktopBreakpoint =
+      UiBreakpoints.largeDesktopSettings;
+  static const double _desktopTextScale = 1.1;
+  static const double _largeDesktopTextScale = 1.2;
 
   static bool useDesktopLayout(Size size) => size.width >= desktopBreakpoint;
 
-  static double desktopWidth(Size size) =>
-      min(
-        UiModal.settingsDesktopMaxWidth,
-        size.width - UiModal.settingsDesktopHorizontalInset,
-      );
+  static bool useLargeDesktopLayout(Size size) =>
+      size.width >= largeDesktopBreakpoint;
+
+  static double adaptiveTextScale(Size size) {
+    if (useLargeDesktopLayout(size)) return _largeDesktopTextScale;
+    if (useDesktopLayout(size)) return _desktopTextScale;
+    return 1;
+  }
+
+  static double settingsTextScale(Size size, double userMenuScale) =>
+      adaptiveTextScale(size) * userMenuScale;
+
+  static double desktopWidth(Size size) => min(
+    useLargeDesktopLayout(size)
+        ? UiModal.settingsLargeDesktopMaxWidth
+        : UiModal.settingsDesktopMaxWidth,
+    size.width - UiModal.settingsDesktopHorizontalInset,
+  );
 
   static double desktopHeight(Size size) => max(
     UiModal.settingsDesktopMinHeight,
     min(
-      UiModal.settingsDesktopMaxHeight,
+      useLargeDesktopLayout(size)
+          ? UiModal.settingsLargeDesktopMaxHeight
+          : UiModal.settingsDesktopMaxHeight,
       size.height - UiModal.settingsDesktopVerticalInset,
     ),
   );

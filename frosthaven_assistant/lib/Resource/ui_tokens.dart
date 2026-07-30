@@ -70,6 +70,8 @@ class UiModal {
   static const double standardWidth = 400;
   static const double settingsDesktopMaxWidth = 920;
   static const double settingsDesktopMaxHeight = 640;
+  static const double settingsLargeDesktopMaxWidth = 1120;
+  static const double settingsLargeDesktopMaxHeight = 760;
   static const double settingsDesktopHorizontalInset = 72;
   static const double settingsDesktopVerticalInset = 96;
   static const double settingsDesktopMinHeight = 280;
@@ -81,6 +83,7 @@ class UiBreakpoints {
 
   static const double desktopActions = 900;
   static const double desktopSettings = 1000;
+  static const double largeDesktopSettings = 1600;
   static const double phoneMaxDimension = 600;
   static const double largeTabletMinDimension = 1200;
 }

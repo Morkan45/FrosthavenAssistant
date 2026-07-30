@@ -64,10 +64,14 @@ class SettingsMenuState extends State<SettingsMenu> {
 
     if (!desktop) {
       return _withKeyboardBehavior(
-        ScrollableMenuCard(
-          maxWidth: UiModal.narrowWidth,
-          onClose: settings.saveToDisk,
-          child: MobileSettingsBody(title: l10n.menuSettings, pages: pages),
+        _withSettingsTextScale(
+          context,
+          size,
+          ScrollableMenuCard(
+            maxWidth: UiModal.narrowWidth,
+            onClose: settings.saveToDisk,
+            child: MobileSettingsBody(title: l10n.menuSettings, pages: pages),
+          ),
         ),
       );
     }
@@ -76,26 +80,44 @@ class SettingsMenuState extends State<SettingsMenu> {
     final height = SettingsLayoutMetrics.desktopHeight(size);
 
     return _withKeyboardBehavior(
-      ScrollableMenuCard(
-        maxWidth: width,
-        onClose: settings.saveToDisk,
-        child: DesktopSettingsBody(
-          title: l10n.menuSettings,
-          pages: pages,
-          selectedCategory: _selectedCategory,
-          scrollController: _sectionScrollController,
-          width: width,
-          height: height,
-          onCategorySelected: (category) {
-            setState(() {
-              _selectedCategory = category;
-            });
-            if (_sectionScrollController.hasClients) {
-              _sectionScrollController.jumpTo(0);
-            }
-          },
+      _withSettingsTextScale(
+        context,
+        size,
+        ScrollableMenuCard(
+          maxWidth: width,
+          onClose: settings.saveToDisk,
+          child: DesktopSettingsBody(
+            title: l10n.menuSettings,
+            pages: pages,
+            selectedCategory: _selectedCategory,
+            scrollController: _sectionScrollController,
+            width: width,
+            height: height,
+            onCategorySelected: (category) {
+              setState(() {
+                _selectedCategory = category;
+              });
+              if (_sectionScrollController.hasClients) {
+                _sectionScrollController.jumpTo(0);
+              }
+            },
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _withSettingsTextScale(BuildContext context, Size size, Widget child) {
+    final mediaQuery = MediaQuery.of(context);
+    final scale = SettingsLayoutMetrics.settingsTextScale(
+      size,
+      settings.userScalingMenus.value,
+    );
+    return MediaQuery(
+      data: mediaQuery.copyWith(
+        textScaler: _SettingsTextScaler(mediaQuery.textScaler, scale),
+      ),
+      child: child,
     );
   }
 
@@ -114,4 +136,27 @@ class SettingsMenuState extends State<SettingsMenu> {
       ),
     );
   }
+}
+
+@immutable
+class _SettingsTextScaler extends TextScaler {
+  const _SettingsTextScaler(this.base, this.factor);
+
+  final TextScaler base;
+  final double factor;
+
+  @override
+  double scale(double fontSize) => base.scale(fontSize) * factor;
+
+  @override
+  double get textScaleFactor => scale(1);
+
+  @override
+  bool operator ==(Object other) =>
+      other is _SettingsTextScaler &&
+      other.base == base &&
+      other.factor == factor;
+
+  @override
+  int get hashCode => Object.hash(base, factor);
 }

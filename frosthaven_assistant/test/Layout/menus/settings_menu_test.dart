@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Layout/menus/SettingsMenu/settings_menu.dart';
+import 'package:frosthaven_assistant/Layout/menus/SettingsMenu/settings_layout.dart';
 import 'package:frosthaven_assistant/Layout/menus/save_menu.dart';
 import 'package:frosthaven_assistant/Resource/commands/set_ally_deck_in_og_gloom_command.dart';
 import 'package:frosthaven_assistant/Resource/enums.dart';
@@ -22,9 +23,14 @@ void main() {
     final settings = getIt<Settings>();
     settings.fitMainListToWidth.value = false;
     settings.mainListColumns.value = 0;
+    settings.userScalingMenus.value = 1;
   });
 
-  Future<void> pumpMenu(WidgetTester tester, {Size? size}) async {
+  Future<void> pumpMenu(
+    WidgetTester tester, {
+    Size? size,
+    double platformTextScale = 1,
+  }) async {
     if (size != null) {
       tester.view.physicalSize = size;
       tester.view.devicePixelRatio = 1;
@@ -42,6 +48,12 @@ void main() {
           GlobalWidgetsLocalizations.delegate,
         ],
         supportedLocales: const [Locale('en')],
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: TextScaler.linear(platformTextScale)),
+          child: child!,
+        ),
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () {
@@ -62,6 +74,50 @@ void main() {
   }
 
   group('SettingsMenu', () {
+    test('uses adaptive typography tiers for available width', () {
+      expect(SettingsLayoutMetrics.adaptiveTextScale(const Size(500, 900)), 1);
+      expect(
+        SettingsLayoutMetrics.adaptiveTextScale(const Size(1280, 720)),
+        1.1,
+      );
+      expect(
+        SettingsLayoutMetrics.adaptiveTextScale(const Size(2560, 1440)),
+        1.2,
+      );
+    });
+
+    testWidgets(
+      'large desktop combines adaptive, menu, and accessibility scaling',
+      (WidgetTester tester) async {
+        getIt<Settings>().userScalingMenus.value = 1.25;
+        await pumpMenu(
+          tester,
+          size: const Size(1920, 1080),
+          platformTextScale: 1.3,
+        );
+
+        final textContext = tester.element(find.text('Dark mode'));
+        final textScaler = MediaQuery.textScalerOf(textContext);
+        expect(textScaler.scale(20), closeTo(39, 0.001));
+
+        final desktopLayout = tester.getSize(
+          find.byKey(const Key('desktop-settings-layout')),
+        );
+        expect(desktopLayout, const Size(1120, 760));
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets('mobile keeps its base adaptive scale', (
+      WidgetTester tester,
+    ) async {
+      await pumpMenu(tester, size: const Size(500, 900));
+
+      final textContext = tester.element(find.text('Dark mode'));
+      expect(MediaQuery.textScalerOf(textContext).scale(20), 20);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('desktop separates settings into persistent categories', (
       WidgetTester tester,
     ) async {
