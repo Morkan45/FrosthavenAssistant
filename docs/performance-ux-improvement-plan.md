@@ -106,18 +106,28 @@ explicit retained-index bounds.
 **Acceptance criteria:** branch-after-undo, reconnect, stale client, eviction,
 and direct rollback are covered by table-driven tests.
 
-### P3: Split high-complexity modules
+### Completed: Split high-complexity modules
 
 Prioritize `line_builder.dart`, `modifier_deck.dart`, `game_methods.dart`,
 `loot_deck_state.dart`, and `settings_menu.dart`. Extract by existing domain
 boundaries, keep public behavior stable, and require focused tests before each
 move. Do not combine these splits with feature changes.
 
-**Progress:** `settings_menu.dart` now owns only state, keyboard behavior, and
-orchestration. Responsive desktop/mobile layout and page construction live in
-separate modules, with the existing focused settings suite covering both modes.
-The remaining prioritized modules stay in the backlog for similarly scoped
-extractions.
+**Implemented change:**
+
+- `settings_menu.dart` now owns state, keyboard behavior, and orchestration;
+  responsive layout and page construction live in separate modules.
+- `line_builder.dart` delegates token classification and icon geometry to a
+  catalog and layout helper while retaining its rendering facade.
+- `modifier_deck.dart` delegates card representation and backward-compatible
+  save encoding to dedicated state and codec modules.
+- `game_methods.dart` delegates edition, style, faction, condition, and deck
+  visibility rules to `GameRules` while keeping its public API stable.
+- `loot_deck_state.dart` delegates the loot-card value object and legacy save
+  migration to dedicated state and codec modules.
+
+Focused tests cover each extraction, including legacy modifier- and loot-deck
+save formats. No feature behavior or persisted schema changed with the splits.
 
 ## GUI improvement backlog
 
@@ -204,7 +214,7 @@ deck stack radii without changing their existing numeric values.
 3. Virtualized 500-action history panel. Core completed.
 4. Settings information architecture and responsive presentation. Completed.
 5. Layout presets, desktop command access, and row alignment. Completed.
-6. Module splits and measured serialization/rebuild optimizations.
+6. Module splits and measured serialization/rebuild optimizations. Completed.
 
 ## Verification baseline
 
@@ -212,3 +222,7 @@ For each GUI change, test 1280x720, 1920x1080, and 2560x1440 desktop layouts,
 plus a representative phone and tablet viewport. Verify 1-3 columns, minimum and
 maximum scaling, mouse and touch input, long localized labels, and a populated
 scenario with characters, summons, and multiple monster groups.
+
+Physical low-memory Android validation remains outstanding for the 500-entry
+history panel and release/profile responsiveness. It requires representative
+hardware and is not replaced by desktop unit, widget, or build verification.
