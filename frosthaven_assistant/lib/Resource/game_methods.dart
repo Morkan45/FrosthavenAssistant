@@ -8,6 +8,7 @@ import '../Model/character_class.dart';
 import '../Model/monster.dart';
 import '../services/service_locator.dart';
 import 'enums.dart';
+import 'game_rules.dart';
 
 class GameMethods {
   static const int _kTrapBase = 2;
@@ -23,7 +24,6 @@ class GameMethods {
   static const int _kInactiveInitiative = 99;
   static const int _kPerkPairCount = 2;
   static const int _kPolarBearStandees = 4;
-  static const int _kMaxOGSoloScenario = 100;
 
   static int getTrapValue({GameState? gameState}) {
     final gs = gameState ?? getIt<GameState>();
@@ -442,246 +442,62 @@ class GameMethods {
     return "";
   }
 
-  static bool isObjectiveOrEscort(CharacterClass character) {
-    return character.id == "Escort" || character.id == "Objective";
-  }
+  static bool isObjectiveOrEscort(CharacterClass character) =>
+      GameRules.isObjectiveOrEscort(character);
 
-  static bool shouldShowAlliesDeck({GameState? gameState, Settings? settings}) {
-    final gs = gameState ?? getIt<GameState>();
-    if (!(settings ?? getIt<Settings>()).showAmdDeck.value) {
-      return false;
-    }
-    if (gs.showAllyDeck.value) {
-      return true;
-    }
-    if (!gs.allyDeckInOGGloom.value && isOgGloomEdition(gameState: gs)) {
-      return false;
-    }
-    for (final item in gs.currentList) {
-      if (item is Monster) {
-        if (item.isAlly) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
+  static bool shouldShowAlliesDeck({GameState? gameState, Settings? settings}) =>
+      GameRules.shouldShowAlliesDeck(
+        gameState: gameState,
+        settings: settings,
+      );
 
-  static bool canExpire(Condition condition) {
-    if (
-    //don't remove bane because user need to remember to remove 10hp as well
-    condition == Condition.strengthen ||
-        condition == Condition.stun ||
-        condition == Condition.immobilize ||
-        condition == Condition.muddle ||
-        condition == Condition.invisible ||
-        condition == Condition.disarm ||
-        condition == Condition.chill ||
-        condition == Condition.impair) {
-      return true;
-    }
-    return false;
-  }
+  static bool canExpire(Condition condition) => GameRules.canExpire(condition);
 
   static bool isFrosthavenStyledEdition(
     String edition, {
     GameState? gameState,
-  }) {
-    final gs = gameState ?? getIt<GameState>();
-    String scenario = gs.scenario.value;
-    if (edition == "Solo") {
-      if (scenario.contains("${"#19"} ")) {
-        return false; //this is forgotten circles
-      }
-      //#100+ are og solo scenarios
-      for (int i = 1; i <= _kMaxOGSoloScenario; i++) {
-        if (scenario.contains("${"#$i"} ")) {
-          return true;
-        }
-      }
-      return false;
-    }
-    return edition == "Frosthaven" ||
-        edition == "Buttons and Bugs" ||
-        edition == "Gloomhaven 2nd Edition" ||
-        edition == "Skulls in the Snow" ||
-        edition == "Mercenary Packs";
-  }
+  }) => GameRules.isFrosthavenStyledEdition(edition, gameState: gameState);
 
-  static bool summonDoesNotDie(String? ownerId, String id) {
-    //exempt special summons that should not be removed at 0
-    if (ownerId == "Glacial Torrent" && id == "Glacier") {
-      return true;
-    } else if (ownerId == "D.O.M.E." && id == "Barrier") {
-      return true;
-    }
-    return false;
-  }
+  static bool summonDoesNotDie(String? ownerId, String id) =>
+      GameRules.summonDoesNotDie(ownerId, id);
 
   static bool isFrosthavenStyle(
     MonsterModel? monster, {
     GameState? gameState,
     Settings? settings,
-  }) {
-    final gs = gameState ?? getIt<GameState>();
-    //frosthaven monster
-    final monsterFrostHavenStyledEdition =
-        monster != null &&
-        isFrosthavenStyledEdition(monster.edition, gameState: gs);
-    if (monsterFrostHavenStyledEdition) {
-      return true;
-    }
-    final style = (settings ?? getIt<Settings>()).style.value;
-    //frosthaven monsters in other campaigns
-    if (monster != null) {
-      if (style != Style.frosthaven && !monsterFrostHavenStyledEdition) {
-        return false;
-      }
-    }
-    //frosthaven style settings
-    return style == Style.frosthaven ||
-        style == Style.original &&
-            isFrosthavenStyledEdition(gs.currentCampaign.value, gameState: gs);
-  }
+  }) => GameRules.isFrosthavenStyle(
+    monster,
+    gameState: gameState,
+    settings: settings,
+  );
 
-  static bool isCustomCampaign(String campaign) {
-    if (campaign == "Crimson Scales") {
-      return true;
-    }
-    if (campaign == "Trail of Ashes") {
-      return true;
-    }
-    if (campaign == "CCUG") {
-      return true;
-    }
-    return false;
-  }
+  static bool isCustomCampaign(String campaign) =>
+      GameRules.isCustomCampaign(campaign);
 
-  static int? findNrFromScenarioName(String scenario) {
-    String nr = scenario.substring(1);
-    for (int i = 0; i < nr.length; i++) {
-      if (nr[i] == ' ' || nr[i] == ".") {
-        nr = nr.substring(0, i);
-        return int.tryParse(nr);
-      }
-    }
+  static int? findNrFromScenarioName(String scenario) =>
+      GameRules.findNrFromScenarioName(scenario);
 
-    return null;
-  }
+  static bool isOgGloomEdition({GameState? gameState}) =>
+      GameRules.isOgGloomEdition(gameState: gameState);
 
-  static bool isOgGloomEdition({GameState? gameState}) {
-    final gs = gameState ?? getIt<GameState>();
-    return !isFrosthavenStyledEdition(gs.currentCampaign.value, gameState: gs);
-  }
+  static bool hasLootDeck({GameState? gameState, Settings? settings}) =>
+      GameRules.hasLootDeck(gameState: gameState, settings: settings);
 
-  static bool hasLootDeck({GameState? gameState, Settings? settings}) {
-    final gs = gameState ?? getIt<GameState>();
-    bool hasLootDeck = !(settings ?? getIt<Settings>()).hideLootDeck.value;
-    if (gs.lootDeck.discardPileIsEmpty && gs.lootDeck.drawPileIsEmpty) {
-      hasLootDeck = false;
-    }
-    return hasLootDeck;
-  }
+  static List<ModifierCard> getFactionCards(String faction) =>
+      GameRules.getFactionCards(faction);
 
-  static List<ModifierCard> getFactionCards(String faction) {
-    List<ModifierCard> retVal = [];
-    if (faction == "Demons") {
-      retVal.add(ModifierCard(CardType.add, "Demons-perks/plus1any"));
-      retVal.add(
-        ModifierCard(CardType.add, "Demons-perks/plus1retaliate1flip"),
-      );
-      retVal.add(ModifierCard(CardType.add, "Demons-perks/plus0wardallyflip"));
-      retVal.add(ModifierCard(CardType.add, "Demons-perks/unique/fuck3"));
-    } else if (faction == "Merchant-Guild") {
-      retVal.add(ModifierCard(CardType.add, "Merchant-Guild-perks/plus1curse"));
-      retVal.add(ModifierCard(CardType.add, "Merchant-Guild-perks/plus1wound"));
-      retVal.add(
-        ModifierCard(CardType.add, "Merchant-Guild-perks/plus0heal2flip"),
-      );
-      retVal.add(
-        ModifierCard(CardType.add, "Merchant-Guild-perks/unique/fuck2"),
-      );
-    } else if (faction == "Military") {
-      retVal.add(
-        ModifierCard(CardType.add, "Military-perks/plus1strengthenally"),
-      );
-      retVal.add(ModifierCard(CardType.add, "Military-perks/plus1shield1flip"));
-      retVal.add(ModifierCard(CardType.add, "Military-perks/plus1push2flip"));
-      retVal.add(ModifierCard(CardType.add, "Military-perks/unique/fuck1"));
-    }
-    return retVal;
-  }
-
-  static bool isCardInAnyCharacterDeck(String gfx, {GameState? gameState}) {
-    final characters = getCurrentCharacters(gameState: gameState);
-    for (final item in characters) {
-      if (item.characterState.modifierDeck.hasCard(gfx)) {
-        return true;
-      }
-    }
-    return false;
-  }
+  static bool isCardInAnyCharacterDeck(String gfx, {GameState? gameState}) =>
+      GameRules.isCardInAnyCharacterDeck(gfx, gameState: gameState);
 
   static bool hasRetaliate(
     Monster monster,
     MonsterInstance figure, {
     GameState? gameState,
-  }) {
-    return _monsterHasConditionOnCards(
-      monster,
-      figure,
-      "%retaliate%",
-      gameState: gameState,
-    );
-  }
+  }) => GameRules.hasRetaliate(monster, figure, gameState: gameState);
 
   static bool hasShield(
     Monster monster,
     MonsterInstance figure, {
     GameState? gameState,
-  }) {
-    return _monsterHasConditionOnCards(
-      monster,
-      figure,
-      "%shield%",
-      gameState: gameState,
-    );
-  }
-
-  static bool _monsterHasConditionOnCards(
-    Monster monster,
-    MonsterInstance figure,
-    String condition, {
-    GameState? gameState,
-  }) {
-    bool hasCondition = false;
-    //check innate value
-
-    final level = monster.type.levels[monster.level.value];
-    if (figure.type == MonsterType.normal) {
-      hasCondition =
-          level.normal?.attributes.indexWhere((i) => i.contains(condition)) !=
-          -1;
-    } else if (figure.type == MonsterType.elite) {
-      hasCondition =
-          level.elite?.attributes.indexWhere((i) => i.contains(condition)) !=
-          -1;
-    } else if (figure.type == MonsterType.boss) {
-      hasCondition =
-          level.boss?.attributes.indexWhere((i) => i.contains(condition)) != -1;
-    }
-    //check ability card
-    final deck = GameMethods.getDeck(monster.type.deck, gameState: gameState);
-    if (deck != null &&
-        deck.discardPileIsNotEmpty &&
-        monster.turnState.value != TurnsState.notDone) {
-      if (deck.discardPileTop.lines.firstWhereOrNull(
-            (item) => item.contains(condition),
-          ) !=
-          null) {
-        return true;
-      }
-    }
-    return hasCondition;
-  }
+  }) => GameRules.hasShield(monster, figure, gameState: gameState);
 }
