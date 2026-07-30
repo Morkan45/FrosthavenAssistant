@@ -52,7 +52,7 @@ state does not loop through intermediate actions; history memory has a tested
 upper bound. Responsiveness on low-memory Android hardware remains a device
 validation item.
 
-### P1: Serialize persistence writes
+### Completed: Serialize persistence writes
 
 **Current constraint:** Every action starts an asynchronous full-state
 SharedPreferences write. Rapid input can leave several writes in flight and
@@ -65,7 +65,13 @@ window close, explicit save, and network role changes.
 **Acceptance criteria:** writes cannot complete out of order; rapid action tests
 persist the newest state; crash recovery behavior is unchanged.
 
-### P2: Profile state serialization and rebuilds
+**Implemented change:** Game-state snapshots now pass through a latest-value
+queue with at most one active write and one replaceable pending value. App
+pause, desktop window close, explicit save, and network role changes await the
+queue. Deterministic tests hold a write open and verify that only the newest
+pending snapshot reaches storage.
+
+### Completed baseline: Profile state serialization and rebuilds
 
 **Current constraint:** Full-state JSON encoding runs on the UI isolate, and
 immutable collection getters copy mutable state on access. The current game
@@ -79,6 +85,13 @@ Move encoding off the UI isolate only if frame timings demonstrate a problem.
 
 **Acceptance criteria:** benchmark fixtures and thresholds are checked in; no
 optimization is merged without before/after numbers.
+
+**Implemented change:** Small, medium, and stress fixtures now enforce snapshot
+size, serialization, action-latency, and 2560x1440 main-list rebuild budgets.
+The first baseline showed serialization and action p95 near 1 ms even for the
+stress fixture. An attempted main-list copy reduction was not retained because
+repeated rebuild measurements did not show a stable improvement. See
+`docs/performance-benchmarks.md` for results and measurement limitations.
 
 ### Completed: Clarify command-history and network indexing
 
