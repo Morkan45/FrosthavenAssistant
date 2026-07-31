@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Layout/CharacterWidget/character_summons_button.dart';
+import 'package:frosthaven_assistant/Layout/menus/AddSummonMenu/add_summon_menu.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_character_command.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
@@ -59,11 +60,10 @@ void main() {
       await tester.pump();
       FlutterError.onError = originalOnError;
 
-      // Directly call onPressed to cover the callback
-      final iconButton = tester.widget<IconButton>(find.byType(IconButton));
-      iconButton.onPressed?.call();
+      await tester.tap(find.byKey(const Key('character-add-summon')));
       await tester.pump();
-      expect(find.byType(CharacterSummonsButton), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byType(AddSummonMenu), findsOneWidget);
     });
   });
 }

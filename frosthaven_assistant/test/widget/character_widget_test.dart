@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:frosthaven_assistant/Layout/CharacterWidget/character_health_controls.dart';
+import 'package:frosthaven_assistant/Layout/CharacterWidget/character_level_widget.dart';
+import 'package:frosthaven_assistant/Layout/CharacterWidget/character_summons_button.dart';
 import 'package:frosthaven_assistant/Layout/CharacterWidget/character_widget.dart';
+import 'package:frosthaven_assistant/Layout/CharacterWidget/character_widget_internal.dart';
+import 'package:frosthaven_assistant/Layout/CharacterWidget/character_xp_widget.dart';
 import 'package:frosthaven_assistant/Layout/menus/StatusMenu/status_menu.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_character_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/draw_command.dart';
@@ -23,7 +28,13 @@ void main() {
     AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
   });
 
-  Future<void> pumpCharacterWidget(WidgetTester tester) async {
+  Future<void> pumpCharacterWidget(WidgetTester tester, {Size? size}) async {
+    if (size != null) {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+    }
     final originalOnError = FlutterError.onError;
     FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
@@ -50,6 +61,46 @@ void main() {
     ) async {
       await pumpCharacterWidget(tester);
       expect(find.byType(InkWell), findsAtLeast(1));
+    });
+
+    testWidgets('shows direct health controls instead of a summon button', (
+      WidgetTester tester,
+    ) async {
+      await pumpCharacterWidget(tester);
+
+      expect(find.byType(CharacterHealthControls), findsOneWidget);
+      expect(find.byType(CharacterSummonsButton), findsNothing);
+    });
+
+    testWidgets('health controls stay inside the row and do not open status', (
+      WidgetTester tester,
+    ) async {
+      final character = getIt<GameState>().currentList.single as Character;
+      final initialHealth = character.characterState.health.value;
+      await pumpCharacterWidget(tester, size: const Size(412, 915));
+
+      final rowRect = tester.getRect(find.byType(CharacterWidgetInternal));
+      final decrease = find.byKey(const Key('character-health-decrease'));
+      final increase = find.byKey(const Key('character-health-increase'));
+      final decreaseRect = tester.getRect(decrease);
+      final increaseRect = tester.getRect(increase);
+      final xpRect = tester.getRect(find.byType(CharacterXPWidget));
+      final levelRect = tester.getRect(find.byType(CharacterLevelWidget));
+
+      expect(decreaseRect.left, greaterThanOrEqualTo(rowRect.left));
+      expect(increaseRect.right, lessThanOrEqualTo(rowRect.right));
+      expect(xpRect.right, lessThanOrEqualTo(decreaseRect.left));
+      expect(levelRect.right, lessThanOrEqualTo(decreaseRect.left));
+
+      await tester.tap(decrease);
+      await tester.pump();
+      expect(character.characterState.health.value, initialHealth - 1);
+      expect(find.byType(StatusMenu), findsNothing);
+
+      await tester.tap(increase);
+      await tester.pump();
+      expect(character.characterState.health.value, initialHealth);
+      expect(find.byType(StatusMenu), findsNothing);
     });
 
     testWidgets('tapping character widget opens StatusMenu', (
@@ -81,8 +132,9 @@ void main() {
       expect(find.byType(CharacterWidget), findsOneWidget);
     });
 
-    testWidgets('renders ColorFiltered widget when character turn is done',
-        (WidgetTester tester) async {
+    testWidgets('renders ColorFiltered widget when character turn is done', (
+      WidgetTester tester,
+    ) async {
       final gs = getIt<GameState>();
       // ColorFiltered is only applied when notGrayScale is false (turn done in
       // playTurns). Draw to enter playTurns, then mark the character's turn done.

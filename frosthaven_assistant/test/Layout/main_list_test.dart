@@ -185,7 +185,7 @@ void main() {
 
         expect(icon.width, closeTo(62 * scale, 0.01));
         expect(initiative.width, closeTo(45 * scale, 0.01));
-        expect(details.width, closeTo(200 * scale, 0.01));
+        expect(details.width, closeTo(145 * scale, 0.01));
         expect(initiative.left, closeTo(icon.right, 0.01));
         expect(details.left, closeTo(initiative.right, 0.01));
       }

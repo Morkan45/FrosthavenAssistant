@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../Resource/enums.dart';
+import '../../../Resource/game_methods.dart';
 import '../../../Resource/settings.dart';
 import '../../../Resource/state/game_state.dart';
+import '../../CharacterWidget/character_summons_button.dart';
 import '../condition_button.dart';
 import 'status_menu_extra_condition_row.dart';
 import 'status_menu_summon_button.dart';
@@ -25,6 +27,7 @@ class StatusMenuConditionPanel extends StatelessWidget {
     required this.nrOfCharacters,
     required this.showCustomContent,
     required this.hasMireFoot,
+    required this.character,
     required this.gameState,
     required this.settings,
   });
@@ -39,65 +42,88 @@ class StatusMenuConditionPanel extends StatelessWidget {
   final int nrOfCharacters;
   final bool showCustomContent;
   final bool hasMireFoot;
+  final Character? character;
   final GameState gameState;
   final Settings settings;
 
   Widget _btn(Condition condition) => ConditionButton(
-        condition: condition,
-        figureId: figureId,
-        ownerId: ownerId,
-        immunities: immunities,
-        scale: scale,
-      );
+    condition: condition,
+    figureId: figureId,
+    ownerId: ownerId,
+    immunities: immunities,
+    scale: scale,
+  );
 
   @override
   Widget build(BuildContext context) {
+    final canAddSummon =
+        isCharacter &&
+        !isSummon &&
+        character != null &&
+        !GameMethods.isObjectiveOrEscort(character!.characterClass);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(height: _kTopSpacing * scale),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          _btn(Condition.stun),
-          _btn(Condition.immobilize),
-          _btn(Condition.disarm),
-          _btn(Condition.wound),
-        ]),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          _btn(Condition.muddle),
-          _btn(Condition.poison),
-          _btn(Condition.bane),
-          _btn(Condition.brittle),
-          _btn(Condition.safeguard),
-        ]),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _btn(Condition.stun),
+            _btn(Condition.immobilize),
+            _btn(Condition.disarm),
+            _btn(Condition.wound),
+            if (canAddSummon)
+              CharacterSummonsButton(scale: scale, character: character!),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _btn(Condition.muddle),
+            _btn(Condition.poison),
+            _btn(Condition.bane),
+            _btn(Condition.brittle),
+            _btn(Condition.safeguard),
+          ],
+        ),
         StatusMenuExtraConditionRow(
-            isCharacter: isCharacter,
-            isSummon: isSummon,
-            hasMireFoot: hasMireFoot,
-            showCustomContent: showCustomContent,
-            figureId: figureId,
-            ownerId: ownerId,
-            immunities: immunities,
-            scale: scale),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          _btn(Condition.strengthen),
-          _btn(Condition.invisible),
-          _btn(Condition.regenerate),
-          _btn(Condition.ward),
-          if (showCustomContent) _btn(Condition.dodge),
-        ]),
+          isCharacter: isCharacter,
+          isSummon: isSummon,
+          hasMireFoot: hasMireFoot,
+          showCustomContent: showCustomContent,
+          figureId: figureId,
+          ownerId: ownerId,
+          immunities: immunities,
+          scale: scale,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _btn(Condition.strengthen),
+            _btn(Condition.invisible),
+            _btn(Condition.regenerate),
+            _btn(Condition.ward),
+            if (showCustomContent) _btn(Condition.dodge),
+          ],
+        ),
         if (isMonster)
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            if (nrOfCharacters > 0) _btn(Condition.character1),
-            if (nrOfCharacters > _kChar2Min) _btn(Condition.character2),
-            if (nrOfCharacters > _kChar3Min) _btn(Condition.character3),
-            if (nrOfCharacters > _kChar4Min) _btn(Condition.character4),
-            StatusMenuSummonButton(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (nrOfCharacters > 0) _btn(Condition.character1),
+              if (nrOfCharacters > _kChar2Min) _btn(Condition.character2),
+              if (nrOfCharacters > _kChar3Min) _btn(Condition.character3),
+              if (nrOfCharacters > _kChar4Min) _btn(Condition.character4),
+              StatusMenuSummonButton(
                 figureId: figureId,
                 ownerId: ownerId,
                 scale: scale,
                 gameState: gameState,
-                settings: settings),
-          ]),
+                settings: settings,
+              ),
+            ],
+          ),
       ],
     );
   }

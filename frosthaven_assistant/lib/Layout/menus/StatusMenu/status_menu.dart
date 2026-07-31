@@ -125,6 +125,7 @@ class StatusMenuState extends State<StatusMenu> {
                         nrOfCharacters: nrOfCharacters,
                         showCustomContent: vm.showCustomContent,
                         hasMireFoot: vm.hasMireFoot,
+                        character: vm.character,
                         gameState: _gameState,
                         settings: _settings,
                       ),

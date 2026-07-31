@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:frosthaven_assistant/Layout/CharacterWidget/character_summons_button.dart';
+import 'package:frosthaven_assistant/Layout/menus/AddSummonMenu/add_summon_menu.dart';
 import 'package:frosthaven_assistant/Layout/menus/StatusMenu/status_menu.dart';
 import 'package:frosthaven_assistant/Layout/menus/condition_button.dart';
 import 'package:frosthaven_assistant/Layout/menus/set_character_level_menu.dart';
@@ -77,6 +79,19 @@ void main() {
       await pumpMenu(tester);
       // ConditionButton widgets are rendered for the standard set of conditions
       expect(find.byType(ConditionButton), findsWidgets);
+    });
+
+    testWidgets('opens Add Summon from the character status menu', (
+      WidgetTester tester,
+    ) async {
+      await pumpMenu(tester);
+      expect(find.byType(CharacterSummonsButton), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('character-add-summon')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.byType(AddSummonMenu), findsOneWidget);
     });
 
     testWidgets(
@@ -271,6 +286,7 @@ void main() {
     ) async {
       await pumpMonsterMenu(tester);
       expect(find.byType(ConditionButton), findsWidgets);
+      expect(find.byType(CharacterSummonsButton), findsNothing);
     });
 
     testWidgets('tapping stun condition adds stun to monster instance', (
