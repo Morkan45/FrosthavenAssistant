@@ -1,7 +1,6 @@
-// `powerMode` replaced an older `reducePower` bool. Every existing install has
-// the old key on disk, so the migration in Settings.loadFromDisk is what stops
-// upgrades from silently reverting to `normal` — which would re-acquire the
-// wakelock a user had deliberately released.
+// `powerMode` is persisted as an enum index, so a malformed or absent value
+// must not throw or land on an arbitrary tier — a wrong value here silently
+// changes whether the app holds the wakelock.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Resource/enums.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
@@ -19,26 +18,9 @@ Future<PowerMode> loadWith(String json) async {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('powerMode migration from the legacy reducePower bool', () {
-    test('legacy reducePower:true becomes PowerMode.reducePower', () async {
-      expect(await loadWith('{"reducePower": true}'), PowerMode.reducePower);
-    });
-
-    test('legacy reducePower:false becomes PowerMode.normal', () async {
-      expect(await loadWith('{"reducePower": false}'), PowerMode.normal);
-    });
-
-    test('a payload with neither key defaults to PowerMode.normal', () async {
+  group('powerMode persistence', () {
+    test('a payload without the key defaults to PowerMode.normal', () async {
       expect(await loadWith('{"darkMode": true}'), PowerMode.normal);
-    });
-
-    test('powerMode wins over a stale legacy reducePower value', () async {
-      // Written by a newer build: the enum is authoritative, and the legacy bool
-      // is only kept in the payload for older peers.
-      expect(
-        await loadWith('{"powerMode": 1, "reducePower": false}'),
-        PowerMode.dimWhenIdle,
-      );
     });
 
     test('every tier round-trips through save and load', () async {
@@ -59,8 +41,7 @@ void main() {
 
     test('an out-of-range index falls back rather than throwing', () async {
       expect(await loadWith('{"powerMode": 99}'), PowerMode.normal);
-      expect(await loadWith('{"powerMode": -1, "reducePower": true}'),
-          PowerMode.reducePower);
+      expect(await loadWith('{"powerMode": -1}'), PowerMode.normal);
     });
   });
 }
