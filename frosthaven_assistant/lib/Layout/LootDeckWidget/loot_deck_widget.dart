@@ -1,4 +1,3 @@
-import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:frosthaven_assistant/Layout/view_models/loot_deck_view_model.dart';
@@ -6,6 +5,7 @@ import 'package:frosthaven_assistant/Resource/app_constants.dart';
 import 'package:frosthaven_assistant/Resource/game_data.dart';
 import 'package:frosthaven_assistant/Resource/scaling.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
+import 'package:frosthaven_assistant/Resource/ui_utils.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 
 import '../loot_card_widget.dart';
@@ -221,17 +221,10 @@ class LootDeckWidgetState extends State<LootDeckWidget> {
                                       LootDeckWidgetState._kIconShadowOffset *
                                           userScalingBars,
                                     ),
-                                    child: ImageFiltered(
-                                      imageFilter: ImageFilter.blur(
-                                        sigmaX:
-                                            LootDeckWidgetState
-                                                ._kIconShadowBlur *
-                                            userScalingBars,
-                                        sigmaY:
-                                            LootDeckWidgetState
-                                                ._kIconShadowBlur *
-                                            userScalingBars,
-                                      ),
+                                    child: powerAwareBlur(
+                                      sigma:
+                                          LootDeckWidgetState._kIconShadowBlur *
+                                          userScalingBars,
                                       child: Image(
                                         color:
                                             LootDeckWidgetState

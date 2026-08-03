@@ -99,3 +99,21 @@ enum TurnsState {
 }
 
 enum NetworkMessage { init, action, undo, redo }
+
+/// Escalating tiers of display power saving. Each tier is a superset of the
+/// previous one in how much battery it saves and how much it gets in the way.
+enum PowerMode {
+  /// Screen held awake at full brightness for as long as the app is open.
+  normal,
+
+  /// Screen still held awake — the app never locks and you never lose your
+  /// place — but after a period with no input the app dims itself. Sits
+  /// between [normal] and [reducePower]: saves real power on OLED without
+  /// handing the display over to the system Auto-Lock timer.
+  dimWhenIdle,
+
+  /// Releases the wakelock so the system dims and sleeps the display on its
+  /// own schedule, and lowers the cost of shadows, image filtering and
+  /// looping text animations.
+  reducePower,
+}

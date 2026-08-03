@@ -196,7 +196,7 @@ class MonsterStatBossLayout extends StatelessWidget {
                       height: _kDividerHeight * scale,
                       fit: BoxFit.fill,
                       width: _kDividerWidth * scale,
-                      filterQuality: FilterQuality.medium,
+                      filterQuality: powerAwareFilterQuality(),
                       "assets/images/abilities/divider_boss_fh.png",
                     ),
                   normal?.special1.isNotEmpty ?? false
@@ -228,7 +228,7 @@ class MonsterStatBossLayout extends StatelessWidget {
                           height: _kDividerHeight * scale,
                           fit: BoxFit.fill,
                           width: _kDividerWidth * scale,
-                          filterQuality: FilterQuality.medium,
+                          filterQuality: powerAwareFilterQuality(),
                           "assets/images/abilities/divider_boss_fh.png",
                         )
                       : Container(),

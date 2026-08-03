@@ -6,6 +6,7 @@ import 'package:frosthaven_assistant/services/network/network_ui.dart';
 
 import '../Resource/settings.dart';
 import '../Resource/state/game_state.dart';
+import '../Resource/ui_utils.dart';
 import 'ModifierDeckWidget/modifier_deck_widget.dart';
 import 'bottom_bar_level_widget.dart';
 
@@ -37,11 +38,14 @@ class BottomBar extends StatelessWidget {
                                 width: MediaQuery.of(context).size.width,
                                 decoration: BoxDecoration(
                                   color: vm.backgroundColor,
-                                  boxShadow: const [
+                                  boxShadow: [
                                     BoxShadow(
                                       color: Colors.black26,
-                                      blurRadius: 10,
-                                      offset: Offset(0, -4),
+                                      // Full-screen-width blur: one of the
+                                      // more expensive passes on this screen.
+                                      blurRadius:
+                                          reducePowerEnabled() ? 0 : 10,
+                                      offset: const Offset(0, -4),
                                     )
                                   ],
                                   image: DecorationImage(

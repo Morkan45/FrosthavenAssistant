@@ -11,6 +11,7 @@ import 'package:frosthaven_assistant/Resource/commands/add_monster_command.dart'
 import 'package:frosthaven_assistant/Resource/commands/add_standee_command.dart';
 import 'package:frosthaven_assistant/Resource/enums.dart';
 import 'package:frosthaven_assistant/Resource/line_builder/line_builder.dart';
+import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
 
@@ -58,13 +59,23 @@ void main() {
     (monster.turnState as ValueNotifier<TurnsState>).value = state;
   }
 
+  /// Settings are passed explicitly so these cases never depend on the
+  /// platform default for `shimmer` or on a registered singleton.
+  Settings powerSettings({required bool reducePower}) {
+    final s = Settings();
+    s.powerMode.value =
+        reducePower ? PowerMode.reducePower : PowerMode.normal;
+    return s;
+  }
+
   group('shouldAnimateLine', () {
     test('THE BUG: shimmer off + turn-current + Advantage does not animate',
         () {
       final monster = addMonster(active: true);
       setTurn(monster, TurnsState.current);
       expect(
-        shouldAnimateLine('Advantage', monster, false),
+        shouldAnimateLine('Advantage', monster, false,
+            settings: powerSettings(reducePower: false)),
         isFalse,
         reason: 'the user setting must stay authoritative — this is the '
             'override that pinned an idle iOS board at ~90 fps',
@@ -75,7 +86,8 @@ void main() {
       final monster = addMonster(active: true);
       setTurn(monster, TurnsState.current);
       expect(
-        shouldAnimateLine('Advantage', monster, true),
+        shouldAnimateLine('Advantage', monster, true,
+            settings: powerSettings(reducePower: false)),
         isTrue,
       );
     });
@@ -84,7 +96,8 @@ void main() {
       final monster = addMonster(active: true);
       setTurn(monster, TurnsState.notDone);
       expect(
-        shouldAnimateLine('Advantage', monster, true),
+        shouldAnimateLine('Advantage', monster, true,
+            settings: powerSettings(reducePower: false)),
         isFalse,
       );
     });
@@ -94,7 +107,8 @@ void main() {
       // Not turn-current, so the advantage branch cannot be what matches.
       setTurn(monster, TurnsState.notDone);
       expect(
-        shouldAnimateLine('Disadvantage', monster, true),
+        shouldAnimateLine('Disadvantage', monster, true,
+            settings: powerSettings(reducePower: false)),
         isTrue,
       );
     });
@@ -114,16 +128,33 @@ void main() {
       setTurn(monster, TurnsState.current);
       expect(monster.isActive, isFalse);
       expect(
-        shouldAnimateLine('Advantage', monster, true),
+        shouldAnimateLine('Advantage', monster, true,
+            settings: powerSettings(reducePower: false)),
         isFalse,
         reason: 'the old override bypassed isActive; folding it into the gate '
             'tightens this on purpose',
       );
     });
 
+    test('reduce power suppresses shimmer even when the user enabled it', () {
+      final monster = addMonster(active: true);
+      setTurn(monster, TurnsState.current);
+      expect(
+        shouldAnimateLine('Advantage', monster, true,
+            settings: powerSettings(reducePower: true)),
+        isFalse,
+      );
+      expect(
+        shouldAnimateLine('Disadvantage', monster, true,
+            settings: powerSettings(reducePower: true)),
+        isFalse,
+      );
+    });
+
     test('null monster never animates', () {
       expect(
-        shouldAnimateLine('Advantage', null, true),
+        shouldAnimateLine('Advantage', null, true,
+            settings: powerSettings(reducePower: false)),
         isFalse,
       );
     });
