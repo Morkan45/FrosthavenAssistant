@@ -64,6 +64,28 @@ void main() {
     FlutterError.onError = originalOnError;
   }
 
+  /// Brings [target] into view and taps it.
+  ///
+  /// `scrollUntilVisible` on its own is not enough. Its drag loop stops as soon
+  /// as the target is *instantiated*, and a ListView instantiates anything
+  /// within `cacheExtent` (250px) of the viewport — so the row can still be
+  /// off-screen when the loop exits. It then calls `Scrollable.ensureVisible`,
+  /// which issues a `jumpTo` that marks the viewport for layout but does not
+  /// run it. Without a pump, `tap` reads a stale transform, computes an offset
+  /// outside the surface, and *silently misses* — Flutter only warns. The test
+  /// then fails on whatever it asserted next, which points nowhere near the
+  /// real cause.
+  ///
+  /// Scrolling unconditionally is deliberate: whether a given row happens to
+  /// start on-screen depends on how many items sit above it, which changes
+  /// every time a menu entry is added.
+  Future<void> scrollAndTap(WidgetTester tester, Finder target) async {
+    await tester.scrollUntilVisible(target, 100);
+    await tester.ensureVisible(target);
+    await tester.pump();
+    await tester.tap(target);
+  }
+
   group('MainMenu', () {
     testWidgets('renders Undo and Redo buttons', (WidgetTester tester) async {
       await pumpMenu(tester);
@@ -92,7 +114,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await pumpMenu(tester);
-      await tester.tap(find.text('Set Scenario'));
+      await scrollAndTap(tester, find.text('Set Scenario'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       expect(find.byType(SelectScenarioMenu), findsOneWidget);
@@ -102,7 +124,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await pumpMenu(tester);
-      await tester.tap(find.text('Add Character'));
+      await scrollAndTap(tester, find.text('Add Character'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       expect(find.byType(AddCharacterMenu), findsOneWidget);
@@ -112,10 +134,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await pumpMenu(tester);
-      await tester.scrollUntilVisible(find.text('Add Monsters'), 100);
-      await tester.ensureVisible(find.text('Add Monsters'));
-      await tester.pump();
-      await tester.tap(find.text('Add Monsters'));
+      await scrollAndTap(tester, find.text('Add Monsters'));
       final originalOnError = FlutterError.onError;
       FlutterError.onError = ignoreOverflowErrors;
       await tester.pump();
@@ -128,10 +147,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await pumpMenu(tester);
-      await tester.scrollUntilVisible(find.text('Set Level'), 100);
-      await tester.ensureVisible(find.text('Set Level'));
-      await tester.pump();
-      await tester.tap(find.text('Set Level'));
+      await scrollAndTap(tester, find.text('Set Level'));
       final originalOnError = FlutterError.onError;
       FlutterError.onError = ignoreOverflowErrors;
       await tester.pump();
@@ -151,7 +167,7 @@ void main() {
       final indexBefore = gameState.commandIndex.value;
 
       await pumpMenu(tester);
-      await tester.tap(find.textContaining('Undo'));
+      await scrollAndTap(tester, find.textContaining('Undo'));
       await tester.pump();
 
       expect(gameState.commandIndex.value, indexBefore - 1);
@@ -169,7 +185,7 @@ void main() {
       final indexBefore = gameState.commandIndex.value;
 
       await pumpMenu(tester);
-      await tester.tap(find.textContaining('Redo'));
+      await scrollAndTap(tester, find.textContaining('Redo'));
       await tester.pump();
 
       expect(gameState.commandIndex.value, indexBefore + 1);
@@ -187,8 +203,7 @@ void main() {
       ).execute();
 
       await pumpMenu(tester);
-      await tester.scrollUntilVisible(find.text('Add Section'), 100);
-      await tester.tap(find.text('Add Section'));
+      await scrollAndTap(tester, find.text('Add Section'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       expect(find.byType(AddSectionMenu), findsOneWidget);
@@ -198,8 +213,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await pumpMenu(tester);
-      await tester.scrollUntilVisible(find.text('Remove Characters'), 100);
-      await tester.tap(find.text('Remove Characters'));
+      await scrollAndTap(tester, find.text('Remove Characters'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       expect(find.byType(RemoveCharacterMenu), findsOneWidget);
@@ -209,8 +223,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await pumpMenu(tester);
-      await tester.scrollUntilVisible(find.text('Remove Monsters'), 100);
-      await tester.tap(find.text('Remove Monsters'));
+      await scrollAndTap(tester, find.text('Remove Monsters'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       expect(find.byType(RemoveMonsterMenu), findsOneWidget);
@@ -228,10 +241,7 @@ void main() {
       ).execute();
 
       await pumpMenu(tester);
-      await tester.scrollUntilVisible(find.text('Loot Deck Menu'), 100);
-      await tester.ensureVisible(find.text('Loot Deck Menu'));
-      await tester.pump();
-      await tester.tap(find.text('Loot Deck Menu'));
+      await scrollAndTap(tester, find.text('Loot Deck Menu'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       expect(find.byType(LootCardsMenu), findsOneWidget);
@@ -241,8 +251,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await pumpMenu(tester);
-      await tester.scrollUntilVisible(find.text('Settings'), 100);
-      await tester.tap(find.text('Settings'));
+      await scrollAndTap(tester, find.text('Settings'));
       final originalOnError = FlutterError.onError;
       FlutterError.onError = ignoreOverflowErrors;
       await tester.pump();
@@ -282,11 +291,10 @@ void main() {
         }
 
         await pumpMenu(tester);
-        await tester.scrollUntilVisible(
+        await scrollAndTap(
+          tester,
           find.text('Show Ally Attack Modifier Deck'),
-          100,
         );
-        await tester.tap(find.text('Show Ally Attack Modifier Deck'));
         await tester.pump();
 
         expect(gameState.showAllyDeck.value, true);
@@ -341,11 +349,10 @@ void main() {
       }
 
       await pumpMenu(tester);
-      await tester.scrollUntilVisible(
+      await scrollAndTap(
+        tester,
         find.text('Hide Ally Attack Modifier Deck'),
-        100,
       );
-      await tester.tap(find.text('Hide Ally Attack Modifier Deck'));
       await tester.pump();
 
       expect(gameState.showAllyDeck.value, false);
