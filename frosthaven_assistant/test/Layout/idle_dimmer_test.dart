@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Layout/idle_dimmer.dart';
@@ -118,6 +119,56 @@ void main() {
 
     await tester.pump(kIdleDimDelay);
     expect(isDimmed.value, isTrue);
+  });
+
+  testWidgets('dimming mutes tickers already running on the board',
+      (WidgetTester tester) async {
+    // Consulting isDimmed at the shimmer call sites is not enough on its own:
+    // dimming does not rebuild the board, so an animation that was already
+    // running would keep repainting at the panel's full rate behind the scrim
+    // and cost more than the dim saves.
+    //
+    // Asserted through TickerMode rather than through frame counts on purpose.
+    // AnimatedTextKit's repeat loop has pauses in which no frame is scheduled,
+    // so a momentary hasScheduledFrame == false proves nothing about whether
+    // the animation is still live.
+    getIt<Settings>().powerMode.value = PowerMode.dimWhenIdle;
+
+    late BuildContext boardContext;
+    await tester.pumpWidget(MaterialApp(
+      home: IdleDimmer(
+        child: Scaffold(
+          body: Builder(builder: (context) {
+            boardContext = context;
+            return AnimatedTextKit(
+              repeatForever: true,
+              animatedTexts: [
+                ColorizeAnimatedText(
+                  'Enhanced: 1',
+                  textStyle: const TextStyle(fontSize: 10),
+                  colors: const [Colors.white, Colors.blueGrey],
+                ),
+              ],
+            );
+          }),
+        ),
+      ),
+    ));
+
+    expect(TickerMode.valuesOf(boardContext).enabled, isTrue,
+        reason: 'precondition: the board animates normally while awake');
+
+    await tester.pump(kIdleDimDelay + const Duration(seconds: 1));
+    expect(isDimmed.value, isTrue);
+    expect(TickerMode.valuesOf(boardContext).enabled, isFalse,
+        reason: 'every ticker under the scrim must be muted, including ones '
+            'that were already running when the dim started');
+
+    // Muting is not the same as breaking it — waking must bring it back.
+    await tester.tap(find.byType(MaterialApp));
+    await tester.pumpAndSettle();
+    expect(isDimmed.value, isFalse);
+    expect(TickerMode.valuesOf(boardContext).enabled, isTrue);
   });
 
   testWidgets('switching away from dim-when-idle wakes immediately',

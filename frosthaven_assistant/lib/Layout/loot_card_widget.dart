@@ -125,7 +125,8 @@ class LootCardFront extends StatelessWidget {
                   Positioned(
                     bottom: LootCardWidget._kEnhancedBottom * scale,
                     child: settings_.shimmer.value &&
-                            !reducePowerEnabled(settings: settings_)
+                            !reducePowerEnabled(settings: settings_) &&
+                            !isDimmed.value
                         ? RepaintBoundary(
                             child: AnimatedTextKit(
                             repeatForever: true,

@@ -1,9 +1,14 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Layout/loot_card_widget.dart';
+import 'package:frosthaven_assistant/Resource/enums.dart';
+import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
+import 'package:frosthaven_assistant/Resource/ui_utils.dart';
 import 'package:frosthaven_assistant/l10n/app_localizations.dart';
+import 'package:frosthaven_assistant/services/service_locator.dart';
 
 import '../command/test_helpers.dart';
 
@@ -195,6 +200,93 @@ void main() {
       );
       FlutterError.onError = originalOnError;
       expect(find.byType(ClipRRect), findsOneWidget);
+    });
+  });
+
+  group('enhanced-text shimmer across the power tiers', () {
+    late PowerMode originalMode;
+    late bool originalShimmer;
+
+    setUp(() {
+      originalMode = getIt<Settings>().powerMode.value;
+      originalShimmer = getIt<Settings>().shimmer.value;
+      isDimmed.value = false;
+    });
+
+    tearDown(() {
+      getIt<Settings>().powerMode.value = originalMode;
+      getIt<Settings>().shimmer.value = originalShimmer;
+      isDimmed.value = false;
+    });
+
+    Future<void> pumpEnhanced(WidgetTester tester) async {
+      final card = makeCard(lootType: LootType.other, enhanced: 3);
+      final originalOnError = FlutterError.onError;
+      FlutterError.onError = ignoreOverflowErrors;
+      await tester.pumpWidget(
+        _l10nApp(Scaffold(body: LootCardFront(card: card, scale: 1.0))),
+      );
+      FlutterError.onError = originalOnError;
+    }
+
+    // The text itself must render in every case — only whether it is animated
+    // may vary. A power setting that hid the enhancement level would be a
+    // correctness bug, not a battery saving.
+    void expectEnhancedTextPresent() {
+      expect(find.textContaining('3'), findsAtLeast(1));
+    }
+
+    testWidgets('shimmers in normal mode when the user enabled shimmer',
+        (WidgetTester tester) async {
+      getIt<Settings>().powerMode.value = PowerMode.normal;
+      getIt<Settings>().shimmer.value = true;
+      await pumpEnhanced(tester);
+
+      expect(find.byType(AnimatedTextKit), findsOneWidget);
+      expectEnhancedTextPresent();
+    });
+
+    testWidgets('does not shimmer when the user disabled shimmer',
+        (WidgetTester tester) async {
+      getIt<Settings>().powerMode.value = PowerMode.normal;
+      getIt<Settings>().shimmer.value = false;
+      await pumpEnhanced(tester);
+
+      expect(find.byType(AnimatedTextKit), findsNothing);
+      expectEnhancedTextPresent();
+    });
+
+    testWidgets('still shimmers while awake in dim-when-idle mode',
+        (WidgetTester tester) async {
+      // dimWhenIdle trades convenience, not fidelity: an awake board must look
+      // exactly like normal mode.
+      getIt<Settings>().powerMode.value = PowerMode.dimWhenIdle;
+      getIt<Settings>().shimmer.value = true;
+      await pumpEnhanced(tester);
+
+      expect(find.byType(AnimatedTextKit), findsOneWidget);
+    });
+
+    testWidgets('does not shimmer once the app has dimmed itself',
+        (WidgetTester tester) async {
+      getIt<Settings>().powerMode.value = PowerMode.dimWhenIdle;
+      getIt<Settings>().shimmer.value = true;
+      isDimmed.value = true;
+      await pumpEnhanced(tester);
+
+      expect(find.byType(AnimatedTextKit), findsNothing,
+          reason: 'a card built while dimmed should not start a ticker at all');
+      expectEnhancedTextPresent();
+    });
+
+    testWidgets('does not shimmer in reduce-power mode even if shimmer is on',
+        (WidgetTester tester) async {
+      getIt<Settings>().powerMode.value = PowerMode.reducePower;
+      getIt<Settings>().shimmer.value = true;
+      await pumpEnhanced(tester);
+
+      expect(find.byType(AnimatedTextKit), findsNothing);
+      expectEnhancedTextPresent();
     });
   });
 }

@@ -182,7 +182,16 @@ class _IdleDimmerState extends State<IdleDimmer> with WidgetsBindingObserver {
         },
         child: Stack(
           children: [
-            widget.child,
+            // Mute every ticker under the scrim. Without this the shimmer would
+            // keep repainting at the panel's full rate behind an opaque-ish
+            // black rectangle and spend more power than the dim saves — and
+            // consulting [isDimmed] at the shimmer call sites cannot fix that
+            // on its own, because dimming does not rebuild this subtree.
+            // TickerMode mutes existing animations in place, without a rebuild.
+            TickerMode(
+              enabled: !_dimmed,
+              child: widget.child,
+            ),
             if (_dimmed)
               Positioned.fill(
                 child: GestureDetector(
