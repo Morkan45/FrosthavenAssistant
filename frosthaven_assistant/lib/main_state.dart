@@ -80,6 +80,12 @@ class MainState extends State<MyHomePage>
         break;
       case AppLifecycleState.paused:
         log("app in paused");
+        // Drop decoded images that nothing is currently displaying. Reduces the
+        // chance iOS reclaims memory from a backgrounded app, which would force
+        // a cold relaunch and a full asset re-decode.
+        // Not clearLiveImages(): those are still referenced by the mounted
+        // tree, so clearing them only forces a re-decode on resume.
+        PaintingBinding.instance.imageCache.clear();
         break;
       case AppLifecycleState.detached:
         log("app in detached");

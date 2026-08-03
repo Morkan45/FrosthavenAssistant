@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../Resource/app_constants.dart';
 import '../../Resource/ui_utils.dart';
 import '../../Resource/state/game_state.dart';
 
@@ -113,7 +114,12 @@ class CharacterBackgroundWidget extends StatelessWidget {
               ? ColorFilter.mode(color, BlendMode.softLight)
               : ColorFilter.mode(colorSecondary, BlendMode.color),
           image: ResizeImage(AssetImage("assets/images/psd/character-bar.png"),
-              width: (CharacterBackgroundWidget._kWidth * scale).toInt(), height: (CharacterBackgroundWidget._kHeight * scale).toInt()),
+              width: quantizeDecodeSize(
+                  CharacterBackgroundWidget._kWidth * scale,
+                  quantum: kBarDecodeSizeQuantum),
+              height: quantizeDecodeSize(
+                  CharacterBackgroundWidget._kHeight * scale,
+                  quantum: kBarDecodeSizeQuantum)),
         ),
         shape: BoxShape.rectangle,
       ),

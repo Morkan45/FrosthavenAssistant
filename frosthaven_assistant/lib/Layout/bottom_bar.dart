@@ -48,8 +48,9 @@ class BottomBar extends StatelessWidget {
                                       opacity: vm.backgroundOpacity,
                                       image: ResizeImage(
                                           AssetImage(vm.backgroundImagePath),
-                                          height:
-                                              (kBarHeight * barScale).toInt()),
+                                          height: quantizeDecodeSize(
+                                              kBarHeight * barScale,
+                                              quantum: kBarDecodeSizeQuantum)),
                                       fit: BoxFit.cover,
                                       repeat: ImageRepeat.repeatX),
                                 ),

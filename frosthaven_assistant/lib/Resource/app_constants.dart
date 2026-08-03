@@ -79,6 +79,44 @@ const double kCloseButtonWidth = 100;      // width of the positioned close butt
 const int kMonsterImageCacheHeight = 75;   // cache height for monster list-tile images
 const int kCharacterIconCacheHeight = 80;  // cache height for character class icon images
 
+/// Default granularity for [quantizeDecodeSize], in pixels. Suits full-screen
+/// images, where a few dozen pixels of overshoot is irrelevant.
+const int kDecodeSizeQuantum = 64;
+
+/// Granularity for the top/bottom bar textures, which are only tens of pixels
+/// tall — [kDecodeSizeQuantum] would round every bar height to the same value
+/// and visibly change how the texture is sampled.
+const int kBarDecodeSizeQuantum = 8;
+
+/// Rounds a decode dimension up to a multiple of [quantum].
+///
+/// [ResizeImage] includes its target width/height in the image cache key, so
+/// feeding it raw `MediaQuery` values means every incidental size change —
+/// rotation, a safe-area inset, nudging a scale slider — mints a new key and
+/// forces a fresh decode of the source PNG. The backgrounds are multi-megabyte,
+/// so that decode is expensive. Quantizing keeps incidental changes on one
+/// cache entry; images are drawn with BoxFit, so slightly overshooting the
+/// decode size is not visible.
+int quantizeDecodeSize(double dimension,
+    {int quantum = kDecodeSizeQuantum}) {
+  if (dimension <= 0) {
+    return quantum;
+  }
+  return (dimension / quantum).ceil() * quantum;
+}
+
+/// Decode cap in physical pixels for an image laid out at [logicalSize].
+///
+/// Main-list images are otherwise decoded at full asset resolution and
+/// downscaled at paint time, which wastes both decode time and cache memory.
+/// Multiplying by the device pixel ratio keeps them sharp on retina displays;
+/// quantizing keeps a scale-slider drag from re-decoding on every frame.
+int decodeCapForLogicalSize(BuildContext context, double logicalSize) {
+  final double ratio = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1.0;
+  return quantizeDecodeSize(logicalSize * ratio,
+      quantum: kBarDecodeSizeQuantum);
+}
+
 /// Screen breakpoints (shortest dimension compared against orientation-corrected value)
 const double kPhoneScreenMaxDimension = 600;
 const double kLargeTabletMinDimension = 1200;

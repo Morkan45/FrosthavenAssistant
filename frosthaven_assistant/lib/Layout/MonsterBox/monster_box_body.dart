@@ -101,10 +101,8 @@ class MonsterBoxBody extends StatelessWidget {
     final health = data.health.value;
 
     return RepaintBoundary(
-        child: ColorFiltered(
-            colorFilter: vm.isSummonedThisTurn
-                ? ColorFilter.matrix(grayScale)
-                : ColorFilter.matrix(identity),
+        child: grayScaleIf(
+            grayedOut: vm.isSummonedThisTurn,
             child: Container(
                 padding: EdgeInsets.zero,
                 height: _kBoxHeight * scale,
@@ -133,7 +131,10 @@ class MonsterBoxBody extends StatelessWidget {
                       width: _kImageWidth * scale,
                       fit: BoxFit.cover,
                       filterQuality: FilterQuality.medium,
-                      image: AssetImage(imagePath),
+                      image: ResizeImage(AssetImage(imagePath),
+                          height: decodeCapForLogicalSize(
+                              context, _kImageHeight * scale),
+                          policy: ResizeImagePolicy.fit),
                     ),
                   ),
                   Positioned(
