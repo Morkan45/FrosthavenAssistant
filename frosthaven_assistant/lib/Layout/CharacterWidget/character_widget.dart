@@ -18,12 +18,13 @@ class CharacterWidget extends StatefulWidget {
   static const double _kMarginH = 3.2;
   static const int _kBothSides = 2;
 
-  const CharacterWidget(
-      {required this.characterId,
-      super.key,
-      this.initPreset,
-      this.gameState,
-      this.settings});
+  const CharacterWidget({
+    required this.characterId,
+    super.key,
+    this.initPreset,
+    this.gameState,
+    this.settings,
+  });
 
   final String characterId;
   final int? initPreset;
@@ -49,20 +50,26 @@ class CharacterWidgetState extends State<CharacterWidget> {
     super.initState();
   }
 
-  Widget _buildCharacterContent(CharacterViewModel vm, Character character,
-      bool isCharacter, Widget inner) {
+  Widget _buildCharacterContent(
+    CharacterViewModel vm,
+    Character character,
+    bool isCharacter,
+    Widget inner,
+  ) {
     if (vm.isChooseInitiative) {
       return CharacterWidgetInternal(
-          character: character,
-          isCharacter: isCharacter,
-          characterId: character.id,
-          initPreset: widget.initPreset);
+        character: character,
+        isCharacter: isCharacter,
+        characterId: character.id,
+        initPreset: widget.initPreset,
+      );
     }
     if (vm.showHealthWheel) {
       return HealthWheelController(
-          figureId: widget.characterId,
-          ownerId: widget.characterId,
-          child: inner);
+        figureId: widget.characterId,
+        ownerId: widget.characterId,
+        child: inner,
+      );
     }
     return inner;
   }
@@ -73,26 +80,29 @@ class CharacterWidgetState extends State<CharacterWidget> {
     final summonList = character.characterState.summonList;
     if (lastList.length < summonList.length) {
       //find which is new - always the last one
-      displayStartAnimation =
-          summonList.last.getId(); //issue: if several with same id?
+      displayStartAnimation = summonList.last
+          .getId(); //issue: if several with same id?
     }
 
     final generatedChildren = List<Widget>.generate(
-        summonList.length,
-        (index) => AnimatedSize(
-              //not really needed now
-              key: Key(index.toString()),
-              duration: const Duration(milliseconds: kAnimationDurationMs),
-              child: MonsterBox(
-                  key: Key(summonList[index].getId()),
-                  figureId: summonList[index].name +
-                      summonList[index].gfx +
-                      summonList[index].standeeNr.toString(),
-                  ownerId: character.id,
-                  displayStartAnimation: displayStartAnimation,
-                  blockInput: false,
-                  scale: scale),
-            ));
+      summonList.length,
+      (index) => AnimatedSize(
+        //not really needed now
+        key: Key(index.toString()),
+        duration: const Duration(milliseconds: kAnimationDurationMs),
+        child: MonsterBox(
+          key: Key(summonList[index].getId()),
+          figureId:
+              summonList[index].name +
+              summonList[index].gfx +
+              summonList[index].standeeNr.toString(),
+          ownerId: character.id,
+          displayStartAnimation: displayStartAnimation,
+          blockInput: false,
+          scale: scale,
+        ),
+      ),
+    );
     lastList = summonList.toList();
     return Wrap(
       runSpacing: CharacterWidget._kSpacing * scale,
@@ -106,65 +116,84 @@ class CharacterWidgetState extends State<CharacterWidget> {
     final character = GameMethods.getCharacterByName(widget.characterId);
     if (character == null) return Container();
 
-    final vm = CharacterViewModel(character,
-        gameState: widget.gameState, settings: widget.settings);
+    final vm = CharacterViewModel(
+      character,
+      gameState: widget.gameState,
+      settings: widget.settings,
+    );
 
-    return InkWell(
-        onTap: () => vm.openStatusMenu(context),
-        child: ListenableBuilder(
-            listenable: vm.updateList,
-            builder: (context, child) {
-              final double scale = getScaleByReference(context);
+    return ListenableBuilder(
+      listenable: vm.updateList,
+      builder: (context, child) {
+        final double scale = getScaleByReference(context);
 
-              // DecoratedBox instead of PhysicalShape: avoids creating a
-              // PhysicalModelLayer (compositing save layer), which causes
-              // TextStyle.shadows to paint at wrong coords on iOS/Impeller.
-              Widget inner = DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: vm.isCurrentTurn
-                        ? Colors.tealAccent
-                        : Colors.transparent,
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black38,
-                        blurRadius: CharacterWidget._kElevation,
-                        offset: Offset(0, CharacterWidget._kElevation / 4),
-                      )
-                    ],
-                  ),
-                  child: CharacterWidgetInternal(
-                    character: character,
-                    isCharacter: isCharacter,
-                    characterId: character.id,
-                    initPreset: widget.initPreset,
-                  ));
+        // DecoratedBox instead of PhysicalShape: avoids creating a
+        // PhysicalModelLayer (compositing save layer), which causes
+        // TextStyle.shadows to paint at wrong coords on iOS/Impeller.
+        Widget inner = DecoratedBox(
+          decoration: BoxDecoration(
+            color: vm.isCurrentTurn ? Colors.tealAccent : Colors.transparent,
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black38,
+                blurRadius: CharacterWidget._kElevation,
+                offset: Offset(0, CharacterWidget._kElevation / 4),
+              ),
+            ],
+          ),
+          child: CharacterWidgetInternal(
+            character: character,
+            isCharacter: isCharacter,
+            characterId: character.id,
+            initPreset: widget.initPreset,
+          ),
+        );
 
-              // Only apply ColorFiltered when actually graying out: the
-              // identity-matrix variant still creates a save layer on Impeller.
-              final Widget characterContent =
-                  _buildCharacterContent(vm, character, isCharacter, inner);
+        // Only apply ColorFiltered when actually graying out: the
+        // identity-matrix variant still creates a save layer on Impeller.
+        final Widget characterContent = _buildCharacterContent(
+          vm,
+          character,
+          isCharacter,
+          inner,
+        );
+        final visibleCharacterContent = vm.notGrayScale
+            ? characterContent
+            : ColorFiltered(
+                colorFilter: ColorFilter.matrix(grayScale),
+                child: characterContent,
+              );
 
-              return Column(mainAxisSize: MainAxisSize.max, children: [
-                Container(
-                  margin: EdgeInsets.only(
-                      left: CharacterWidget._kMarginH * scale,
-                      right: CharacterWidget._kMarginH * scale),
-                  width: getMainListWidth(context) -
-                      CharacterWidget._kMarginH *
-                          CharacterWidget._kBothSides *
-                          scale,
-                  child: ValueListenableBuilder<BuiltList<MonsterInstance>>(
-                      valueListenable: vm.summonListNotifier,
-                      builder: (context, value, child) {
-                        return buildMonsterBoxGrid(scale, character);
-                      }),
-                ),
-                vm.notGrayScale
-                    ? characterContent
-                    : ColorFiltered(
-                        colorFilter: ColorFilter.matrix(grayScale),
-                        child: characterContent)
-              ]);
-            }));
+        return Column(
+          key: const Key('character-layout'),
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              margin: EdgeInsets.only(
+                left: CharacterWidget._kMarginH * scale,
+                right: CharacterWidget._kMarginH * scale,
+              ),
+              width:
+                  getMainListWidth(context) -
+                  CharacterWidget._kMarginH *
+                      CharacterWidget._kBothSides *
+                      scale,
+              child: ValueListenableBuilder<BuiltList<MonsterInstance>>(
+                valueListenable: vm.summonListNotifier,
+                builder: (context, value, child) {
+                  return buildMonsterBoxGrid(scale, character);
+                },
+              ),
+            ),
+            InkWell(
+              key: const Key('character-status-hit-area'),
+              onTap: () => vm.openStatusMenu(context),
+              child: visibleCharacterContent,
+            ),
+          ],
+        );
+      },
+    );
   }
 }

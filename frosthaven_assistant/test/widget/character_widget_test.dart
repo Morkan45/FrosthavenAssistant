@@ -6,11 +6,14 @@ import 'package:frosthaven_assistant/Layout/CharacterWidget/character_summons_bu
 import 'package:frosthaven_assistant/Layout/CharacterWidget/character_widget.dart';
 import 'package:frosthaven_assistant/Layout/CharacterWidget/character_widget_internal.dart';
 import 'package:frosthaven_assistant/Layout/CharacterWidget/character_xp_widget.dart';
+import 'package:frosthaven_assistant/Layout/MonsterBox/monster_box.dart';
 import 'package:frosthaven_assistant/Layout/menus/StatusMenu/status_menu.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_character_command.dart';
+import 'package:frosthaven_assistant/Resource/commands/add_standee_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/draw_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/next_round_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/turn_done_command.dart';
+import 'package:frosthaven_assistant/Resource/enums.dart';
 import 'package:frosthaven_assistant/Resource/game_data.dart';
 import 'package:frosthaven_assistant/Resource/scaling.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
@@ -138,7 +141,7 @@ void main() {
       ).scale;
       final barRight = rowRect.left + referenceWidth * scale;
 
-      expect(rowRect.right, greaterThan(barRight));
+      expect(rowRect.right, closeTo(barRight, 0.01));
       expect(increaseRect.right, lessThanOrEqualTo(barRight));
     });
 
@@ -148,11 +151,70 @@ void main() {
       final originalOnError = FlutterError.onError;
       FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpCharacterWidget(tester);
-      await tester.tap(find.byType(InkWell).first);
+      await tester.tap(find.byKey(const Key('character-status-hit-area')));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       FlutterError.onError = originalOnError;
       expect(find.byType(StatusMenu), findsOneWidget);
+    });
+
+    testWidgets('wide space after the bar is not a character tap target', (
+      WidgetTester tester,
+    ) async {
+      final settings = getIt<Settings>();
+      final oldFitToWidth = settings.fitMainListToWidth.value;
+      final oldColumns = settings.mainListColumns.value;
+      addTearDown(() {
+        settings.fitMainListToWidth.value = oldFitToWidth;
+        settings.mainListColumns.value = oldColumns;
+      });
+      settings.fitMainListToWidth.value = true;
+      settings.mainListColumns.value = 1;
+
+      await pumpCharacterWidget(tester, size: const Size(914, 915));
+
+      final layoutRect = tester.getRect(
+        find.byKey(const Key('character-layout')),
+      );
+      final hitAreaRect = tester.getRect(
+        find.byKey(const Key('character-status-hit-area')),
+      );
+      expect(layoutRect.right, greaterThan(hitAreaRect.right));
+
+      await tester.tapAt(
+        Offset(
+          (hitAreaRect.right + layoutRect.right) / 2,
+          hitAreaRect.center.dy,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(StatusMenu), findsNothing);
+    });
+
+    testWidgets('tapping a character summon opens its own StatusMenu', (
+      WidgetTester tester,
+    ) async {
+      final state = getIt<GameState>();
+      final character = state.currentList.single as Character;
+      AddStandeeCommand(
+        1,
+        SummonData(1, 'Test Summon', 10, 2, 2, 0, 'BAN reinforcements'),
+        character.id,
+        MonsterType.summon,
+        true,
+        gameState: state,
+      ).execute();
+      final summon = character.characterState.summonList.single;
+
+      await pumpCharacterWidget(tester);
+      await tester.tap(find.byType(MonsterBox));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      final menu = tester.widget<StatusMenu>(find.byType(StatusMenu));
+      expect(menu.figureId, summon.getId());
+      expect(menu.characterId, character.id);
     });
 
     testWidgets('returns empty Container when character not found', (

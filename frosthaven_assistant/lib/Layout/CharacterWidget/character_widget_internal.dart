@@ -120,7 +120,7 @@ class CharacterInternalWidgetState extends State<CharacterWidgetInternal> {
 
     final character = widget.character;
     return SizedBox(
-      width: getMainListWidth(context),
+      width: referenceWidth * scale,
       height: CharacterWidgetInternal._kScaledHeight * scale,
       child: Stack(
         children: [
