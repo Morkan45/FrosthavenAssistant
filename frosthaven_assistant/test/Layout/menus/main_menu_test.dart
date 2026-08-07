@@ -120,6 +120,8 @@ void main() {
     ) async {
       await pumpMenu(tester);
       await tester.scrollUntilVisible(find.text('Add Monsters'), 100);
+      await tester.ensureVisible(find.text('Add Monsters'));
+      await tester.pump();
       await tester.tap(find.text('Add Monsters'));
       final originalOnError = FlutterError.onError;
       FlutterError.onError = ignoreOverflowErrors;
@@ -134,6 +136,8 @@ void main() {
     ) async {
       await pumpMenu(tester);
       await tester.scrollUntilVisible(find.text('Set Level'), 100);
+      await tester.ensureVisible(find.text('Set Level'));
+      await tester.pump();
       await tester.tap(find.text('Set Level'));
       final originalOnError = FlutterError.onError;
       FlutterError.onError = ignoreOverflowErrors;
