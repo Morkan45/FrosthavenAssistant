@@ -11,6 +11,29 @@ import '../state/game_state.dart';
 import '../../services/service_locator.dart';
 import '../../services/translation_service.dart';
 
+/// Matches "advantage" as a whole word, so it does not also match inside
+/// "disadvantage". Compiled once: [LineBuilder.createLines] evaluates this per
+/// line, per card render.
+final RegExp _advantageWord = RegExp(r'\badvantage\b');
+
+/// Whether [line] should get the looping colorize shimmer.
+///
+/// [animate] carries the user's "Stat card text shimmers" setting, which is off
+/// by default on mobile. It stays authoritative here: a shimmer is a
+/// forever-repeating animation, and any line that opts in keeps the app
+/// rendering continuously, so nothing may override the user's choice.
+bool shouldAnimateLine(String line, Monster? monster, bool animate) {
+  if (!animate || monster == null || !monster.isActive) {
+    return false;
+  }
+  final String lower = line.toLowerCase();
+  return lower.contains('disadvantage') ||
+      line.contains('retaliate') ||
+      line.contains('shield') ||
+      (monster.turnState.value == TurnsState.current &&
+          _advantageWord.hasMatch(lower));
+}
+
 class LineBuilder {
   static const bool debugColors = false;
 
@@ -532,18 +555,8 @@ class LineBuilder {
                   iconTokenText =
                       getIt<TranslationService>().t(iconTokenText);
                   //TODO: add animation on other texts too? and need to animate icons as well then for FH style
-                  bool shouldAnimate = animate &&
-                      monster != null &&
-                      (line.toLowerCase().contains('disadvantage') ||
-                          line.contains('retaliate') ||
-                          line.contains('shield')) &&
-                      monster.isActive;
-                  if (monster != null &&
-                      monster.turnState.value == TurnsState.current) {
-                    if (line.toLowerCase().contains("advantage")) {
-                      shouldAnimate = true;
-                    }
-                  }
+                  bool shouldAnimate =
+                      shouldAnimateLine(line, monster, animate);
 
                   textPartListRowContent.add(Container(
                       color: debugColors ? Colors.red : null,
@@ -655,17 +668,7 @@ class LineBuilder {
       }
 
       //TODO: add animation on other texts too? and need to animate icons as well then for FH style
-      bool shouldAnimate = animate &&
-          monster != null &&
-          (line.toLowerCase().contains('disadvantage') ||
-              line.contains('retaliate') ||
-              line.contains('shield')) &&
-          monster.isActive;
-      if (monster != null && monster.turnState.value == TurnsState.current) {
-        if (line.toLowerCase().contains("advantage")) {
-          shouldAnimate = true;
-        }
-      }
+      bool shouldAnimate = shouldAnimateLine(line, monster, animate);
 
       if (partStartIndex < line.length) {
         String textPart = line.substring(partStartIndex, line.length);
