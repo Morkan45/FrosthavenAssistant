@@ -21,7 +21,11 @@ class CharacterWidgetInternal extends StatefulWidget {
   static const double _kXPLeft = 260.0;
   static const double _kLevelTop = 28.0;
   static const double _kLevelLeft = 262.0;
-  static const double _kHealthControlsRight = 6.0;
+  static const double _kHealthControlsRightInset = 6.0;
+  static const double _kHealthControlsLeft =
+      referenceWidth -
+      _kHealthControlsRightInset -
+      CharacterHealthControls.buttonSize * 2;
   static const double _kHealthControlsTop = 5.0;
   static const double _kInkwellWidth = 70.0;
   static const double _kIconColumnWidth = 62.0;
@@ -185,7 +189,7 @@ class CharacterInternalWidgetState extends State<CharacterWidgetInternal> {
             ),
           if (isCharacter)
             Positioned(
-              right: CharacterWidgetInternal._kHealthControlsRight * scale,
+              left: CharacterWidgetInternal._kHealthControlsLeft * scale,
               top: CharacterWidgetInternal._kHealthControlsTop * scale,
               child: CharacterHealthControls(
                 character: character,

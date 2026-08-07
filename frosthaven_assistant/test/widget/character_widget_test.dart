@@ -12,6 +12,7 @@ import 'package:frosthaven_assistant/Resource/commands/draw_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/next_round_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/turn_done_command.dart';
 import 'package:frosthaven_assistant/Resource/game_data.dart';
+import 'package:frosthaven_assistant/Resource/scaling.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
@@ -86,9 +87,16 @@ void main() {
       final increaseRect = tester.getRect(increase);
       final xpRect = tester.getRect(find.byType(CharacterXPWidget));
       final levelRect = tester.getRect(find.byType(CharacterLevelWidget));
+      final scale = getMainListLayout(
+        tester.element(find.byType(CharacterWidgetInternal)),
+      ).scale;
 
       expect(decreaseRect.left, greaterThanOrEqualTo(rowRect.left));
       expect(increaseRect.right, lessThanOrEqualTo(rowRect.right));
+      expect(
+        increaseRect.right,
+        lessThanOrEqualTo(rowRect.left + referenceWidth * scale),
+      );
       expect(xpRect.right, lessThanOrEqualTo(decreaseRect.left));
       expect(levelRect.right, lessThanOrEqualTo(decreaseRect.left));
 
@@ -101,6 +109,37 @@ void main() {
       await tester.pump();
       expect(character.characterState.health.value, initialHealth);
       expect(find.byType(StatusMenu), findsNothing);
+    });
+
+    testWidgets('health controls stay inside the bar on a wide fitted layout', (
+      WidgetTester tester,
+    ) async {
+      final settings = getIt<Settings>();
+      final oldFitToWidth = settings.fitMainListToWidth.value;
+      final oldColumns = settings.mainListColumns.value;
+      final oldScaling = settings.userScalingMainList.value;
+      addTearDown(() {
+        settings.fitMainListToWidth.value = oldFitToWidth;
+        settings.mainListColumns.value = oldColumns;
+        settings.userScalingMainList.value = oldScaling;
+      });
+      settings.fitMainListToWidth.value = true;
+      settings.mainListColumns.value = 1;
+      settings.userScalingMainList.value = 1;
+
+      await pumpCharacterWidget(tester, size: const Size(914, 915));
+
+      final rowRect = tester.getRect(find.byType(CharacterWidgetInternal));
+      final increaseRect = tester.getRect(
+        find.byKey(const Key('character-health-increase')),
+      );
+      final scale = getMainListLayout(
+        tester.element(find.byType(CharacterWidgetInternal)),
+      ).scale;
+      final barRight = rowRect.left + referenceWidth * scale;
+
+      expect(rowRect.right, greaterThan(barRight));
+      expect(increaseRect.right, lessThanOrEqualTo(barRight));
     });
 
     testWidgets('tapping character widget opens StatusMenu', (
