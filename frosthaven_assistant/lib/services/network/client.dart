@@ -18,6 +18,14 @@ import 'connection.dart';
 class Client {
   String _leftOverMessage = "";
   bool _serverResponsive = true;
+
+  // Consecutive ping windows the server has failed to answer. A single missed
+  // pong is usually just a transient network hiccup, so tolerate a few before
+  // treating the server as gone — dropping on the first miss disconnected
+  // players too eagerly on flaky wifi.
+  int _missedPongs = 0;
+  static const int _maxMissedPongs = 2;
+
   bool _connectCancelled = false;
   final GameState _gameState;
   final Communication _communication;
@@ -53,6 +61,7 @@ class Client {
 
   Future<void> connect(String address) async {
     _serverResponsive = true;
+    _missedPongs = 0;
     _connectCancelled = false;
     _pingGeneration++;
     // Bumping the generation retires any chain from a previous connection, so
@@ -145,12 +154,17 @@ class Client {
           return;
         }
         if (_serverResponsive) {
-          _communication.sendToAll("ping");
-          _serverResponsive = false; //set back to true when get response
-          _sendPing();
+          _missedPongs = 0;
         } else {
-          disconnect(_l10n.serverUnresponsive);
+          _missedPongs++;
+          if (_missedPongs >= _maxMissedPongs) {
+            disconnect(_l10n.serverUnresponsive);
+            return;
+          }
         }
+        _communication.sendToAll("ping");
+        _serverResponsive = false; //set back to true when get response
+        _sendPing();
       });
     }
   }
@@ -232,6 +246,7 @@ class Client {
       _send("pong");
     } else if (message.startsWith("pong")) {
       _serverResponsive = true;
+      _missedPongs = 0;
     }
   }
 
@@ -258,6 +273,7 @@ class Client {
     _leftOverMessage = "";
     _pinging = false;
     _pingGeneration++;
+    _missedPongs = 0;
 
     if (_network.appInBackground) {
       _network.clientDisconnectedWhileInBackground = true;
