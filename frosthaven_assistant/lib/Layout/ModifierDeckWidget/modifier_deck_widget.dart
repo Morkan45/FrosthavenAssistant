@@ -56,6 +56,23 @@ class ModifierDeckWidgetState extends State<ModifierDeckWidget> {
       );
   bool _animationsEnabled = false;
 
+  /// Enables the draw animation for a pending draw event unless it has already
+  /// been animated. Used for remote (client) draws, where no local tap fires
+  /// and the draw is detected from the view model.
+  void _maybeEnableDrawAnimation() {
+    if (_animationsEnabled || !_vm.initAnimationEnabled()) return;
+    _animationsEnabled = true;
+    _vm.markDrawAnimated();
+  }
+
+  /// Draws a card from a local tap and animates it, marking the resulting event
+  /// as animated so the same draw is not replayed on a later rebuild.
+  void _drawAndAnimate() {
+    _vm.drawCard();
+    _animationsEnabled = true;
+    _vm.markDrawAnimated();
+  }
+
   @override
   void didUpdateWidget(ModifierDeckWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -146,9 +163,7 @@ class ModifierDeckWidgetState extends State<ModifierDeckWidget> {
                 listenable: Listenable.merge(
                     [_vm.lastEvent, _vm.cardCount, _vm.revealedCount]),
                 builder: (context, child) {
-                  if (!_animationsEnabled) {
-                    _animationsEnabled = _vm.initAnimationEnabled();
-                  }
+                  _maybeEnableDrawAnimation();
 
                   final textStyle = TextStyle(
                       fontSize: kDeckFontSize * userScalingBars,
@@ -185,10 +200,7 @@ class ModifierDeckWidgetState extends State<ModifierDeckWidget> {
                     children: [
                       InkWell(
                           onTap: () {
-                            setState(() {
-                              _animationsEnabled = true;
-                              _vm.drawCard();
-                            });
+                            setState(_drawAndAnimate);
                           },
                           child: Stack(children: [
                             deck.drawPileIsNotEmpty
@@ -205,10 +217,7 @@ class ModifierDeckWidgetState extends State<ModifierDeckWidget> {
                                                 focusColor:
                                                     const Color(0x44000000),
                                                 onTap: () {
-                                                  setState(() {
-                                                    _animationsEnabled = true;
-                                                    _vm.drawCard();
-                                                  });
+                                                  setState(_drawAndAnimate);
                                                 })))
                                   ])
                                 : Stack(children: [
@@ -229,10 +238,7 @@ class ModifierDeckWidgetState extends State<ModifierDeckWidget> {
                                               focusColor:
                                                   const Color(0x44000000),
                                               onTap: () {
-                                                setState(() {
-                                                  _animationsEnabled = true;
-                                                  _vm.drawCard();
-                                                });
+                                                setState(_drawAndAnimate);
                                               },
                                               child: Center(
                                                   child: Text(

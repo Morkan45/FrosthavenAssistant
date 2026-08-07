@@ -204,6 +204,33 @@ void main() {
       expect(vm.initAnimationEnabled(), isFalse);
       gs.undo();
     });
+
+    test('false once the drawn card has been marked animated', () {
+      // The draw event lingers in lastEvent after the animation runs, so an
+      // unrelated rebuild must not replay it. markDrawAnimated consumes it.
+      final gs = getIt<GameState>();
+      gs.action(DrawModifierCardCommand('Monster', gameState: gs));
+      final vm = makeModifierVm('Monster');
+      expect(vm.initAnimationEnabled(), isTrue);
+      vm.markDrawAnimated();
+      expect(vm.initAnimationEnabled(), isFalse);
+      gs.undo();
+    });
+
+    test('true again for a second draw after the first was animated', () {
+      // Reuse one view model across both draws — the dedup state lives there.
+      final gs = getIt<GameState>();
+      final vm = makeModifierVm('Monster');
+      gs.action(DrawModifierCardCommand('Monster', gameState: gs));
+      expect(vm.initAnimationEnabled(), isTrue);
+      vm.markDrawAnimated();
+      expect(vm.initAnimationEnabled(), isFalse);
+      // A fresh draw is a new event, so it animates again.
+      gs.action(DrawModifierCardCommand('Monster', gameState: gs));
+      expect(vm.initAnimationEnabled(), isTrue);
+      gs.undo();
+      gs.undo();
+    });
   });
 
   group('ModifierDeckViewModel notifiers', () {
