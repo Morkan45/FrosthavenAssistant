@@ -89,39 +89,37 @@ class MonsterWidgetState extends State<MonsterWidget> {
     return ListenableBuilder(
         listenable: _vm.updateList,
         builder: (context, child) {
+          final Widget monsterRow = SizedBox(
+            height: _kScaledHeight * scale,
+            width: getMainListWidth(context),
+            child: Row(
+              children: [
+                _vm.showTurnTap
+                    ? InkWell(
+                        onTap: () {
+                          _vm.endTurn();
+                        },
+                        child: MonsterImagePart(
+                            data: widget.data,
+                            scale: scale,
+                            height: height,
+                            vm: _vm))
+                    : MonsterImagePart(
+                        data: widget.data,
+                        scale: scale,
+                        height: height,
+                        vm: _vm),
+                RepaintBoundary(
+                    child: MonsterAbilityCardWidget(data: widget.data)),
+                RepaintBoundary(
+                    child: MonsterStatCardWidget(data: widget.data)),
+              ],
+            ),
+          );
+
           return RepaintBoundary(
               child: Column(mainAxisSize: MainAxisSize.max, children: [
-            ColorFiltered(
-                colorFilter: _vm.isGrayScale
-                    ? ColorFilter.matrix(grayScale)
-                    : ColorFilter.matrix(identity),
-                child: SizedBox(
-                  height: _kScaledHeight * scale,
-                  width: getMainListWidth(context),
-                  child: Row(
-                    children: [
-                      _vm.showTurnTap
-                          ? InkWell(
-                              onTap: () {
-                                _vm.endTurn();
-                              },
-                              child: MonsterImagePart(
-                                  data: widget.data,
-                                  scale: scale,
-                                  height: height,
-                                  vm: _vm))
-                          : MonsterImagePart(
-                              data: widget.data,
-                              scale: scale,
-                              height: height,
-                              vm: _vm),
-                      RepaintBoundary(
-                          child: MonsterAbilityCardWidget(data: widget.data)),
-                      RepaintBoundary(
-                          child: MonsterStatCardWidget(data: widget.data)),
-                    ],
-                  ),
-                )),
+            grayScaleIf(grayedOut: _vm.isGrayScale, child: monsterRow),
             Container(
               margin: EdgeInsets.only(
                   left: _kMarginH * scale, right: _kMarginH * scale),

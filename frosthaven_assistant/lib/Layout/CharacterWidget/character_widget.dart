@@ -139,8 +139,6 @@ class CharacterWidgetState extends State<CharacterWidget> {
                     initPreset: widget.initPreset,
                   ));
 
-              // Only apply ColorFiltered when actually graying out: the
-              // identity-matrix variant still creates a save layer on Impeller.
               final Widget characterContent =
                   _buildCharacterContent(vm, character, isCharacter, inner);
 
@@ -159,11 +157,8 @@ class CharacterWidgetState extends State<CharacterWidget> {
                         return buildMonsterBoxGrid(scale, character);
                       }),
                 ),
-                vm.notGrayScale
-                    ? characterContent
-                    : ColorFiltered(
-                        colorFilter: ColorFilter.matrix(grayScale),
-                        child: characterContent)
+                grayScaleIf(
+                    grayedOut: !vm.notGrayScale, child: characterContent)
               ]);
             }));
   }

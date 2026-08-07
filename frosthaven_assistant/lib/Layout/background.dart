@@ -30,10 +30,9 @@ class BackGround extends StatelessWidget {
                         ? 'assets/images/bg/bg.png'
                         : 'assets/images/bg/frosthaven-bg.png',
                   ),
-                  width: (MediaQuery.of(context).size.width).toInt(),
-                  height: (MediaQuery.of(context).size.height -
-                          _kBarHeightTotal * settings.userScalingBars.value)
-                      .toInt(),
+                  width: quantizeDecodeSize(MediaQuery.of(context).size.width),
+                  height: quantizeDecodeSize(MediaQuery.of(context).size.height -
+                      _kBarHeightTotal * settings.userScalingBars.value),
                   policy: ResizeImagePolicy.fit),
             )),
         child: child);

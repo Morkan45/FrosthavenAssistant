@@ -1,5 +1,20 @@
 //for use with ColorFiltered widget
 
+import 'package:flutter/widgets.dart';
+
+/// Wraps [child] in a grayscale [ColorFiltered] only when [grayedOut] is true.
+///
+/// Do not substitute an identity matrix for the "normal" case: ColorFiltered
+/// allocates an offscreen save layer regardless of the matrix, so an identity
+/// filter costs a full extra render pass per widget for no visual difference.
+Widget grayScaleIf({required bool grayedOut, required Widget child}) {
+  if (!grayedOut) {
+    return child;
+  }
+  return ColorFiltered(
+      colorFilter: const ColorFilter.matrix(grayScale), child: child);
+}
+
 const List<double> grayScale = [
 //R  G   B    A  Const
   0.2126, 0.59, 0.11, 0, 0, //

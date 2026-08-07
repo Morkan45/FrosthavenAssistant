@@ -121,7 +121,11 @@ void main() {
       await pumpIcon(tester, character, true);
 
       final img = tester.widget<Image>(find.byType(Image));
-      final assetImage = img.image as AssetImage;
+      // The provider is wrapped in a ResizeImage to cap decode size.
+      final provider = img.image;
+      final assetImage =
+          (provider is ResizeImage ? provider.imageProvider : provider)
+              as AssetImage;
       expect(assetImage.assetName, contains(character.characterClass.name));
     });
 
