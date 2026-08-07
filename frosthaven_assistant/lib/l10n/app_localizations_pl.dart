@@ -77,6 +77,47 @@ class AppLocalizationsPl extends AppLocalizations {
   String get actionLogRollbackConfirm => 'Cofnij';
 
   @override
+  String get menuAddNoteRow => 'Dodaj wiersz notatki';
+
+  @override
+  String get noteRowTitle => 'Notatka';
+
+  @override
+  String get noteRowHint => 'Treść notatki…';
+
+  @override
+  String get noteRowColourLabel => 'Kolor';
+
+  @override
+  String get noteRowConnectLabel => 'Połącz z:';
+
+  @override
+  String get noteRowConnectNone => 'Nic (wolna notatka)';
+
+  @override
+  String get noteRowConnectPlayer => 'Gracz';
+
+  @override
+  String get noteRowConnectMonster => 'Potwór';
+
+  @override
+  String get noteRowWholeGroup => 'Cała grupa';
+
+  @override
+  String get noteRowAll => 'Wszystkie';
+
+  @override
+  String noteRowStandeeNr(int nr) {
+    return 'Figurka $nr';
+  }
+
+  @override
+  String get noteRowAddFromMenu => 'Dodaj notatkę';
+
+  @override
+  String get noteRowDelete => 'Usuń notatkę';
+
+  @override
   String get undo => 'Cofnij';
 
   @override
@@ -759,6 +800,21 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get cmdChangeName => 'Zmień nazwę postaci';
+
+  @override
+  String get cmdAddNoteRow => 'Dodaj wiersz notatki';
+
+  @override
+  String get cmdSetNoteRowText => 'Edytuj notatkę';
+
+  @override
+  String get cmdSetNoteRowColor => 'Zmień kolor notatki';
+
+  @override
+  String get cmdLinkNoteRow => 'Połącz wiersz notatki';
+
+  @override
+  String get cmdRemoveNoteRow => 'Usuń wiersz notatki';
 
   @override
   String get cmdAddBless => 'Dodaj błogosławieństwo';

@@ -77,6 +77,47 @@ class AppLocalizationsZh extends AppLocalizations {
   String get actionLogRollbackConfirm => '回退';
 
   @override
+  String get menuAddNoteRow => '添加备注行';
+
+  @override
+  String get noteRowTitle => '备注';
+
+  @override
+  String get noteRowHint => '备注内容…';
+
+  @override
+  String get noteRowColourLabel => '颜色';
+
+  @override
+  String get noteRowConnectLabel => '关联到：';
+
+  @override
+  String get noteRowConnectNone => '无（自由备注）';
+
+  @override
+  String get noteRowConnectPlayer => '玩家';
+
+  @override
+  String get noteRowConnectMonster => '怪物';
+
+  @override
+  String get noteRowWholeGroup => '整组';
+
+  @override
+  String get noteRowAll => '全部';
+
+  @override
+  String noteRowStandeeNr(int nr) {
+    return '立牌 $nr';
+  }
+
+  @override
+  String get noteRowAddFromMenu => '添加备注';
+
+  @override
+  String get noteRowDelete => '删除备注';
+
+  @override
   String get undo => '撤销';
 
   @override
@@ -751,6 +792,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cmdChangeName => '更改角色名称';
 
   @override
+  String get cmdAddNoteRow => '添加备注行';
+
+  @override
+  String get cmdSetNoteRowText => '编辑备注';
+
+  @override
+  String get cmdSetNoteRowColor => '更改备注颜色';
+
+  @override
+  String get cmdLinkNoteRow => '关联备注行';
+
+  @override
+  String get cmdRemoveNoteRow => '移除备注行';
+
+  @override
   String get cmdAddBless => '添加祝福';
 
   @override
@@ -1123,6 +1179,47 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get actionLogRollbackConfirm => '回退';
+
+  @override
+  String get menuAddNoteRow => '新增備註列';
+
+  @override
+  String get noteRowTitle => '備註';
+
+  @override
+  String get noteRowHint => '備註內容…';
+
+  @override
+  String get noteRowColourLabel => '顏色';
+
+  @override
+  String get noteRowConnectLabel => '連結至：';
+
+  @override
+  String get noteRowConnectNone => '無（自由備註）';
+
+  @override
+  String get noteRowConnectPlayer => '玩家';
+
+  @override
+  String get noteRowConnectMonster => '怪物';
+
+  @override
+  String get noteRowWholeGroup => '整組';
+
+  @override
+  String get noteRowAll => '全部';
+
+  @override
+  String noteRowStandeeNr(int nr) {
+    return '立牌 $nr';
+  }
+
+  @override
+  String get noteRowAddFromMenu => '新增備註';
+
+  @override
+  String get noteRowDelete => '刪除備註';
 
   @override
   String get undo => '撤銷';
@@ -1791,6 +1888,21 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get cmdChangeName => '更改角色名稱';
+
+  @override
+  String get cmdAddNoteRow => '新增備註列';
+
+  @override
+  String get cmdSetNoteRowText => '編輯備註';
+
+  @override
+  String get cmdSetNoteRowColor => '更改備註顏色';
+
+  @override
+  String get cmdLinkNoteRow => '連結備註列';
+
+  @override
+  String get cmdRemoveNoteRow => '移除備註列';
 
   @override
   String get cmdAddBless => '新增祝福';

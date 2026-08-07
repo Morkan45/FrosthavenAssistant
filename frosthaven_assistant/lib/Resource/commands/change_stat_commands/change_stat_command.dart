@@ -32,8 +32,13 @@ abstract class ChangeStatCommand extends Command {
     final deadIndex = instances.indexWhere((i) => i.health.value == 0);
     if (deadIndex == -1) return;
 
+    final int deadStandeeNr = instances[deadIndex].standeeNr;
     final newList = List<MonsterInstance>.from(instances)..removeAt(deadIndex);
     monster.setMonsterInstances(stateAccess, newList);
+    // A note tied to this specific defeated standee is deleted with it.
+    RoundMethods.removeNoteRowsForStandee(
+        stateAccess, monster.id, deadStandeeNr,
+        gameState: gameState);
     Future.delayed(const Duration(milliseconds: 600), () {
       monster.notifyMonsterInstances(stateAccess);
     });

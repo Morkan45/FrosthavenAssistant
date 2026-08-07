@@ -15,6 +15,7 @@ class MainListViewModel {
   static const double _kCharacterHeight = 60.0;
   static const double _kMonsterHeaderHeight = 96.0;
   static const double _kRowHeight = 32.0;
+  static const double _kNoteRowHeight = 40.0;
   MainListViewModel(
       {GameState? gameState, GameData? gameData, Settings? settings})
       : _gameState = gameState ?? getIt<GameState>(),
@@ -72,6 +73,9 @@ class MainListViewModel {
           double rows = listWidth / mainListWidth;
           listHeight += _kRowHeight * rows.ceil();
         }
+      }
+      if (item is NoteRow) {
+        listHeight += _kNoteRowHeight;
       }
       widgetPositions.add(listHeight * scale);
     }

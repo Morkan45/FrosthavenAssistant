@@ -77,6 +77,47 @@ class AppLocalizationsFr extends AppLocalizations {
   String get actionLogRollbackConfirm => 'Revenir';
 
   @override
+  String get menuAddNoteRow => 'Ajouter une ligne de note';
+
+  @override
+  String get noteRowTitle => 'Note';
+
+  @override
+  String get noteRowHint => 'Texte de la note…';
+
+  @override
+  String get noteRowColourLabel => 'Couleur';
+
+  @override
+  String get noteRowConnectLabel => 'Connecter à :';
+
+  @override
+  String get noteRowConnectNone => 'Rien (note libre)';
+
+  @override
+  String get noteRowConnectPlayer => 'Joueur';
+
+  @override
+  String get noteRowConnectMonster => 'Monstre';
+
+  @override
+  String get noteRowWholeGroup => 'Groupe entier';
+
+  @override
+  String get noteRowAll => 'Tous';
+
+  @override
+  String noteRowStandeeNr(int nr) {
+    return 'Figurine $nr';
+  }
+
+  @override
+  String get noteRowAddFromMenu => 'Ajouter une note';
+
+  @override
+  String get noteRowDelete => 'Supprimer la note';
+
+  @override
   String get undo => 'Annuler';
 
   @override
@@ -766,6 +807,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get cmdChangeName => 'Changer le nom du personnage';
+
+  @override
+  String get cmdAddNoteRow => 'Ajouter une ligne de note';
+
+  @override
+  String get cmdSetNoteRowText => 'Modifier la note';
+
+  @override
+  String get cmdSetNoteRowColor => 'Changer la couleur de la note';
+
+  @override
+  String get cmdLinkNoteRow => 'Lier la ligne de note';
+
+  @override
+  String get cmdRemoveNoteRow => 'Supprimer la ligne de note';
 
   @override
   String get cmdAddBless => 'Ajouter une bénédiction';

@@ -245,6 +245,84 @@ abstract class AppLocalizations {
   /// **'Roll back'**
   String get actionLogRollbackConfirm;
 
+  /// No description provided for @menuAddNoteRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Note Row'**
+  String get menuAddNoteRow;
+
+  /// No description provided for @noteRowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get noteRowTitle;
+
+  /// No description provided for @noteRowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Note text…'**
+  String get noteRowHint;
+
+  /// No description provided for @noteRowColourLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get noteRowColourLabel;
+
+  /// No description provided for @noteRowConnectLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to:'**
+  String get noteRowConnectLabel;
+
+  /// No description provided for @noteRowConnectNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing (free note)'**
+  String get noteRowConnectNone;
+
+  /// No description provided for @noteRowConnectPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Player'**
+  String get noteRowConnectPlayer;
+
+  /// No description provided for @noteRowConnectMonster.
+  ///
+  /// In en, this message translates to:
+  /// **'Monster'**
+  String get noteRowConnectMonster;
+
+  /// No description provided for @noteRowWholeGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole group'**
+  String get noteRowWholeGroup;
+
+  /// No description provided for @noteRowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get noteRowAll;
+
+  /// No description provided for @noteRowStandeeNr.
+  ///
+  /// In en, this message translates to:
+  /// **'Standee {nr}'**
+  String noteRowStandeeNr(int nr);
+
+  /// No description provided for @noteRowAddFromMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Add note'**
+  String get noteRowAddFromMenu;
+
+  /// No description provided for @noteRowDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete note'**
+  String get noteRowDelete;
+
   /// No description provided for @undo.
   ///
   /// In en, this message translates to:
@@ -1426,6 +1504,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change character name'**
   String get cmdChangeName;
+
+  /// No description provided for @cmdAddNoteRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Add note row'**
+  String get cmdAddNoteRow;
+
+  /// No description provided for @cmdSetNoteRowText.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit note'**
+  String get cmdSetNoteRowText;
+
+  /// No description provided for @cmdSetNoteRowColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Change note colour'**
+  String get cmdSetNoteRowColor;
+
+  /// No description provided for @cmdLinkNoteRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Link note row'**
+  String get cmdLinkNoteRow;
+
+  /// No description provided for @cmdRemoveNoteRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove note row'**
+  String get cmdRemoveNoteRow;
 
   /// No description provided for @cmdAddBless.
   ///

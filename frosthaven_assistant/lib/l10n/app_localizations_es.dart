@@ -77,6 +77,47 @@ class AppLocalizationsEs extends AppLocalizations {
   String get actionLogRollbackConfirm => 'Revertir';
 
   @override
+  String get menuAddNoteRow => 'Añadir fila de nota';
+
+  @override
+  String get noteRowTitle => 'Nota';
+
+  @override
+  String get noteRowHint => 'Texto de la nota…';
+
+  @override
+  String get noteRowColourLabel => 'Color';
+
+  @override
+  String get noteRowConnectLabel => 'Conectar con:';
+
+  @override
+  String get noteRowConnectNone => 'Nada (nota libre)';
+
+  @override
+  String get noteRowConnectPlayer => 'Jugador';
+
+  @override
+  String get noteRowConnectMonster => 'Monstruo';
+
+  @override
+  String get noteRowWholeGroup => 'Todo el grupo';
+
+  @override
+  String get noteRowAll => 'Todos';
+
+  @override
+  String noteRowStandeeNr(int nr) {
+    return 'Peana $nr';
+  }
+
+  @override
+  String get noteRowAddFromMenu => 'Añadir nota';
+
+  @override
+  String get noteRowDelete => 'Eliminar nota';
+
+  @override
   String get undo => 'Deshacer';
 
   @override
@@ -766,6 +807,21 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get cmdChangeName => 'Cambiar nombre del personaje';
+
+  @override
+  String get cmdAddNoteRow => 'Añadir fila de nota';
+
+  @override
+  String get cmdSetNoteRowText => 'Editar nota';
+
+  @override
+  String get cmdSetNoteRowColor => 'Cambiar color de nota';
+
+  @override
+  String get cmdLinkNoteRow => 'Vincular fila de nota';
+
+  @override
+  String get cmdRemoveNoteRow => 'Eliminar fila de nota';
 
   @override
   String get cmdAddBless => 'Añadir bendición';

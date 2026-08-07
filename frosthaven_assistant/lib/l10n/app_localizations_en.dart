@@ -77,6 +77,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionLogRollbackConfirm => 'Roll back';
 
   @override
+  String get menuAddNoteRow => 'Add Note Row';
+
+  @override
+  String get noteRowTitle => 'Note';
+
+  @override
+  String get noteRowHint => 'Note text…';
+
+  @override
+  String get noteRowColourLabel => 'Colour';
+
+  @override
+  String get noteRowConnectLabel => 'Connect to:';
+
+  @override
+  String get noteRowConnectNone => 'Nothing (free note)';
+
+  @override
+  String get noteRowConnectPlayer => 'Player';
+
+  @override
+  String get noteRowConnectMonster => 'Monster';
+
+  @override
+  String get noteRowWholeGroup => 'Whole group';
+
+  @override
+  String get noteRowAll => 'All';
+
+  @override
+  String noteRowStandeeNr(int nr) {
+    return 'Standee $nr';
+  }
+
+  @override
+  String get noteRowAddFromMenu => 'Add note';
+
+  @override
+  String get noteRowDelete => 'Delete note';
+
+  @override
   String get undo => 'Undo';
 
   @override
@@ -755,6 +796,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cmdChangeName => 'Change character name';
+
+  @override
+  String get cmdAddNoteRow => 'Add note row';
+
+  @override
+  String get cmdSetNoteRowText => 'Edit note';
+
+  @override
+  String get cmdSetNoteRowColor => 'Change note colour';
+
+  @override
+  String get cmdLinkNoteRow => 'Link note row';
+
+  @override
+  String get cmdRemoveNoteRow => 'Remove note row';
 
   @override
   String get cmdAddBless => 'Add a Bless';
