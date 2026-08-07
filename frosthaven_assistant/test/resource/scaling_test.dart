@@ -97,6 +97,7 @@ void main() {
       expect(layout.columnCount, 3);
       expect(layout.columnWidth, greaterThan(0));
       expect(layout.columnWidth * layout.columnCount, lessThanOrEqualTo(2560));
+      expect(layout.scale * referenceWidth, closeTo(layout.columnWidth, 0.01));
     });
 
     test('fit-width layout respects an explicit column count', () {

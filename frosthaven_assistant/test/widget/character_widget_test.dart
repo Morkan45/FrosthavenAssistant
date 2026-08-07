@@ -158,7 +158,7 @@ void main() {
       expect(find.byType(StatusMenu), findsOneWidget);
     });
 
-    testWidgets('wide space after the bar is not a character tap target', (
+    testWidgets('wide fitted column has no trailing gap after the bar', (
       WidgetTester tester,
     ) async {
       final settings = getIt<Settings>();
@@ -179,17 +179,8 @@ void main() {
       final hitAreaRect = tester.getRect(
         find.byKey(const Key('character-status-hit-area')),
       );
-      expect(layoutRect.right, greaterThan(hitAreaRect.right));
-
-      await tester.tapAt(
-        Offset(
-          (hitAreaRect.right + layoutRect.right) / 2,
-          hitAreaRect.center.dy,
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.byType(StatusMenu), findsNothing);
+      expect(hitAreaRect.left, closeTo(layoutRect.left, 0.01));
+      expect(hitAreaRect.right, closeTo(layoutRect.right, 0.01));
     });
 
     testWidgets('tapping a character summon opens its own StatusMenu', (

@@ -489,6 +489,45 @@ void main() {
       }
       expect(frameworkErrors, isEmpty);
     });
+
+    testWidgets('three visible character columns have no horizontal gaps', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(2560, 1440);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final settings = getIt<Settings>();
+      settings.fitMainListToWidth.value = true;
+      settings.mainListColumns.value = 3;
+      settings.userScalingMainList.value = 1.8;
+      AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
+      AddCharacterCommand('Banner Spear', 'Frosthaven', null, 1).execute();
+      AddCharacterCommand('Hatchet', 'Jaws of the Lion', null, 1).execute();
+
+      await pumpWidget(tester);
+
+      final itemRects = [
+        for (var index = 0; index < 3; index++)
+          tester.getRect(find.byType(MainListItem).at(index)),
+      ]..sort((a, b) => a.left.compareTo(b.left));
+      final barRects = [
+        for (var index = 0; index < 3; index++)
+          tester.getRect(
+            find.byKey(const Key('character-status-hit-area')).at(index),
+          ),
+      ]..sort((a, b) => a.left.compareTo(b.left));
+
+      for (var index = 0; index < 3; index++) {
+        expect(barRects[index].left, closeTo(itemRects[index].left, 0.01));
+        expect(barRects[index].right, closeTo(itemRects[index].right, 0.01));
+        expect(itemRects[index].left, greaterThanOrEqualTo(0));
+        expect(itemRects[index].right, lessThanOrEqualTo(2560));
+      }
+      expect(barRects[0].right, closeTo(barRects[1].left, 0.01));
+      expect(barRects[1].right, closeTo(barRects[2].left, 0.01));
+    });
   });
 
   group('FLIP animation', () {

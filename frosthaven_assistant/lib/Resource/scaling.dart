@@ -8,7 +8,6 @@ const double _kMaxListWidth = 740.0;
 const double _kReferenceMinBarWidth = 370.0;
 const double _kDesktopTargetListWidth = 900.0;
 const double _kDesktopMaxColumnWidth = 1400.0;
-const double _kFitWidthContentReference = 520.0;
 const double _kMinimumScaleSetting = 0.2;
 const double _kMaximumScaleSetting = 3.0;
 const double _kFitWidthScaleCurve = 0.3;
@@ -136,7 +135,7 @@ MainListLayout calculateMainListLayout(
     columnWidth: columnWidth,
     columnCount: columnCount,
     fitsScreenWidth: true,
-    scale: columnWidth / _kFitWidthContentReference,
+    scale: columnWidth / referenceWidth,
   );
 }
 
