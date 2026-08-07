@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../Resource/app_constants.dart';
 import '../../Resource/state/game_state.dart';
+import '../../Resource/ui_utils.dart';
 
 class CharacterIconWidget extends StatelessWidget {
   static const double _kIconSizeRatio = 0.6;
@@ -77,7 +78,7 @@ class CharacterIconWidget extends StatelessWidget {
                 fit: BoxFit.contain,
                 height: scaledHeight * CharacterIconWidget._kIconSizeRatio,
                 color: isCharacter ? character.characterClass.color : null,
-                filterQuality: FilterQuality.medium,
+                filterQuality: powerAwareFilterQuality(),
                 width: scaledHeight * CharacterIconWidget._kIconSizeRatio,
                 image: ResizeImage(
                     AssetImage(

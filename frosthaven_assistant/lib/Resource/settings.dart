@@ -35,6 +35,15 @@ class Settings {
   final hideLootDeck = ValueNotifier<bool>(false);
   final shimmer = ValueNotifier<bool>(
       (Platform.isWindows || Platform.isLinux || Platform.isMacOS));
+
+  /// Opt-in display power saving, in escalating tiers. Defaults to
+  /// [PowerMode.normal]: the higher tiers trade away polish or convenience, so
+  /// they are the user's choice to make.
+  ///
+  /// Most of the codebase should not read this directly — use
+  /// `reducePowerEnabled()` in `ui_utils.dart`, which asks the narrower
+  /// question "may I degrade visual quality?".
+  final powerMode = ValueNotifier<PowerMode>(PowerMode.normal);
   final showScenarioNames = ValueNotifier<bool>(true);
   final showCustomContent = ValueNotifier<bool>(true);
   final showSectionsInMainView = ValueNotifier<bool>(true);
@@ -279,6 +288,12 @@ class Settings {
       if (data["shimmer"] != null) {
         shimmer.value = data["shimmer"];
       }
+      final powerModeIdx = data["powerMode"] as int?;
+      if (powerModeIdx != null &&
+          powerModeIdx >= 0 &&
+          powerModeIdx < PowerMode.values.length) {
+        powerMode.value = PowerMode.values[powerModeIdx];
+      }
       if (data["showScenarioNames"] != null) {
         showScenarioNames.value = data["showScenarioNames"];
       }
@@ -366,6 +381,7 @@ class Settings {
         '"style": ${style.value.index}, '
         '"darkMode": ${darkMode.value}, '
         '"shimmer": ${shimmer.value}, '
+        '"powerMode": ${powerMode.value.index}, '
         '"showScenarioNames": ${showScenarioNames.value}, '
         '"showCustomContent": ${showCustomContent.value}, '
         '"showSectionsInMainView": ${showSectionsInMainView.value}, '

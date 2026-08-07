@@ -1,5 +1,8 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:frosthaven_assistant/Resource/app_constants.dart';
+import 'package:frosthaven_assistant/Resource/enums.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 
@@ -71,11 +74,73 @@ Shadow textShadow(double scale) => Shadow(
   blurRadius: kShadowOffset * scale,
 );
 
-BoxShadow cardBoxShadow(double scale) => BoxShadow(
+/// Whether the user has opted into the battery saver. Read through this helper
+/// so call sites stay testable and do not each reach into the service locator.
+///
+/// Falls back to false (full quality) when [Settings] is not registered. These
+/// helpers are called from low-level painting code that widget tests exercise
+/// without booting the whole service locator, and a rendering-quality flag must
+/// never be the reason a widget fails to build.
+bool reducePowerEnabled({Settings? settings}) {
+  final Settings? resolved =
+      settings ?? (getIt.isRegistered<Settings>() ? getIt<Settings>() : null);
+  // Deliberately the top tier only. `dimWhenIdle` trades convenience, not
+  // visual quality, so it must not switch on the cheaper shadows and filters —
+  // the board still renders at full fidelity while you are looking at it.
+  return resolved?.powerMode.value == PowerMode.reducePower;
+}
+
+/// Whether the app is currently dimmed by [IdleDimmer].
+///
+/// Lives here rather than beside the widget so painting code can stand down
+/// while nothing is visible — notably the looping text shimmer, which would
+/// otherwise keep repainting at full rate behind the scrim and spend more power
+/// than the dimming saves.
+final ValueNotifier<bool> isDimmed = ValueNotifier<bool>(false);
+
+/// Whether the app should dim itself after a period without input.
+///
+/// True for [PowerMode.dimWhenIdle] only: [PowerMode.reducePower] hands the
+/// display to the system, which dims and sleeps it more aggressively than this
+/// ever would, so running both would just fight.
+bool dimWhenIdleEnabled({Settings? settings}) {
+  final Settings? resolved =
+      settings ?? (getIt.isRegistered<Settings>() ? getIt<Settings>() : null);
+  return resolved?.powerMode.value == PowerMode.dimWhenIdle;
+}
+
+/// A blurred shadow normally; a hard offset shadow in reduce-power mode.
+///
+/// A non-zero [BoxShadow.blurRadius] makes the GPU run a real blur pass. This
+/// shadow is applied to every card and monster box, so dropping the blur is the
+/// single largest per-frame saving available without changing layout.
+BoxShadow cardBoxShadow(double scale, {Settings? settings}) => BoxShadow(
   color: Colors.black45,
-  blurRadius: kCardShadowBlur * scale,
+  blurRadius: reducePowerEnabled(settings: settings) ? 0 : kCardShadowBlur * scale,
   offset: Offset(kCardShadowOffsetX * scale, kCardShadowOffsetY * scale),
 );
+
+/// Applies a gaussian blur to [child], or skips it in reduce-power mode.
+///
+/// Used for the fake drop shadows behind class icons. A real blur is a full
+/// GPU pass; skipping it leaves the offset silhouette, so the shadow is still
+/// there, just hard-edged instead of soft.
+Widget powerAwareBlur(
+    {required double sigma, required Widget child, Settings? settings}) {
+  if (reducePowerEnabled(settings: settings)) {
+    return child;
+  }
+  return ImageFiltered(
+      imageFilter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+      child: child);
+}
+
+/// `medium` enables mipmapping; `low` is plain bilinear and cheaper to sample.
+/// The difference is hard to see on the small icons this is used for.
+FilterQuality powerAwareFilterQuality({Settings? settings}) =>
+    reducePowerEnabled(settings: settings)
+        ? FilterQuality.low
+        : FilterQuality.medium;
 
 bool isLargeTablet(BuildContext context) {
   double screenWidth = MediaQuery.of(context).size.width;

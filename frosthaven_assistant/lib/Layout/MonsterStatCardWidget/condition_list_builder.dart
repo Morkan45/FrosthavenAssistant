@@ -25,12 +25,12 @@ List<Widget> createConditionList(
     }
     final image = Image(
       height: _kConditionIconHeight * scale,
-      filterQuality: FilterQuality.medium,
+      filterQuality: powerAwareFilterQuality(),
       image: AssetImage(imagePath),
     );
     final immuneIcon = Image(
       height: _kImmuneIconHeight * scale,
-      filterQuality: FilterQuality.medium,
+      filterQuality: powerAwareFilterQuality(),
       image: const AssetImage("assets/images/psd/immune.png"),
     );
     final stack = Stack(

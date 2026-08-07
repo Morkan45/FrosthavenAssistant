@@ -13,6 +13,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'Layout/idle_dimmer.dart';
 import 'Resource/game_data.dart';
 import 'Resource/theme_switcher.dart';
 import 'l10n/app_localizations.dart';
@@ -179,7 +180,8 @@ class MyApp extends StatelessWidget {
           if (child == null) {
             return const SizedBox.shrink();
           }
-          return ExcludeSemantics(child: GlobalHotkeys(child: child));
+          return ExcludeSemantics(
+              child: IdleDimmer(child: GlobalHotkeys(child: child)));
         },
         home: const MyHomePage(title: title),
       ),

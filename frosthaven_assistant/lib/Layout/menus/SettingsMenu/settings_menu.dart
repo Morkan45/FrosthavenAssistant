@@ -189,6 +189,44 @@ class SettingsMenuState extends State<SettingsMenu> {
                   settings.saveToDisk();
                   _gameState.updateAllUI();
                 }),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(child: Text(l10n.settingsPowerModeLabel, style: kTitleStyle)),
+                SettingsInfoButton(
+                  infoTitle: l10n.settingsPowerModeInfoTitle,
+                  infoText: l10n.settingsPowerModeInfo,
+                ),
+              ],
+            ),
+            RadioGroup<PowerMode>(
+              groupValue: settings.powerMode.value,
+              onChanged: (value) {
+                if (value == null) return;
+                setState(() {
+                  settings.powerMode.value = value;
+                  settings.saveToDisk();
+                  _gameState.updateAllUI();
+                });
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    Radio<PowerMode>(value: PowerMode.normal),
+                    Flexible(child: Text(l10n.powerModeNormal)),
+                  ]),
+                  Row(children: [
+                    Radio<PowerMode>(value: PowerMode.dimWhenIdle),
+                    Flexible(child: Text(l10n.powerModeDimWhenIdle)),
+                  ]),
+                  Row(children: [
+                    Radio<PowerMode>(value: PowerMode.reducePower),
+                    Flexible(child: Text(l10n.settingsReducePower)),
+                  ]),
+                ],
+              ),
+            ),
             SettingsCheckbox(
                 title: l10n.settingsFhHazTerrainCalc,
                 notifier: settings.fhHazTerrainCalcInOGGloom,

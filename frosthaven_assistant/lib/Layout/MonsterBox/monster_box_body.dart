@@ -130,7 +130,7 @@ class MonsterBoxBody extends StatelessWidget {
                       height: _kImageHeight * scale,
                       width: _kImageWidth * scale,
                       fit: BoxFit.cover,
-                      filterQuality: FilterQuality.medium,
+                      filterQuality: powerAwareFilterQuality(),
                       image: ResizeImage(AssetImage(imagePath),
                           height: decodeCapForLogicalSize(
                               context, _kImageHeight * scale),

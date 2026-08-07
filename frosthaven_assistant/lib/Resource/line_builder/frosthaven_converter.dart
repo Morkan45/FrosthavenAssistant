@@ -1,6 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:frosthaven_assistant/Resource/line_builder/line_builder.dart';
+import 'package:frosthaven_assistant/Resource/ui_utils.dart';
 
 class FrosthavenConverter {
   static const int _kBossStatCardColor = 0x45D2D2D2;
@@ -412,7 +413,7 @@ class FrosthavenConverter {
                     top: _kElementTopOffset * scale,
                     child: Image(
                         fit: BoxFit.fitWidth,
-                        filterQuality: FilterQuality.medium,
+                        filterQuality: powerAwareFilterQuality(),
                         width: scale * _kElementImageWidth,
                         image: const AssetImage(
                           "assets/images/abilities/element_top.png",
