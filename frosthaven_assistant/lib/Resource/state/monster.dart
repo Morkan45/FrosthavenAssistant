@@ -62,6 +62,9 @@ class Monster extends ListItemData {
         turnStateIdx < TurnsState.values.length) {
       _turnState.value = TurnsState.values[turnStateIdx];
     }
+    if (json.containsKey("note")) {
+      _note.value = json["note"] as String;
+    }
     _level.value = json['level'];
     if (json.containsKey("isAlly")) {
       _isAlly = json['isAlly'];
@@ -99,6 +102,7 @@ class Monster extends ListItemData {
         turnStateIdx < TurnsState.values.length) {
       _turnState.value = TurnsState.values[turnStateIdx];
     }
+    _note.value = json.containsKey("note") ? json["note"] as String : "";
     _level.value = json['level'] as int;
     if (json.containsKey("isAlly")) {
       _isAlly = json['isAlly'] as bool;
@@ -171,6 +175,7 @@ class Monster extends ListItemData {
   Map<String, dynamic> toJson() => {
         'id': id,
         'turnState': turnState.value.index,
+        'note': note.value,
         'isActive': isActive,
         'type': type.name,
         'monsterInstances': _monsterInstances.map((m) => m.toJson()).toList(),

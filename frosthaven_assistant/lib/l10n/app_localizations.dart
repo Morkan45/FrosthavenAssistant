@@ -1901,6 +1901,30 @@ abstract class AppLocalizations {
   /// **'Set initiative of {character}'**
   String cmdSetInitiative(String character);
 
+  /// No description provided for @cmdSetCharacterNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Set note for {character}'**
+  String cmdSetCharacterNote(String character);
+
+  /// No description provided for @characterNoteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get characterNoteTitle;
+
+  /// No description provided for @characterNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note…'**
+  String get characterNoteHint;
+
+  /// No description provided for @characterNoteQuickAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick note'**
+  String get characterNoteQuickAdd;
+
   /// No description provided for @cmdSetMonsterLevel.
   ///
   /// In en, this message translates to:

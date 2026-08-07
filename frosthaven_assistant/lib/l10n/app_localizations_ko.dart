@@ -1033,6 +1033,20 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String cmdSetCharacterNote(String character) {
+    return '$character의 메모 설정';
+  }
+
+  @override
+  String get characterNoteTitle => '메모';
+
+  @override
+  String get characterNoteHint => '메모 추가…';
+
+  @override
+  String get characterNoteQuickAdd => '빠른 메모';
+
+  @override
   String cmdSetMonsterLevel(String monster) {
     return '$monster 레벨 설정';
   }

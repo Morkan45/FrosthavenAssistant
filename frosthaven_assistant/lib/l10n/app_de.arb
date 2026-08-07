@@ -25,6 +25,10 @@
   "noteRowStandeeNr": "Aufsteller {nr}",
   "noteRowAddFromMenu": "Notiz hinzufügen",
   "noteRowDelete": "Notiz löschen",
+  "cmdSetCharacterNote": "Notiz für {character} festlegen",
+  "characterNoteTitle": "Notiz",
+  "characterNoteHint": "Notiz hinzufügen…",
+  "characterNoteQuickAdd": "Kurznotiz",
 
   "menuSetScenario": "Szenario festlegen",
   "menuAddCharacter": "Charakter hinzufügen",

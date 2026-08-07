@@ -1049,6 +1049,20 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String cmdSetCharacterNote(String character) {
+    return 'Задать заметку для $character';
+  }
+
+  @override
+  String get characterNoteTitle => 'Заметка';
+
+  @override
+  String get characterNoteHint => 'Добавить заметку…';
+
+  @override
+  String get characterNoteQuickAdd => 'Быстрая заметка';
+
+  @override
   String cmdSetMonsterLevel(String monster) {
     return 'Задать уровень $monster';
   }
