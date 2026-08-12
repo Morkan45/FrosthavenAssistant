@@ -28,6 +28,8 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
+      - name: Generate test mocks
+        run: dart run build_runner build
       - run: flutter analyze
       - run: flutter test --concurrency=1
       - name: Build installable test APK

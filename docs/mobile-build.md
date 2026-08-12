@@ -17,6 +17,67 @@ flutter build apk --debug
 The APK is written to
 `build/app/outputs/flutter-apk/app-debug.apk`.
 
+## Windows and Android releases
+
+The `Windows and Android release` GitHub Actions workflow builds a signed,
+release-mode Android APK and a ZIP containing the complete Windows release
+directory. It publishes both files as assets on a GitHub Release in this fork.
+The Windows executable is not Authenticode-signed, so Windows SmartScreen can
+warn users until a trusted Windows code-signing certificate is configured.
+
+### Configure Android signing once
+
+Create and securely back up a release keystore. Losing this keystore or its
+passwords prevents future APKs from updating an installed copy of the app.
+
+```text
+keytool -genkeypair -v -keystore upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+```
+
+If `keytool` is not on `PATH`, run `flutter doctor -v` to find the Java binary
+and use the `keytool` executable from the same JDK. The command prompts for the
+keystore and key passwords.
+
+In the fork, open **Settings > Secrets and variables > Actions** and create
+these repository secrets:
+
+- `ANDROID_KEYSTORE_BASE64`: the keystore file encoded as Base64.
+- `ANDROID_KEYSTORE_PASSWORD`: the keystore password.
+- `ANDROID_KEY_ALIAS`: the alias used above (`upload`).
+- `ANDROID_KEY_PASSWORD`: the key password.
+
+On PowerShell, copy the Base64 value to the clipboard with:
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes((Resolve-Path .\upload-keystore.jks))) | Set-Clipboard
+```
+
+Never commit the keystore or `android/key.properties`. Both paths are ignored
+by Git.
+
+### Publish a release
+
+The release tag must match the version name in `pubspec.yaml`. For version
+`1.15.1+65`, use tag `v1.15.1`; the `+65` build number is included in asset
+file names but not in the tag.
+
+Either push that tag:
+
+```text
+git tag v1.15.1
+git push origin v1.15.1
+```
+
+Or, after the workflow is present on the default branch, open **Actions >
+Windows and Android release > Run workflow**, select `main`, and enter
+`v1.15.1`. A manual run creates the tag at the selected commit if it does not
+already exist.
+
+The workflow generates Mockito files before analysis, runs the test suite,
+builds both platforms, and only then publishes the release. Rerunning the same
+tag replaces its APK and ZIP assets. Short-lived Actions artifacts are retained
+for seven days as a recovery copy.
+
 ## iPhone
 
 An iPhone build requires macOS, Xcode, and an Apple signing team. The GitHub
