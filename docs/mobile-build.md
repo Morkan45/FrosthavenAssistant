@@ -1,6 +1,6 @@
 # Mobile fork builds
 
-The fork uses app version `1.15.0+64` and application identifier
+The fork uses app version `1.15.1+65` and application identifier
 `com.morkan45.xhavenassistant`. This keeps development builds separate from the
 official X-haven Assistant installation.
 
