@@ -82,7 +82,18 @@ class GameSaveState {
         final list = data['currentList'] as List;
         List<ListItemData> newList = [];
         for (Map<String, dynamic> item in list) {
-          if (item["characterClass"] != null) {
+          if (item["noteRow"] == true) {
+            final String itemId = item["id"] as String;
+            final NoteRow? existing = gameState._currentList
+                .whereType<NoteRow>()
+                .firstWhereOrNull((e) => e.id == itemId);
+            if (existing != null) {
+              existing.updateFromJson(item);
+              newList.add(existing);
+            } else {
+              newList.add(NoteRow.fromJson(item));
+            }
+          } else if (item["characterClass"] != null) {
             final String itemId = item["id"] as String;
             final Character? existing = gameState._currentList
                 .whereType<Character>()

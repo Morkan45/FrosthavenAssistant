@@ -6,8 +6,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Layout/ModifierCardWidget/modifier_card_front.dart';
 import 'package:frosthaven_assistant/Layout/ModifierCardWidget/modifier_card_rear.dart';
 import 'package:frosthaven_assistant/Layout/ModifierDeckWidget/modifier_deck_widget.dart';
+import 'package:frosthaven_assistant/Layout/ModifierDeckWidget/modifier_slide_animation_widget.dart';
 import 'package:frosthaven_assistant/Layout/menus/ModifierDeckMenu/modifier_deck_menu.dart';
 import 'package:frosthaven_assistant/Layout/menus/modifier_card_zoom.dart';
+import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/commands/amd_reveal_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_character_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/draw_modifier_card_command.dart';
@@ -173,6 +175,47 @@ void main() {
       await pumpWidget(tester, monsterDeckName);
       expect(find.byType(Row), findsAtLeast(1));
     });
+
+    testWidgets(
+      'does not replay the draw animation on an unrelated (scaling) rebuild',
+      (WidgetTester tester) async {
+        final gameState = getIt<GameState>();
+        final settings = getIt<Settings>();
+        final scalingBefore = settings.userScalingBars.value;
+
+        // Two draws so the discard pile has >1 card, which renders the slide
+        // animation whenever animations are enabled — our observable.
+        gameState.action(
+          DrawModifierCardCommand(monsterDeckName, gameState: gameState),
+        );
+        gameState.action(
+          DrawModifierCardCommand(monsterDeckName, gameState: gameState),
+        );
+
+        final originalOnError = FlutterError.onError;
+        addTearDown(() => FlutterError.onError = originalOnError);
+        FlutterError.onError = ignoreOverflowErrors(originalOnError);
+
+        await pumpWidget(tester, monsterDeckName);
+        // The pending draw animates on first build.
+        expect(find.byType(ModifierSlideAnimationWidget), findsOneWidget);
+
+        // Let the 1200ms animation finish (onComplete clears the flag).
+        await tester.pump(const Duration(milliseconds: 1300));
+
+        // Drag the scaling slider: a rebuild that is NOT a new draw. The draw
+        // event still lingers in lastEvent, so the pre-fix code replayed here.
+        settings.userScalingBars.value = scalingBefore + 0.1;
+        await tester.pump();
+
+        expect(find.byType(ModifierSlideAnimationWidget), findsNothing);
+
+        FlutterError.onError = originalOnError;
+        settings.userScalingBars.value = scalingBefore;
+        gameState.undo();
+        gameState.undo();
+      },
+    );
 
     testWidgets('card count text updates after drawing a card', (
       WidgetTester tester,

@@ -2,7 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../../Resource/app_constants.dart';
 import '../../Resource/state/game_state.dart';
+import '../../Resource/ui_utils.dart';
 
 class CharacterIconWidget extends StatelessWidget {
   static const double _kIconSizeRatio = 0.6;
@@ -67,6 +69,8 @@ class CharacterIconWidget extends StatelessWidget {
                 child: Image.asset(
                   "assets/images/class-icons/$className.png",
                   height: scaledHeight * CharacterIconWidget._kIconSizeRatio,
+                  cacheHeight: decodeCapForLogicalSize(context,
+                      scaledHeight * CharacterIconWidget._kIconSizeRatio),
                   fit: BoxFit.contain,
                 ),
               )
@@ -74,10 +78,14 @@ class CharacterIconWidget extends StatelessWidget {
                 fit: BoxFit.contain,
                 height: scaledHeight * CharacterIconWidget._kIconSizeRatio,
                 color: isCharacter ? character.characterClass.color : null,
-                filterQuality: FilterQuality.medium,
+                filterQuality: powerAwareFilterQuality(),
                 width: scaledHeight * CharacterIconWidget._kIconSizeRatio,
-                image: AssetImage(
-                    "assets/images/class-icons/${character.characterClass.name}.png"),
+                image: ResizeImage(
+                    AssetImage(
+                        "assets/images/class-icons/${character.characterClass.name}.png"),
+                    height: decodeCapForLogicalSize(context,
+                        scaledHeight * CharacterIconWidget._kIconSizeRatio),
+                    policy: ResizeImagePolicy.fit),
               ));
   }
 }

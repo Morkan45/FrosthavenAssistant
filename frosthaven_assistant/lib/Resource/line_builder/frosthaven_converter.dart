@@ -2,6 +2,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 
 import 'ability_token_catalog.dart';
+import 'package:frosthaven_assistant/Resource/ui_utils.dart';
 
 class FrosthavenConverter {
   static const int _kBossStatCardColor = 0x45D2D2D2;
@@ -37,8 +38,8 @@ class FrosthavenConverter {
       String outerPrefix = parts[0].startsWith('^^')
           ? '^^'
           : parts[0].startsWith('^')
-              ? '^'
-              : '';
+          ? '^'
+          : '';
       for (int i = 1; i < parts.length; i++) {
         result.add(outerPrefix + parts[i]);
       }
@@ -142,8 +143,9 @@ class FrosthavenConverter {
           if (isElementUse &&
               (lines[i - 1].contains("use") ||
                   (lines[i - _kLookback].contains("use") &&
-                      lines[i - 1]
-                          .contains("[c]"))) // (!lines[i - 2].contains("[c]"))
+                      lines[i - 1].contains(
+                        "[c]",
+                      ))) // (!lines[i - 2].contains("[c]"))
               &&
               !line.startsWith("^Target") &&
               !line.startsWith("^all") &&
@@ -234,18 +236,19 @@ class FrosthavenConverter {
   }
 
   static void buildFHStyleBackgrounds(
-      List<Widget> lines,
-      List<Widget> lastLineTextPartList,
-      MainAxisAlignment rowMainAxisAlignment,
-      double scale,
-      bool isInRow,
-      bool isInColumn,
-      bool isColumnInRow,
-      bool hasInnerRow,
-      List<Widget> widgetsInColumn,
-      List<Widget> widgetsInRow,
-      List<Widget> widgetsInInnerRow,
-      bool bossStatCard) {
+    List<Widget> lines,
+    List<Widget> lastLineTextPartList,
+    MainAxisAlignment rowMainAxisAlignment,
+    double scale,
+    bool isInRow,
+    bool isInColumn,
+    bool isColumnInRow,
+    bool hasInnerRow,
+    List<Widget> widgetsInColumn,
+    List<Widget> widgetsInRow,
+    List<Widget> widgetsInInnerRow,
+    bool bossStatCard,
+  ) {
     List<Widget> list1 = [];
     List<List<Widget>> list2 = [];
     bool conditional = false;
@@ -292,22 +295,29 @@ class FrosthavenConverter {
     Row widget1 = Row(children: list1);
 
     Widget widget2 = Container(
-        decoration: BoxDecoration(
-            color: conditional
-                ? Colors.blue
-                : Color(bossStatCard ? _kBossStatCardColor : _kStatCardColor),
-            borderRadius:
-                BorderRadius.all(Radius.circular(_kBoxBorderRadius * scale))),
-        padding: EdgeInsets.fromLTRB(
-            _kBoxPaddingLeft * scale,
-            _kBoxPaddingTop * scale,
-            _kBoxPaddingRight * scale,
-            _kBoxPaddingBottom * scale),
-        margin: EdgeInsets.only(
-            left: _kBoxMarginH * scale, right: _kBoxMarginH * scale),
-        child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [...list2.map((row) => Row(children: row))]));
+      decoration: BoxDecoration(
+        color: conditional
+            ? Colors.blue
+            : Color(bossStatCard ? _kBossStatCardColor : _kStatCardColor),
+        borderRadius: BorderRadius.all(
+          Radius.circular(_kBoxBorderRadius * scale),
+        ),
+      ),
+      padding: EdgeInsets.fromLTRB(
+        _kBoxPaddingLeft * scale,
+        _kBoxPaddingTop * scale,
+        _kBoxPaddingRight * scale,
+        _kBoxPaddingBottom * scale,
+      ),
+      margin: EdgeInsets.only(
+        left: _kBoxMarginH * scale,
+        right: _kBoxMarginH * scale,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [...list2.map((row) => Row(children: row))],
+      ),
+    );
 
     Widget row = Row(
       mainAxisSize: MainAxisSize.max,
@@ -352,7 +362,8 @@ class FrosthavenConverter {
       }
     } else if (widget is Container && widget.child != null) {
       retVal.addAll(
-          getAllImagesInWidget(widget.child ?? const SizedBox.shrink()));
+        getAllImagesInWidget(widget.child ?? const SizedBox.shrink()),
+      );
     } else if (widget is Image) {
       final label = widget.semanticLabel;
       if (label != null) retVal.add(label);
@@ -380,8 +391,14 @@ class FrosthavenConverter {
     return retVal;
   }
 
-  static void applyConditionalGraphics(List<Widget> lines, double scale,
-      bool elementUse, double rightMargin, bool bossStatCard, Row child) {
+  static void applyConditionalGraphics(
+    List<Widget> lines,
+    double scale,
+    bool elementUse,
+    double rightMargin,
+    bool bossStatCard,
+    Row child,
+  ) {
     bool belongs = true;
     if (lines.isEmpty) {
       belongs = false;
@@ -402,52 +419,60 @@ class FrosthavenConverter {
       }
     }
 
-    lines.add(Container(
+    lines.add(
+      Container(
         margin: EdgeInsets.all(_kContainerMargin * scale),
         child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.topCenter,
-            children: [
-              if (belongs)
-                Positioned(
-                    top: _kElementTopOffset * scale,
-                    child: Image(
-                        fit: BoxFit.fitWidth,
-                        filterQuality: FilterQuality.medium,
-                        width: scale * _kElementImageWidth,
-                        image: const AssetImage(
-                          "assets/images/abilities/element_top.png",
-                        ))),
-              DottedBorder(
-                  options: RoundedRectDottedBorderOptions(
-                    color: Colors.white,
-                    radius: Radius.circular(_kDottedBorderRadius * scale),
-                    padding: const EdgeInsets.all(0),
-                    dashPattern: [
-                      _kDashPattern1 * scale,
-                      _kDashPattern2 * scale
-                    ],
-                    strokeWidth: _kStrokeWidth * scale,
+          clipBehavior: Clip.none,
+          alignment: Alignment.topCenter,
+          children: [
+            if (belongs)
+              Positioned(
+                top: _kElementTopOffset * scale,
+                child: Image(
+                  fit: BoxFit.fitWidth,
+                  filterQuality: powerAwareFilterQuality(),
+                  width: scale * _kElementImageWidth,
+                  image: const AssetImage(
+                    "assets/images/abilities/element_top.png",
                   ),
-                  child: Container(
-                      decoration: BoxDecoration(
-                          //backgroundBlendMode: BlendMode.softLight,
-                          //border: Border.fromBorderSide(BorderSide(style: BorderStyle.solid, color: Colors.white)),
-                          color: Color(bossStatCard
-                              ? _kBossStatCardColor
-                              : _kStatCardColor),
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(_kDottedBorderRadius * scale))),
-                      padding: EdgeInsets.fromLTRB(
-                          elementUse
-                              ? _kPaddingUseLeft * scale
-                              : _kPaddingNoUseLeft * scale,
-                          _kPaddingTop2 * scale,
-                          rightMargin,
-                          _kBoxPaddingBottom * scale),
-                      //margin: EdgeInsets.only(left: 2 * scale),
-                      //child: Expanded(
-                      child: child))
-            ])));
+                ),
+              ),
+            DottedBorder(
+              options: RoundedRectDottedBorderOptions(
+                color: Colors.white,
+                radius: Radius.circular(_kDottedBorderRadius * scale),
+                padding: const EdgeInsets.all(0),
+                dashPattern: [_kDashPattern1 * scale, _kDashPattern2 * scale],
+                strokeWidth: _kStrokeWidth * scale,
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  //backgroundBlendMode: BlendMode.softLight,
+                  //border: Border.fromBorderSide(BorderSide(style: BorderStyle.solid, color: Colors.white)),
+                  color: Color(
+                    bossStatCard ? _kBossStatCardColor : _kStatCardColor,
+                  ),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(_kDottedBorderRadius * scale),
+                  ),
+                ),
+                padding: EdgeInsets.fromLTRB(
+                  elementUse
+                      ? _kPaddingUseLeft * scale
+                      : _kPaddingNoUseLeft * scale,
+                  _kPaddingTop2 * scale,
+                  rightMargin,
+                  _kBoxPaddingBottom * scale,
+                ),
+                //margin: EdgeInsets.only(left: 2 * scale),
+                //child: Expanded(
+                child: child,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

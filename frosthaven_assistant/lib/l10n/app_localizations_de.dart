@@ -104,6 +104,47 @@ class AppLocalizationsDe extends AppLocalizations {
   String get actionLogRollbackConfirm => 'Zurücksetzen';
 
   @override
+  String get menuAddNoteRow => 'Notizzeile hinzufügen';
+
+  @override
+  String get noteRowTitle => 'Notiz';
+
+  @override
+  String get noteRowHint => 'Notiztext…';
+
+  @override
+  String get noteRowColourLabel => 'Farbe';
+
+  @override
+  String get noteRowConnectLabel => 'Verbinden mit:';
+
+  @override
+  String get noteRowConnectNone => 'Nichts (freie Notiz)';
+
+  @override
+  String get noteRowConnectPlayer => 'Spieler';
+
+  @override
+  String get noteRowConnectMonster => 'Monster';
+
+  @override
+  String get noteRowWholeGroup => 'Ganze Gruppe';
+
+  @override
+  String get noteRowAll => 'Alle';
+
+  @override
+  String noteRowStandeeNr(int nr) {
+    return 'Aufsteller $nr';
+  }
+
+  @override
+  String get noteRowAddFromMenu => 'Notiz hinzufügen';
+
+  @override
+  String get noteRowDelete => 'Notiz löschen';
+
+  @override
   String get undo => 'Rückgängig';
 
   @override
@@ -220,6 +261,32 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsShimmer => 'Statuskartentext schimmern lassen';
+
+  @override
+  String get settingsPowerModeLabel => 'Power saving';
+
+  @override
+  String get powerModeNormal => 'Normal';
+
+  @override
+  String get powerModeDimWhenIdle => 'Dim when idle';
+
+  @override
+  String get settingsPowerModeInfoTitle => 'Power saving';
+
+  @override
+  String get settingsPowerModeInfo =>
+      'Three levels of battery saving, from none to most.\n\nNormal — the screen is held awake at full brightness for as long as the app is open. Nothing is dimmed and nothing sleeps. Best while you are actively playing.\n\nDim when idle — the screen is still held awake and the app never locks, but after 30 seconds without input the board dims. The board stays readable from across the table, and a single tap brings it straight back with nothing lost. Good for a game in progress that you glance at between turns.\n\nReduce power use — hands the screen back to your device, so it dims and turns off on its own schedule and you unlock to return. Also lowers drawing quality to save more: card and monster box shadows become hard-edged instead of softly blurred, icons are filtered more cheaply, and shimmering text effects are turned off. Best for infrequent use and low battery capacity devices.\n\nNothing about how the game works changes at any level — no tracking, syncing or rules behaviour is affected.';
+
+  @override
+  String get settingsReducePower => 'Reduce power use';
+
+  @override
+  String get settingsReducePowerInfoTitle => 'Reduce power use';
+
+  @override
+  String get settingsReducePowerInfo =>
+      'Saves battery by doing less drawing work, at the cost of some visual polish.\n\nWhat changes:\n\n• The screen is allowed to dim and turn off on its own. Normally this app keeps it awake the whole time it is open, which is by far the biggest drain on a phone or tablet.\n\n• Card and monster box shadows become hard-edged instead of softly blurred.\n\n• Icons are filtered more cheaply. You may notice slightly rougher edges on small images.\n\n• Shimmering text effects are turned off.\n\nNothing about how the game works changes — no tracking, syncing or rules behaviour is affected. You can turn this off again at any time.';
 
   @override
   String get settingsFhHazTerrainCalc =>
@@ -834,6 +901,21 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cmdChangeName => 'Charaktername ändern';
 
   @override
+  String get cmdAddNoteRow => 'Notizzeile hinzufügen';
+
+  @override
+  String get cmdSetNoteRowText => 'Notiz bearbeiten';
+
+  @override
+  String get cmdSetNoteRowColor => 'Notizfarbe ändern';
+
+  @override
+  String get cmdLinkNoteRow => 'Notizzeile verknüpfen';
+
+  @override
+  String get cmdRemoveNoteRow => 'Notizzeile entfernen';
+
+  @override
   String get cmdAddBless => 'Segen hinzufügen';
 
   @override
@@ -1033,6 +1115,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String cmdSetInitiative(String character) {
     return 'Initiative von $character festlegen';
   }
+
+  @override
+  String cmdSetCharacterNote(String character) {
+    return 'Notiz für $character festlegen';
+  }
+
+  @override
+  String get characterNoteTitle => 'Notiz';
+
+  @override
+  String get characterNoteHint => 'Notiz hinzufügen…';
+
+  @override
+  String get characterNoteQuickAdd => 'Kurznotiz';
 
   @override
   String cmdSetMonsterLevel(String monster) {

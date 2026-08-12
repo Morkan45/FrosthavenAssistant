@@ -183,13 +183,18 @@ class Server extends GameServer {
     if (serverSocket != null && _settings.server.value && !_pinging) {
       _pinging = true;
       Future.delayed(const Duration(seconds: 20), () {
+        _pinging = false;
         if (serverSocket == null || !_settings.server.value) {
-          _pinging = false;
-        } else {
-          send("ping");
-          _pinging = false;
-          sendPing();
+          return;
         }
+        // Skip the broadcast while backgrounded — the radio wakeup costs far
+        // more battery than the keepalive is worth. Keep rescheduling so the
+        // chain resumes on foreground. (Android hosting keeps its foreground
+        // service, which is what actually holds the connection open there.)
+        if (!getIt<Network>().appInBackground) {
+          send("ping");
+        }
+        sendPing();
       });
     }
   }

@@ -4,10 +4,13 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:screen_brightness/screen_brightness.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:frosthaven_assistant/Resource/enums.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
+import 'package:frosthaven_assistant/Resource/ui_utils.dart';
 import 'package:frosthaven_assistant/services/android_foreground_service.dart';
 import 'package:frosthaven_assistant/services/network/client.dart';
 import 'package:frosthaven_assistant/services/network/network.dart';
@@ -35,6 +38,7 @@ class MainState extends State<MyHomePage>
 
   @override
   void dispose() {
+    _settings.powerMode.removeListener(_applyWakelock);
     if (Platform.isAndroid) {
       _settings.server.removeListener(_onServerChanged);
     }
@@ -44,6 +48,37 @@ class MainState extends State<MyHomePage>
     }
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  /// Holds the screen awake unless the user has opted into reduce-power mode,
+  /// in which case the normal system dim-then-sleep timer applies.
+  ///
+  /// Called on start, on resume, and whenever the setting changes, so toggling
+  /// it takes effect without a restart.
+  void _restoreBrightnessIfDimmed() {
+    if (kIsWeb ||
+        !(Platform.isAndroid ||
+            Platform.isIOS ||
+            Platform.isMacOS ||
+            Platform.isWindows)) {
+      return;
+    }
+    if (!isDimmed.value) return;
+    ScreenBrightness.instance.resetApplicationScreenBrightness().ignore();
+    isDimmed.value = false;
+  }
+
+  void _applyWakelock() {
+    if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) {
+      return;
+    }
+    // Only the top tier releases the wakelock. `dimWhenIdle` deliberately keeps
+    // holding it — dimming while staying awake is the whole point of that tier.
+    if (_settings.powerMode.value == PowerMode.reducePower) {
+      WakelockPlus.disable().ignore();
+    } else {
+      WakelockPlus.enable().ignore();
+    }
   }
 
   void _onServerChanged() {
@@ -61,9 +96,7 @@ class MainState extends State<MyHomePage>
         //this happens all the time on pc, disable this for pc.
         _network.appInBackground = false;
         log("app in resumed");
-        if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-          WakelockPlus.enable().ignore();
-        }
+        _applyWakelock();
         rebuildAllChildren(
           context,
         ); //might be a bit performance heavy, but ensures app state visually up to date with server.
@@ -86,6 +119,16 @@ class MainState extends State<MyHomePage>
       case AppLifecycleState.paused:
         log("app in paused");
         unawaited(_flushPersistence());
+        // Belt and braces: the brightness plugin resets on resign-active, but a
+        // jetsam kill can skip that and UIScreen.brightness is the real system
+        // slider — a leaked dim value would outlive the app.
+        _restoreBrightnessIfDimmed();
+        // Drop decoded images that nothing is currently displaying. Reduces the
+        // chance iOS reclaims memory from a backgrounded app, which would force
+        // a cold relaunch and a full asset re-decode.
+        // Not clearLiveImages(): those are still referenced by the mounted
+        // tree, so clearing them only forces a re-decode on resume.
+        PaintingBinding.instance.imageCache.clear();
         break;
       case AppLifecycleState.detached:
         log("app in detached");
@@ -134,9 +177,8 @@ class MainState extends State<MyHomePage>
       unawaited(_preventUnflushedWindowClose());
     }
 
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      WakelockPlus.enable().ignore();
-    }
+    _applyWakelock();
+    _settings.powerMode.addListener(_applyWakelock);
 
     if (Platform.isAndroid || Platform.isIOS) {
       KeyboardVisibilityController().onChange.listen((bool visible) {

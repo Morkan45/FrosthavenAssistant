@@ -7,6 +7,7 @@ const double _kCharacterHeight = 60.0;
 const double _kBoxSpacing = 2.0;
 const double _kRowHeight = 32.0;
 const double _kMonsterBodyHeight = 97.6;
+const double _kNoteRowHeight = 40.0;
 const int _k2Columns = 2;
 const int _k3Rows = 3;
 
@@ -57,6 +58,8 @@ class MainListItemViewModel {
       if (totalWidthOfMonsterBoxes > listWidth) standeeRows = _k2Columns;
       if (totalWidthOfMonsterBoxes > _k2Columns * listWidth) standeeRows = _k3Rows;
       return _kMonsterBodyHeight * scale + standeeRows * _kRowHeight * scale;
+    } else if (data is NoteRow) {
+      return _kNoteRowHeight * scale;
     }
     return 0;
   }

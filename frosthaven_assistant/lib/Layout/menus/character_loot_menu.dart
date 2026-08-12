@@ -50,9 +50,12 @@ class CharacterLootMenuState extends State<CharacterLootMenu> {
         children: [
           for (Character character in characters)
             _CharacterLootWidget(
-                characterId: character.characterClass.id,
-                characterName: getIt<TranslationService>().t(character.characterState.display.value),
-                gameState: _gameState),
+              characterId: character.characterClass.id,
+              characterName: getIt<TranslationService>().t(
+                character.characterState.display.value,
+              ),
+              gameState: _gameState,
+            ),
         ],
       ),
     );
@@ -76,9 +79,10 @@ class _CharacterLootWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       constraints: const BoxConstraints(maxWidth: kMenuNarrowWidth),
-      child: Column(children: [
-        const Divider(),
-        Row(
+      child: Column(
+        children: [
+          const Divider(),
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -87,17 +91,24 @@ class _CharacterLootWidget extends StatelessWidget {
                 height: kIconSize,
                 width: kIconSize,
                 fit: BoxFit.contain,
-                image: AssetImage("assets/images/class-icons/$characterName.png"),
+                image: AssetImage("assets/images/class-icons/$characterId.png"),
               ),
               const SizedBox(width: _kCharIconSpacing),
               Text(
                 AppLocalizations.of(context)!.characterLootTitle(characterName),
                 style: kTitleStyle,
-              )
-            ]),
-        ...CharacterLootMenuState._kLootNames.map((name) => _LootListTile(
-            lootName: name, characterId: characterId, gameState: gameState)),
-      ]),
+              ),
+            ],
+          ),
+          ...CharacterLootMenuState._kLootNames.map(
+            (name) => _LootListTile(
+              lootName: name,
+              characterId: characterId,
+              gameState: gameState,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -163,27 +174,26 @@ class _LootListTile extends StatelessWidget {
       return Container();
     }
     return ListTile(
-        contentPadding: const EdgeInsets.only(left: _kContentPaddingLeft),
-        minVerticalPadding: 0,
-        minLeadingWidth: 0,
-        horizontalTitleGap: _kHorizontalTitleGap,
-        leading: Image(
-          filterQuality: FilterQuality.medium,
-          height: kIconSize,
-          width: kIconSize,
-          fit: BoxFit.contain,
-          image: AssetImage("assets/images/loot/${lootName}_icon.png"),
-        ),
-        title: Text(
-          _lootDisplayName(AppLocalizations.of(context)!, lootName),
-          overflow: TextOverflow.visible,
-          maxLines: 1,
-        ),
-        trailing: Container(
-            padding: const EdgeInsets.only(right: _kTrailingPaddingRight),
-            child: Text(
-              "$amount",
-              style: kHeadingStyle,
-            )));
+      contentPadding: const EdgeInsets.only(left: _kContentPaddingLeft),
+      minVerticalPadding: 0,
+      minLeadingWidth: 0,
+      horizontalTitleGap: _kHorizontalTitleGap,
+      leading: Image(
+        filterQuality: FilterQuality.medium,
+        height: kIconSize,
+        width: kIconSize,
+        fit: BoxFit.contain,
+        image: AssetImage("assets/images/loot/${lootName}_icon.png"),
+      ),
+      title: Text(
+        _lootDisplayName(AppLocalizations.of(context)!, lootName),
+        overflow: TextOverflow.visible,
+        maxLines: 1,
+      ),
+      trailing: Container(
+        padding: const EdgeInsets.only(right: _kTrailingPaddingRight),
+        child: Text("$amount", style: kHeadingStyle),
+      ),
+    );
   }
 }

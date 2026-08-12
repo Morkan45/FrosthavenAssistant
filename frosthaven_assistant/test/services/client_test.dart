@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:fake_async/fake_async.dart';
 import 'package:fluent_assertions/fluent_assertions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,6 +16,7 @@ import 'package:frosthaven_assistant/services/network/network.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'client_test.mocks.dart';
 import 'communication_test.mocks.dart' show MockSocket;
@@ -44,6 +46,9 @@ final _valueNotifierClientState = MockValueNotifierClientState();
 List<String> _log = [];
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences.setMockInitialValues({});
+
   setUpAll(() {
     when(_settings.lastKnownPort).thenReturn('0000');
     when(_settings.locale).thenReturn(ValueNotifier<String>('en'));
@@ -121,6 +126,68 @@ void main() {
       expect(settings.client.value, ClientState.connected);
     },
   );
+
+  // Regression guard for a bug observed on device: after the app resumes from
+  // background, the socket has been dropped and reconnect-on-resume opens a new
+  // one — but the previous connection's pending ping `Future.delayed` thaws and
+  // latches onto the replacement, so two chains ping the same socket forever.
+  // Beyond the doubled traffic they race on the responsive flag, which breaks
+  // the unresponsive-server watchdog.
+  test('a ping scheduled by a replaced connection does not keep pinging', () {
+    final connection = MockConnection();
+    final communication = MockCommunication();
+    final network = MockNetwork();
+    final settings = MockSettings();
+    final socket = MockSocket();
+
+    when(settings.lastKnownPort).thenReturn('4567');
+    when(settings.locale).thenReturn(ValueNotifier<String>('en'));
+    when(
+      settings.client,
+    ).thenReturn(ValueNotifier<ClientState>(ClientState.disconnected));
+    when(network.networkMessage).thenReturn(ValueNotifier<String>(''));
+    when(network.networkMessageIsError).thenReturn(ValueNotifier<bool>(false));
+    when(network.appInBackground).thenReturn(false);
+    when(socket.remoteAddress).thenReturn(InternetAddress('127.0.0.1'));
+    when(socket.remotePort).thenReturn(4567);
+    when(connection.connect(any, any)).thenAnswer((_) async => socket);
+    when(connection.established()).thenReturn(true);
+
+    final client = Client(
+      gameState: _gameState,
+      communication: communication,
+      connection: connection,
+      network: network,
+      settings: settings,
+    );
+
+    fakeAsync((async) {
+      client.connect(_address); // chain A, would ping at t=12s
+      async.elapse(const Duration(seconds: 6));
+
+      // The socket dies while the app is away; the resume path reconnects.
+      final onDone =
+          verify(
+                socket.listen(
+                  any,
+                  onError: anyNamed('onError'),
+                  onDone: captureAnyNamed('onDone'),
+                ),
+              ).captured.last
+              as void Function()?;
+      onDone?.call();
+      client.connect(_address); // chain B, pings at t=18s
+      async.elapse(const Duration(seconds: 14)); // to t=20s
+
+      // Only chain B is alive, and it has pinged once, at t=18s.
+      verify(communication.sendToAll('ping')).called(1);
+
+      // Before the fix chain A also fired, at t=12s, and cleared the responsive
+      // flag out from under chain B — so chain B read a pong it had no reason
+      // to expect yet and force-disconnected a perfectly healthy connection.
+      settings.client.value.shouldBe(ClientState.connected);
+    });
+  });
 }
 
 void Function() _overridePrint(void Function() testFn) => () {

@@ -9,6 +9,7 @@ import '../menus/numpad_menu.dart';
 import '../view_models/character_widget_internal_view_model.dart';
 import 'character_background_widget.dart';
 import 'character_health_controls.dart';
+import 'figure_note_widget.dart';
 import 'character_health_widget.dart';
 import 'character_icon_widget.dart';
 import 'character_level_widget.dart';
@@ -32,6 +33,12 @@ class CharacterWidgetInternal extends StatefulWidget {
   static const double _kInitiativeColumnWidth = 45.0;
   static const double _kDetailsColumnWidth = 145.0;
   static const int _kInitMaxLength = 2;
+  // Inline note sits in the middle band, between the name/HP (left) and the
+  // XP/level info (which starts at _kXPLeft on the right), vertically aligned
+  // with the health/HP line rather than centred in the row.
+  static const double _kNoteLeft = 168.0;
+  static const double _kNoteMaxWidth = 84.0;
+  static const double _kNoteTop = 32.0;
 
   const CharacterWidgetInternal({
     super.key,
@@ -221,6 +228,22 @@ class CharacterInternalWidgetState extends State<CharacterWidgetInternal> {
                 width: CharacterWidgetInternal._kInkwellWidth * scale,
               ),
             ),
+          Positioned(
+            left: CharacterWidgetInternal._kNoteLeft * scale,
+            top: CharacterWidgetInternal._kNoteTop * scale,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: CharacterWidgetInternal._kNoteMaxWidth * scale,
+              ),
+              child: FigureNoteWidget(
+                figure: character,
+                scale: scale,
+                maxLines: 1,
+                gameState: widget.gameState,
+                settings: widget.settings,
+              ),
+            ),
+          ),
         ],
       ),
     );

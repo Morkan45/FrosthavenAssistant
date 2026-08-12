@@ -84,7 +84,7 @@ class TokenApplier {
               Widget child = Image(
                 height: height,
                 fit: BoxFit.fitHeight,
-                filterQuality: FilterQuality.medium,
+                filterQuality: powerAwareFilterQuality(),
                 semanticLabel: iconGfx,
                 image: AssetImage(imagePath),
               );
@@ -115,7 +115,7 @@ class TokenApplier {
                         child: Image(
                           height: fontSize * _kUseElementScale,
                           fit: BoxFit.fitHeight,
-                          filterQuality: FilterQuality.medium,
+                          filterQuality: powerAwareFilterQuality(),
                           semanticLabel: iconGfx,
                           image: AssetImage(
                               "assets/images/abilities/use_plain_fh.png"),

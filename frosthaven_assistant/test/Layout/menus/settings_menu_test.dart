@@ -719,5 +719,90 @@ void main() {
       await gesture.up();
       settings.userScalingMenus.value = before;
     });
+
+    testWidgets('renders the three power-saving tiers with an info button', (
+      WidgetTester tester,
+    ) async {
+      await pumpMenu(tester);
+      expect(find.text('Power saving'), findsOneWidget);
+      expect(find.text('Normal'), findsOneWidget);
+      expect(find.text('Dim when idle'), findsOneWidget);
+      expect(find.text('Reduce power use'), findsOneWidget);
+      expect(find.byIcon(Icons.info_outline), findsOneWidget);
+    });
+
+    testWidgets('selecting a tier updates the setting', (
+      WidgetTester tester,
+    ) async {
+      final settings = getIt<Settings>();
+      final before = settings.powerMode.value;
+      addTearDown(() => settings.powerMode.value = before);
+
+      await pumpMenu(tester);
+      final radio = find.byWidgetPredicate(
+        (w) => w is Radio<PowerMode> && w.value == PowerMode.dimWhenIdle,
+      );
+      await tester.ensureVisible(radio);
+      await tester.pumpAndSettle();
+      await tester.tap(radio);
+      await tester.pumpAndSettle();
+
+      expect(settings.powerMode.value, PowerMode.dimWhenIdle);
+    });
+
+    testWidgets('info button sits to the right of the Power saving label', (
+      WidgetTester tester,
+    ) async {
+      await pumpMenu(tester);
+      final label = find.text('Power saving');
+      final icon = find.byIcon(Icons.info_outline);
+      await tester.ensureVisible(icon);
+      await tester.pumpAndSettle();
+
+      final labelRect = tester.getRect(label);
+      final iconRect = tester.getRect(icon);
+      expect(
+        iconRect.left,
+        greaterThanOrEqualTo(labelRect.right),
+        reason: 'the info button must follow the label, not lead it',
+      );
+      // Same row, not wrapped onto a line of its own.
+      expect((iconRect.center.dy - labelRect.center.dy).abs(), lessThan(8));
+    });
+
+    testWidgets('info button explains all three power tiers', (
+      WidgetTester tester,
+    ) async {
+      await pumpMenu(tester);
+      final infoButton = find.byIcon(Icons.info_outline);
+      await tester.ensureVisible(infoButton);
+      await tester.pumpAndSettle();
+      await tester.tap(infoButton);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AlertDialog), findsOneWidget);
+      // The title text appears both in the dialog and behind it on the row.
+      expect(find.text('Power saving'), findsNWidgets(2));
+
+      final dialogText = tester
+          .widgetList<Text>(
+            find.descendant(
+              of: find.byType(AlertDialog),
+              matching: find.byType(Text),
+            ),
+          )
+          .map((t) => t.data ?? '')
+          .join('\n');
+      // The tradeoffs the user asked to be spelled out in-app.
+      expect(dialogText, contains('Dim when idle'));
+      expect(dialogText, contains('dims and turns off'));
+      expect(dialogText, contains('shadows'));
+      expect(dialogText, contains('shimmering text effects'));
+      expect(dialogText, contains('no tracking, syncing or rules behaviour'));
+      expect(
+        dialogText,
+        contains('infrequent use and low battery capacity devices'),
+      );
+    });
   });
 }

@@ -167,6 +167,47 @@ class SettingsDisplaySection extends StatelessWidget {
               settings.saveToDisk();
             },
           ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Row(
+            children: [
+              Expanded(child: Text(l10n.settingsPowerModeLabel)),
+              SettingsInfoButton(
+                infoTitle: l10n.settingsPowerModeInfoTitle,
+                infoText: l10n.settingsPowerModeInfo,
+              ),
+            ],
+          ),
+        ),
+        RadioGroup<PowerMode>(
+          groupValue: settings.powerMode.value,
+          onChanged: (value) {
+            if (value == null) return;
+            settings.powerMode.value = value;
+            settings.saveToDisk();
+            gameState.updateAllUI();
+            onLayoutChanged();
+          },
+          child: Column(
+            children: [
+              RadioListTile<PowerMode>(
+                value: PowerMode.normal,
+                title: Text(l10n.powerModeNormal),
+                visualDensity: VisualDensity.compact,
+              ),
+              RadioListTile<PowerMode>(
+                value: PowerMode.dimWhenIdle,
+                title: Text(l10n.powerModeDimWhenIdle),
+                visualDensity: VisualDensity.compact,
+              ),
+              RadioListTile<PowerMode>(
+                value: PowerMode.reducePower,
+                title: Text(l10n.settingsReducePower),
+                visualDensity: VisualDensity.compact,
+              ),
+            ],
+          ),
+        ),
         SettingsCheckbox(
           title: l10n.settingsFitMainListWidth,
           notifier: settings.fitMainListToWidth,

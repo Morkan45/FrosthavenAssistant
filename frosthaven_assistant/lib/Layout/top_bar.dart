@@ -69,8 +69,10 @@ class TopBar extends StatelessWidget {
                             ? 'assets/images/psd/gloomhaven-bar.png'
                             : 'assets/images/psd/frosthaven-bar.png',
                       ),
-                      height: (kBarHeight * settings.userScalingBars.value)
-                          .toInt(),
+                      height: quantizeDecodeSize(
+                        kBarHeight * settings.userScalingBars.value,
+                        quantum: kBarDecodeSizeQuantum,
+                      ),
                     ),
                   ),
                 ),

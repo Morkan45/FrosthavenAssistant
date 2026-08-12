@@ -49,6 +49,7 @@ part "modifier_card.dart";
 part "modifier_deck.dart";
 part "modifier_deck_codec.dart";
 part "monster.dart";
+part "note_row.dart";
 part "monster_ability_state.dart";
 part "monster_instance.dart";
 part "sanctuary_deck.dart";
@@ -309,8 +310,53 @@ class GameState {
   /// Fires `_currentListNotifier` with the current list and also increments
   /// `updateList` so that all existing subscribers remain notified.
   void _notifyCurrentList() {
+    _reflowNoteRows();
     _currentListNotifier.value = BuiltList.of(_currentList);
     updateList.notify();
+  }
+
+  /// Keeps every linked [NoteRow] positioned directly after its target row (and
+  /// after any earlier notes on the same target), so connected notes stay glued
+  /// to their anchor through drag-reordering and the per-round initiative sort.
+  /// Figures and unlinked notes keep their relative order. A note whose target
+  /// is not currently present is left where it is (and re-glues if the target
+  /// returns, e.g. mid network sync). No-op — and no reallocation — when there
+  /// are no linked notes, which is the common case.
+  void _reflowNoteRows() {
+    bool hasLinkedNote = false;
+    for (final item in _currentList) {
+      if (item is NoteRow && item.linkedId.value.isNotEmpty) {
+        hasLinkedNote = true;
+        break;
+      }
+    }
+    if (!hasLinkedNote) return;
+
+    final Set<String> figureIds = {};
+    for (final item in _currentList) {
+      if (item is! NoteRow) figureIds.add(item.id);
+    }
+
+    final Map<String, List<NoteRow>> notesByTarget = {};
+    final List<ListItemData> anchors = [];
+    for (final item in _currentList) {
+      if (item is NoteRow &&
+          item.linkedId.value.isNotEmpty &&
+          figureIds.contains(item.linkedId.value)) {
+        notesByTarget.putIfAbsent(item.linkedId.value, () => []).add(item);
+      } else {
+        anchors.add(item);
+      }
+    }
+    if (notesByTarget.isEmpty) return;
+
+    final List<ListItemData> result = [];
+    for (final item in anchors) {
+      result.add(item);
+      final notes = notesByTarget.remove(item.id);
+      if (notes != null) result.addAll(notes);
+    }
+    _currentList = result;
   }
 
   /// Fires `monsterInstancesNotifier` / `summonListNotifier` on every item in

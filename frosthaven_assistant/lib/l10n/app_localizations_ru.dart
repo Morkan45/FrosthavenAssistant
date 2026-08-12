@@ -102,6 +102,47 @@ class AppLocalizationsRu extends AppLocalizations {
   String get actionLogRollbackConfirm => 'Откатить';
 
   @override
+  String get menuAddNoteRow => 'Добавить строку заметки';
+
+  @override
+  String get noteRowTitle => 'Заметка';
+
+  @override
+  String get noteRowHint => 'Текст заметки…';
+
+  @override
+  String get noteRowColourLabel => 'Цвет';
+
+  @override
+  String get noteRowConnectLabel => 'Связать с:';
+
+  @override
+  String get noteRowConnectNone => 'Ничего (свободная заметка)';
+
+  @override
+  String get noteRowConnectPlayer => 'Игрок';
+
+  @override
+  String get noteRowConnectMonster => 'Монстр';
+
+  @override
+  String get noteRowWholeGroup => 'Вся группа';
+
+  @override
+  String get noteRowAll => 'Все';
+
+  @override
+  String noteRowStandeeNr(int nr) {
+    return 'Фишка $nr';
+  }
+
+  @override
+  String get noteRowAddFromMenu => 'Добавить заметку';
+
+  @override
+  String get noteRowDelete => 'Удалить заметку';
+
+  @override
   String get undo => 'Отменить';
 
   @override
@@ -217,6 +258,32 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsShimmer => 'Мерцание текста на картах характеристик';
+
+  @override
+  String get settingsPowerModeLabel => 'Power saving';
+
+  @override
+  String get powerModeNormal => 'Normal';
+
+  @override
+  String get powerModeDimWhenIdle => 'Dim when idle';
+
+  @override
+  String get settingsPowerModeInfoTitle => 'Power saving';
+
+  @override
+  String get settingsPowerModeInfo =>
+      'Three levels of battery saving, from none to most.\n\nNormal — the screen is held awake at full brightness for as long as the app is open. Nothing is dimmed and nothing sleeps. Best while you are actively playing.\n\nDim when idle — the screen is still held awake and the app never locks, but after 30 seconds without input the board dims. The board stays readable from across the table, and a single tap brings it straight back with nothing lost. Good for a game in progress that you glance at between turns.\n\nReduce power use — hands the screen back to your device, so it dims and turns off on its own schedule and you unlock to return. Also lowers drawing quality to save more: card and monster box shadows become hard-edged instead of softly blurred, icons are filtered more cheaply, and shimmering text effects are turned off. Best for infrequent use and low battery capacity devices.\n\nNothing about how the game works changes at any level — no tracking, syncing or rules behaviour is affected.';
+
+  @override
+  String get settingsReducePower => 'Reduce power use';
+
+  @override
+  String get settingsReducePowerInfoTitle => 'Reduce power use';
+
+  @override
+  String get settingsReducePowerInfo =>
+      'Saves battery by doing less drawing work, at the cost of some visual polish.\n\nWhat changes:\n\n• The screen is allowed to dim and turn off on its own. Normally this app keeps it awake the whole time it is open, which is by far the biggest drain on a phone or tablet.\n\n• Card and monster box shadows become hard-edged instead of softly blurred.\n\n• Icons are filtered more cheaply. You may notice slightly rougher edges on small images.\n\n• Shimmering text effects are turned off.\n\nNothing about how the game works changes — no tracking, syncing or rules behaviour is affected. You can turn this off again at any time.';
 
   @override
   String get settingsFhHazTerrainCalc =>
@@ -829,6 +896,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cmdChangeName => 'Изменить имя персонажа';
 
   @override
+  String get cmdAddNoteRow => 'Добавить строку заметки';
+
+  @override
+  String get cmdSetNoteRowText => 'Изменить заметку';
+
+  @override
+  String get cmdSetNoteRowColor => 'Изменить цвет заметки';
+
+  @override
+  String get cmdLinkNoteRow => 'Связать строку заметки';
+
+  @override
+  String get cmdRemoveNoteRow => 'Удалить строку заметки';
+
+  @override
   String get cmdAddBless => 'Добавить благословение';
 
   @override
@@ -1029,6 +1111,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String cmdSetInitiative(String character) {
     return 'Задать инициативу $character';
   }
+
+  @override
+  String cmdSetCharacterNote(String character) {
+    return 'Задать заметку для $character';
+  }
+
+  @override
+  String get characterNoteTitle => 'Заметка';
+
+  @override
+  String get characterNoteHint => 'Добавить заметку…';
+
+  @override
+  String get characterNoteQuickAdd => 'Быстрая заметка';
 
   @override
   String cmdSetMonsterLevel(String monster) {

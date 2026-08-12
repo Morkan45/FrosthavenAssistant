@@ -13,6 +13,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'Layout/idle_dimmer.dart';
 import 'Resource/game_data.dart';
 import 'Resource/theme_switcher.dart';
 import 'l10n/app_localizations.dart';
@@ -38,7 +39,7 @@ const _benignSocketErrno = <int>{
   10054, // WSAECONNRESET  – connection forcibly closed by remote host (Windows)
 };
 
-bool _isBenignNetworkError(Object error) {
+bool _isBenignNetworkError(Object? error) {
   if (error is OSError) {
     return _benignSocketErrno.contains(error.errorCode);
   }
@@ -109,6 +110,18 @@ Future<void> main() async {
   await SentryFlutter.init(
     (options) {
       options.dsn = const String.fromEnvironment('SENTRY_DSN');
+      // Sentry's own FlutterError/PlatformDispatcher integrations capture
+      // events unconditionally, bypassing the filtering done in the
+      // FlutterError.onError/PlatformDispatcher.instance.onError overrides
+      // above. beforeSend is the one choke point all of those (plus the
+      // explicit Sentry.captureException calls below) funnel through, so
+      // it's the only place a filter reliably applies.
+      options.beforeSend = (event, hint) async {
+        if (_isBenignNetworkError(event.throwable)) {
+          return null;
+        }
+        return event;
+      };
     },
     appRunner: () =>
         runApp(ThemeSwitcherWidget(initialTheme: theme, child: const MyApp())),
@@ -187,7 +200,8 @@ class _MyAppState extends State<MyApp> {
           if (child == null) {
             return const SizedBox.shrink();
           }
-          return ExcludeSemantics(child: GlobalHotkeys(child: child));
+          return ExcludeSemantics(
+              child: IdleDimmer(child: GlobalHotkeys(child: child)));
         },
         home: const MyHomePage(title: title),
       ),

@@ -101,6 +101,47 @@ class AppLocalizationsZh extends AppLocalizations {
   String get actionLogRollbackConfirm => '回退';
 
   @override
+  String get menuAddNoteRow => '添加备注行';
+
+  @override
+  String get noteRowTitle => '备注';
+
+  @override
+  String get noteRowHint => '备注内容…';
+
+  @override
+  String get noteRowColourLabel => '颜色';
+
+  @override
+  String get noteRowConnectLabel => '关联到：';
+
+  @override
+  String get noteRowConnectNone => '无（自由备注）';
+
+  @override
+  String get noteRowConnectPlayer => '玩家';
+
+  @override
+  String get noteRowConnectMonster => '怪物';
+
+  @override
+  String get noteRowWholeGroup => '整组';
+
+  @override
+  String get noteRowAll => '全部';
+
+  @override
+  String noteRowStandeeNr(int nr) {
+    return '立牌 $nr';
+  }
+
+  @override
+  String get noteRowAddFromMenu => '添加备注';
+
+  @override
+  String get noteRowDelete => '删除备注';
+
+  @override
   String get undo => '撤销';
 
   @override
@@ -216,6 +257,32 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsShimmer => '属性卡文字闪烁效果';
+
+  @override
+  String get settingsPowerModeLabel => 'Power saving';
+
+  @override
+  String get powerModeNormal => 'Normal';
+
+  @override
+  String get powerModeDimWhenIdle => 'Dim when idle';
+
+  @override
+  String get settingsPowerModeInfoTitle => 'Power saving';
+
+  @override
+  String get settingsPowerModeInfo =>
+      'Three levels of battery saving, from none to most.\n\nNormal — the screen is held awake at full brightness for as long as the app is open. Nothing is dimmed and nothing sleeps. Best while you are actively playing.\n\nDim when idle — the screen is still held awake and the app never locks, but after 30 seconds without input the board dims. The board stays readable from across the table, and a single tap brings it straight back with nothing lost. Good for a game in progress that you glance at between turns.\n\nReduce power use — hands the screen back to your device, so it dims and turns off on its own schedule and you unlock to return. Also lowers drawing quality to save more: card and monster box shadows become hard-edged instead of softly blurred, icons are filtered more cheaply, and shimmering text effects are turned off. Best for infrequent use and low battery capacity devices.\n\nNothing about how the game works changes at any level — no tracking, syncing or rules behaviour is affected.';
+
+  @override
+  String get settingsReducePower => 'Reduce power use';
+
+  @override
+  String get settingsReducePowerInfoTitle => 'Reduce power use';
+
+  @override
+  String get settingsReducePowerInfo =>
+      'Saves battery by doing less drawing work, at the cost of some visual polish.\n\nWhat changes:\n\n• The screen is allowed to dim and turn off on its own. Normally this app keeps it awake the whole time it is open, which is by far the biggest drain on a phone or tablet.\n\n• Card and monster box shadows become hard-edged instead of softly blurred.\n\n• Icons are filtered more cheaply. You may notice slightly rougher edges on small images.\n\n• Shimmering text effects are turned off.\n\nNothing about how the game works changes — no tracking, syncing or rules behaviour is affected. You can turn this off again at any time.';
 
   @override
   String get settingsFhHazTerrainCalc => '原版Gloomhaven中使用Frosthaven危险地形计算';
@@ -814,6 +881,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cmdChangeName => '更改角色名称';
 
   @override
+  String get cmdAddNoteRow => '添加备注行';
+
+  @override
+  String get cmdSetNoteRowText => '编辑备注';
+
+  @override
+  String get cmdSetNoteRowColor => '更改备注颜色';
+
+  @override
+  String get cmdLinkNoteRow => '关联备注行';
+
+  @override
+  String get cmdRemoveNoteRow => '移除备注行';
+
+  @override
   String get cmdAddBless => '添加祝福';
 
   @override
@@ -1013,6 +1095,20 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String cmdSetCharacterNote(String character) {
+    return '为 $character 设置备注';
+  }
+
+  @override
+  String get characterNoteTitle => '备注';
+
+  @override
+  String get characterNoteHint => '添加备注…';
+
+  @override
+  String get characterNoteQuickAdd => '快速备注';
+
+  @override
   String cmdSetMonsterLevel(String monster) {
     return '设置 $monster 等级';
   }
@@ -1186,6 +1282,47 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get actionLogRollbackConfirm => '回退';
+
+  @override
+  String get menuAddNoteRow => '新增備註列';
+
+  @override
+  String get noteRowTitle => '備註';
+
+  @override
+  String get noteRowHint => '備註內容…';
+
+  @override
+  String get noteRowColourLabel => '顏色';
+
+  @override
+  String get noteRowConnectLabel => '連結至：';
+
+  @override
+  String get noteRowConnectNone => '無（自由備註）';
+
+  @override
+  String get noteRowConnectPlayer => '玩家';
+
+  @override
+  String get noteRowConnectMonster => '怪物';
+
+  @override
+  String get noteRowWholeGroup => '整組';
+
+  @override
+  String get noteRowAll => '全部';
+
+  @override
+  String noteRowStandeeNr(int nr) {
+    return '立牌 $nr';
+  }
+
+  @override
+  String get noteRowAddFromMenu => '新增備註';
+
+  @override
+  String get noteRowDelete => '刪除備註';
 
   @override
   String get undo => '撤銷';
@@ -1865,6 +2002,21 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get cmdChangeName => '更改角色名稱';
 
   @override
+  String get cmdAddNoteRow => '新增備註列';
+
+  @override
+  String get cmdSetNoteRowText => '編輯備註';
+
+  @override
+  String get cmdSetNoteRowColor => '更改備註顏色';
+
+  @override
+  String get cmdLinkNoteRow => '連結備註列';
+
+  @override
+  String get cmdRemoveNoteRow => '移除備註列';
+
+  @override
   String get cmdAddBless => '新增祝福';
 
   @override
@@ -2062,6 +2214,20 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String cmdSetInitiative(String character) {
     return '設定 $character 先攻';
   }
+
+  @override
+  String cmdSetCharacterNote(String character) {
+    return '為 $character 設定備註';
+  }
+
+  @override
+  String get characterNoteTitle => '備註';
+
+  @override
+  String get characterNoteHint => '新增備註…';
+
+  @override
+  String get characterNoteQuickAdd => '快速備註';
 
   @override
   String cmdSetMonsterLevel(String monster) {

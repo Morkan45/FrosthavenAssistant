@@ -1464,7 +1464,7 @@
           "elite": [0, 1, 1]
         },
         "Ruined Machine": {
-          "normal": [2, 2, 0],
+          "normal": [0, 2, 0],
           "elite": [2, 2, 4]
         }
       }

@@ -42,7 +42,7 @@ void main() {
     final originalOnError = FlutterError.onError;
     FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
-      MaterialApp(
+      testMaterialApp(
         home: Scaffold(
           body: SingleChildScrollView(
             child: const CharacterWidget(characterId: 'Blinkblade'),

@@ -18024,7 +18024,7 @@
           "special2": [
             "^Move all water tiles 1 hex to the right.",
             "^^Summon one Piranha Pig.",
-            "^^It is normal for 2-3 characters or",
+            "^^It is normal for 2 to 3 characters or",
             "^^elite for 4 characters."
           ]
         },
@@ -18039,7 +18039,7 @@
           "special2": [
             "^Move all water tiles 1 hex to the right.",
             "^^Summon one Piranha Pig.",
-            "^^It is normal for 2-3 characters or",
+            "^^It is normal for 2 to 3 characters or",
             "^^elite for 4 characters."
           ]
         },
@@ -18054,7 +18054,7 @@
           "special2": [
             "^Move all water tiles 1 hex to the right.",
             "^^Summon one Piranha Pig.",
-            "^^It is normal for 2-3 characters or",
+            "^^It is normal for 2 to 3 characters or",
             "^^elite for 4 characters."
           ]
         },
@@ -18069,7 +18069,7 @@
           "special2": [
             "^Move all water tiles 1 hex to the right.",
             "^^Summon one Piranha Pig.",
-            "^^It is normal for 2-3 characters or",
+            "^^It is normal for 2 to 3 characters or",
             "^^elite for 4 characters."
           ]
         },
@@ -18084,7 +18084,7 @@
           "special2": [
             "^Move all water tiles 1 hex to the right.",
             "^^Summon one Piranha Pig.",
-            "^^It is normal for 2-3 characters or",
+            "^^It is normal for 2 to 3 characters or",
             "^^elite for 4 characters."
           ]
         },
@@ -18099,7 +18099,7 @@
           "special2": [
             "^Move all water tiles 1 hex to the right.",
             "^^Summon one Piranha Pig.",
-            "^^It is normal for 2-3 characters or",
+            "^^It is normal for 2 to 3 characters or",
             "^^elite for 4 characters."
           ]
         },
@@ -18114,7 +18114,7 @@
           "special2": [
             "^Move all water tiles 1 hex to the right.",
             "^^Summon one Piranha Pig.",
-            "^^It is normal for 2-3 characters or",
+            "^^It is normal for 2 to 3 characters or",
             "^^elite for 4 characters."
           ]
         },
@@ -18129,7 +18129,7 @@
           "special2": [
             "^Move all water tiles 1 hex to the right.",
             "^^Summon one Piranha Pig.",
-            "^^It is normal for 2-3 characters or",
+            "^^It is normal for 2 to 3 characters or",
             "^^elite for 4 characters."
           ]
         }
@@ -24995,19 +24995,7 @@
       "special": [
         {
           "type": "Timer",
-          "list": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11
-          ],
+          "list": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
           "startOfRound": false,
           "note": "Descend one floor"
         },

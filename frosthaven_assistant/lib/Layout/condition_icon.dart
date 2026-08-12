@@ -194,18 +194,18 @@ class ConditionIconState extends State<ConditionIcon>
                               color: classColor,
                               colorBlendMode: BlendMode.modulate,
                               height: widget.size * scale,
-                              filterQuality: FilterQuality.medium,
+                              filterQuality: powerAwareFilterQuality(),
                               image: const AssetImage(
                                   "assets/images/psd/class-token-bg.png")),
                           Image(
                               height:
                                   widget.size * scale * _kClassTokenIconScale,
-                              filterQuality: FilterQuality.medium,
+                              filterQuality: powerAwareFilterQuality(),
                               image: AssetImage(widget.gfx)),
                         ])
                       : Image(
                           height: widget.size * scale,
-                          filterQuality: FilterQuality.medium,
+                          filterQuality: powerAwareFilterQuality(),
                           image: AssetImage(widget.gfx),
                         )));
         });

@@ -90,7 +90,7 @@ class CounterButtonState extends State<CounterButton> {
             color: widget.color,
             colorBlendMode: BlendMode.modulate,
             fit: BoxFit.contain,
-            filterQuality: FilterQuality.medium,
+            filterQuality: powerAwareFilterQuality(),
             image: AssetImage(widget.image),
           ),
         ),
@@ -102,7 +102,7 @@ class CounterButtonState extends State<CounterButton> {
               color: Colors.black54,
               colorBlendMode: BlendMode.modulate,
               fit: BoxFit.contain,
-              filterQuality: FilterQuality.medium,
+              filterQuality: powerAwareFilterQuality(),
               // ignore: avoid-non-null-assertion, obviously not null here
               image: AssetImage(widget.extraImage!),
             ),

@@ -50,9 +50,34 @@ class ModifierDeckViewModel {
 
   String? get currentCharacterName => currentCharacter?.characterClass.name;
 
-  bool initAnimationEnabled() {
+  // The draw event we have already animated. [_gameState.lastEvent] keeps the
+  // last ModifierCardDrawnEvent set until the next command replaces it, so a
+  // rebuild that is not itself a new draw (scaling the bars, revealing, opening
+  // the menu) would otherwise re-trigger the animation and replay it. Tracking
+  // the event by identity lets us animate each draw exactly once.
+  Object? _lastAnimatedEvent;
+
+  /// The pending draw event for this deck that has not yet been consumed, or
+  /// null if the last event is not a draw for this deck.
+  GameEvent? get _pendingDrawEvent {
     final event = _gameState.lastEvent.value;
-    return event is ModifierCardDrawnEvent && event.deckName == name;
+    if (event is ModifierCardDrawnEvent && event.deckName == name) return event;
+    return null;
+  }
+
+  /// Whether a draw animation should start now: there is a pending draw for
+  /// this deck and we have not already animated it. Pure — call
+  /// [markDrawAnimated] once the animation has been started.
+  bool initAnimationEnabled() {
+    final event = _pendingDrawEvent;
+    return event != null && !identical(event, _lastAnimatedEvent);
+  }
+
+  /// Records the current pending draw as animated so it is not replayed on a
+  /// later rebuild. Also used for local taps, where the widget enables the
+  /// animation directly without going through [initAnimationEnabled].
+  void markDrawAnimated() {
+    _lastAnimatedEvent = _gameState.lastEvent.value;
   }
 
   void drawCard() {

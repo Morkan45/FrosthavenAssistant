@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui' show ImageFilter;
 
 import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 
@@ -107,7 +106,7 @@ class LootCardFront extends StatelessWidget {
                   borderRadius: BorderRadius.all(
                       Radius.circular(kCardBorderRadius * scale)),
                   child: Image(
-                    filterQuality: FilterQuality.medium,
+                    filterQuality: powerAwareFilterQuality(),
                     fit: BoxFit.cover,
                     image: AssetImage("assets/images/loot/${card.gfx}.png"),
                   ),
@@ -125,7 +124,9 @@ class LootCardFront extends StatelessWidget {
                 if (card.enhanced > 0)
                   Positioned(
                     bottom: LootCardWidget._kEnhancedBottom * scale,
-                    child: settings_.shimmer.value
+                    child: settings_.shimmer.value &&
+                            !reducePowerEnabled(settings: settings_) &&
+                            !isDimmed.value
                         ? RepaintBoundary(
                             child: AnimatedTextKit(
                             repeatForever: true,
@@ -173,13 +174,9 @@ class LootCardFront extends StatelessWidget {
                             LootCardWidget._kOwnerIconShadowOffset * scale,
                             LootCardWidget._kOwnerIconShadowOffset * scale,
                           ),
-                          child: ImageFiltered(
-                            imageFilter: ImageFilter.blur(
-                              sigmaX:
-                                  LootCardWidget._kOwnerIconShadowBlur * scale,
-                              sigmaY:
-                                  LootCardWidget._kOwnerIconShadowBlur * scale,
-                            ),
+                          child: powerAwareBlur(
+                            sigma:
+                                LootCardWidget._kOwnerIconShadowBlur * scale,
                             child: Image(
                                 fit: BoxFit.scaleDown,
                                 color: LootCardWidget._kOwnerIconShadowColor,
