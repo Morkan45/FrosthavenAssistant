@@ -474,6 +474,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get changeName => 'Изменить имя:';
 
   @override
+  String get characterNamePlaceholder => 'Имя';
+
+  @override
   String get showBosses => 'Показать боссов';
 
   @override

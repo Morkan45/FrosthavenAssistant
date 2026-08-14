@@ -126,6 +126,7 @@
   "tapCardToAddToDeck": "Dotknij kartę, aby dodać do talii",
   "removeCardFromDeckQuestion": "Usunąć kartę z talii?",
   "changeName": "Zmień nazwę:",
+  "characterNamePlaceholder": "Imię",
   "showBosses": "Pokaż bossów",
   "showScenarioSpecialMonsters": "Pokaż specjalne potwory scenariusza",
   "addAsAlly": "Dodaj jako sojusznika",

@@ -126,6 +126,7 @@
   "tapCardToAddToDeck": "카드를 탭하여 덱에 추가",
   "removeCardFromDeckQuestion": "덱에서 카드를 제거할까요?",
   "changeName": "이름 변경:",
+  "characterNamePlaceholder": "이름",
   "showBosses": "보스 표시",
   "showScenarioSpecialMonsters": "시나리오 특수 몬스터 표시",
   "addAsAlly": "동맹으로 추가",

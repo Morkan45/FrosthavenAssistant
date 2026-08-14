@@ -55,8 +55,6 @@ void main() {
       ),
     );
     await tester.tap(find.text('Open'));
-    // Use pump instead of pumpAndSettle: the TextField cursor blinks
-    // indefinitely and pumpAndSettle would never return.
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     FlutterError.onError = originalOnError;
@@ -88,12 +86,12 @@ void main() {
       }
     });
 
-    testWidgets('renders "Change name:" label and text field', (
+    testWidgets('does not render the old name editor', (
       WidgetTester tester,
     ) async {
       await pumpMenu(tester);
-      expect(find.text('Change name:'), findsOneWidget);
-      expect(find.byType(TextField), findsOneWidget);
+      expect(find.text('Change name:'), findsNothing);
+      expect(find.byType(TextField), findsNothing);
     });
 
     testWidgets('tapping a level button updates the character level', (
@@ -136,24 +134,5 @@ void main() {
         expect(character.characterState.level.value, 1);
       },
     );
-
-    testWidgets('entering a name in the text field triggers name change', (
-      WidgetTester tester,
-    ) async {
-      await pumpMenu(tester);
-
-      // The TextField is off-screen due to overflow so pointer events cannot
-      // reach it. Set the controller text and invoke onSubmitted directly.
-      final menuState = tester.state<SetCharacterLevelMenuState>(
-        find.byType(SetCharacterLevelMenu),
-      );
-      menuState.nameController.text = 'HeroName';
-      final tf = tester.widget<TextField>(find.byType(TextField));
-      tf.onSubmitted?.call('HeroName');
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
-
-      expect(character.characterState.display.value, 'HeroName');
-    });
   });
 }

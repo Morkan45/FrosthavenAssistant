@@ -467,6 +467,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get changeName => 'Change name:';
 
   @override
+  String get characterNamePlaceholder => 'Name';
+
+  @override
   String get showBosses => 'Show Bosses';
 
   @override

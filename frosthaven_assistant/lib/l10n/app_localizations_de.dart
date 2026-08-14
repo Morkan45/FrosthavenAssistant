@@ -479,6 +479,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get changeName => 'Namen ändern:';
 
   @override
+  String get characterNamePlaceholder => 'Name';
+
+  @override
   String get showBosses => 'Bosse anzeigen';
 
   @override

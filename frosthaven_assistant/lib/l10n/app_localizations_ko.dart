@@ -464,6 +464,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get changeName => '이름 변경:';
 
   @override
+  String get characterNamePlaceholder => '이름';
+
+  @override
   String get showBosses => '보스 표시';
 
   @override

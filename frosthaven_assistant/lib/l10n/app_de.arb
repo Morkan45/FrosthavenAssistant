@@ -168,6 +168,7 @@
   "tapCardToAddToDeck": "Karte antippen, um sie zum Stapel hinzuzufügen",
   "removeCardFromDeckQuestion": "Karte aus dem Stapel entfernen?",
   "changeName": "Namen ändern:",
+  "characterNamePlaceholder": "Name",
   "showBosses": "Bosse anzeigen",
   "showScenarioSpecialMonsters": "Spezielle Szenariomonster anzeigen",
   "addAsAlly": "Als Verbündeten hinzufügen",

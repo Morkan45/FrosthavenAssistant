@@ -983,6 +983,12 @@ abstract class AppLocalizations {
   /// **'Change name:'**
   String get changeName;
 
+  /// No description provided for @characterNamePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get characterNamePlaceholder;
+
   /// No description provided for @showBosses.
   ///
   /// In en, this message translates to:

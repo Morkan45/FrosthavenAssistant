@@ -126,6 +126,7 @@
   "tapCardToAddToDeck": "Appuyer sur une carte pour l'ajouter au deck",
   "removeCardFromDeckQuestion": "Retirer la carte du deck ?",
   "changeName": "Changer le nom :",
+  "characterNamePlaceholder": "Nom",
   "showBosses": "Afficher les boss",
   "showScenarioSpecialMonsters": "Afficher les monstres spéciaux du scénario",
   "addAsAlly": "Ajouter comme allié",

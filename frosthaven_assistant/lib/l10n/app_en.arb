@@ -190,6 +190,7 @@
   "tapCardToAddToDeck": "Tap Card to add to your deck",
   "removeCardFromDeckQuestion": "Remove card from your deck?",
   "changeName": "Change name:",
+  "characterNamePlaceholder": "Name",
   "showBosses": "Show Bosses",
   "showScenarioSpecialMonsters": "Show Scenario Special Monsters",
   "addAsAlly": "Add as Ally",

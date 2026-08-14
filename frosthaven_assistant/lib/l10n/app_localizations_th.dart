@@ -467,6 +467,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get changeName => 'เปลี่ยนชื่อ:';
 
   @override
+  String get characterNamePlaceholder => 'ชื่อ';
+
+  @override
   String get showBosses => 'แสดงบอส';
 
   @override

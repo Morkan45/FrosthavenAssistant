@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frosthaven_assistant/Resource/app_constants.dart';
-import 'package:frosthaven_assistant/Resource/commands/change_name_command.dart';
 import 'package:frosthaven_assistant/Resource/ui_utils.dart';
-import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 
 import '../../Layout/widgets/modal_background.dart';
 import '../../Resource/commands/change_stat_commands/change_max_health_command.dart';
@@ -32,38 +30,9 @@ class SetCharacterLevelMenuState extends State<SetCharacterLevelMenu> {
   static const int _kLevelRow1Count = 5;
   static const int _kLevelRow2Count = 4;
   static const int _kMaxHealth = 900;
-  static const double _kNameFieldWidth = 160.0;
 
   GameState get _gameState => widget.gameState ?? getIt<GameState>();
   Settings get _settings => widget.settings ?? getIt<Settings>();
-  final TextEditingController nameController = TextEditingController();
-  final FocusNode focusNode = FocusNode();
-
-  void _focusNodeListener() {
-    if (!focusNode.hasFocus) {
-      if (nameController.text.isNotEmpty) {
-        _gameState.action(ChangeNameCommand(
-            nameController.text, widget.character.id,
-            gameState: _gameState));
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    focusNode.removeListener(_focusNodeListener);
-    nameController.dispose();
-    focusNode.dispose();
-    super.dispose();
-  }
-
-  @override
-  initState() {
-    // at the beginning, all items are shown
-    super.initState();
-
-    focusNode.addListener(_focusNodeListener);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -134,23 +103,6 @@ class SetCharacterLevelMenuState extends State<SetCharacterLevelMenu> {
                     ownerId: widget.character.id,
                     scale: scale)
               ]),
-              Text(AppLocalizations.of(context)!.changeName,
-                  style: getTitleTextStyle(scale)),
-              SizedBox(
-                  width: _kNameFieldWidth,
-                  child: TextField(
-                    controller: nameController,
-                    focusNode: focusNode,
-                    style: getTitleTextStyle(scale),
-                    onSubmitted: (String string) {
-                      //set the name
-                      if (nameController.text.isNotEmpty) {
-                        _gameState.action(ChangeNameCommand(
-                            nameController.text, widget.character.id,
-                            gameState: _gameState));
-                      }
-                    },
-                  ))
             ],
           ),
         ]));

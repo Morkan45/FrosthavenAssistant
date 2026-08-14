@@ -464,6 +464,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get changeName => '更改名称：';
 
   @override
+  String get characterNamePlaceholder => '姓名';
+
+  @override
   String get showBosses => '显示首领';
 
   @override
@@ -1583,6 +1586,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get changeName => '更改名稱：';
+
+  @override
+  String get characterNamePlaceholder => '姓名';
 
   @override
   String get showBosses => '顯示首領';

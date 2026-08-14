@@ -61,6 +61,52 @@ void main() {
   }
 
   group('StatusMenu', () {
+    testWidgets('shows Name above the character class', (
+      WidgetTester tester,
+    ) async {
+      await pumpMenu(tester);
+
+      expect(find.text('Name'), findsOneWidget);
+      expect(
+        find.byKey(const Key('status-character-class-name')),
+        findsOneWidget,
+      );
+      expect(find.text('Blinkblade'), findsOneWidget);
+
+      final nameRect = tester.getRect(
+        find.byKey(const Key('status-character-name')),
+      );
+      final classRect = tester.getRect(
+        find.byKey(const Key('status-character-class-name')),
+      );
+      expect(classRect.top, greaterThanOrEqualTo(nameRect.bottom));
+    });
+
+    testWidgets('clicking Name changes it while keeping the class visible', (
+      WidgetTester tester,
+    ) async {
+      final character = getBlinkblade();
+      await pumpMenu(tester);
+
+      await tester.tap(find.byKey(const Key('status-character-name')));
+      await tester.pump();
+      expect(
+        find.byKey(const Key('status-character-name-field')),
+        findsOneWidget,
+      );
+
+      await tester.enterText(
+        find.byKey(const Key('status-character-name-field')),
+        'Blinky',
+      );
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+
+      expect(character.characterState.display.value, 'Blinky');
+      expect(find.text('Blinky'), findsOneWidget);
+      expect(find.text('Blinkblade'), findsOneWidget);
+    });
+
     testWidgets('renders health counter image', (WidgetTester tester) async {
       await pumpMenu(tester);
       expect(

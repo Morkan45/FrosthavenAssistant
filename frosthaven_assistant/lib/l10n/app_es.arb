@@ -126,6 +126,7 @@
   "tapCardToAddToDeck": "Toca una carta para añadirla al mazo",
   "removeCardFromDeckQuestion": "¿Retirar carta del mazo?",
   "changeName": "Cambiar nombre:",
+  "characterNamePlaceholder": "Nombre",
   "showBosses": "Mostrar jefes",
   "showScenarioSpecialMonsters": "Mostrar monstruos especiales del escenario",
   "addAsAlly": "Añadir como aliado",

@@ -477,6 +477,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get changeName => 'Changer le nom :';
 
   @override
+  String get characterNamePlaceholder => 'Nom';
+
+  @override
   String get showBosses => 'Afficher les boss';
 
   @override

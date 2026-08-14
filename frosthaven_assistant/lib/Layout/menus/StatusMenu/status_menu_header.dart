@@ -7,9 +7,13 @@ import '../../../Resource/state/game_state.dart';
 import '../../../Resource/ui_utils.dart';
 import '../../MonsterBox/monster_box.dart';
 import '../../condition_icon.dart';
+import 'status_menu_character_name.dart';
 
 class StatusMenuHeader extends StatelessWidget {
   static const double _kHeaderHeight = 28.0;
+  static const double _kCharacterHeaderHeight = 52.0;
+  static const double _kCharacterNameWidth = 280.0;
+  static const double _kClassNameScale = 0.75;
   static const double _kConditionIconSize = 24.0;
   static const double _kConditionMarginTop = 2.0;
   static const double _kConditionMarginRight = 2.0;
@@ -30,6 +34,7 @@ class StatusMenuHeader extends StatelessWidget {
     required this.isElite,
     required this.gameState,
     required this.onIceWraithSwitch,
+    this.character,
   });
 
   final String name;
@@ -44,9 +49,36 @@ class StatusMenuHeader extends StatelessWidget {
   final bool isElite;
   final GameState gameState;
   final VoidCallback onIceWraithSwitch;
+  final Character? character;
 
   @override
   Widget build(BuildContext context) {
+    final character = this.character;
+    if (character != null) {
+      return SizedBox(
+        height: _kCharacterHeaderHeight * scale,
+        child: Column(
+          children: [
+            SizedBox(
+              width: _kCharacterNameWidth * scale,
+              child: StatusMenuCharacterName(
+                character: character,
+                gameState: gameState,
+                style: getTitleTextStyle(scale),
+              ),
+            ),
+            Text(
+              name,
+              key: const Key('status-character-class-name'),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: getButtonTextStyle(scale * _kClassNameScale),
+            ),
+          ],
+        ),
+      );
+    }
+
     return SizedBox(
         height: _kHeaderHeight * scale,
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [

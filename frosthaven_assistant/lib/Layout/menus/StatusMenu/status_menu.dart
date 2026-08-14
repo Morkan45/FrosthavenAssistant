@@ -126,6 +126,12 @@ class StatusMenuState extends State<StatusMenu> {
 
         double scale = getModalMenuScale(context);
         int nrOfCharacters = GameMethods.getCurrentCharacterAmount();
+        final character = vm.character;
+        final headerCharacter = figure is CharacterState &&
+                character != null &&
+                !GameMethods.isObjectiveOrEscort(character.characterClass)
+            ? character
+            : null;
 
         return Wrap(
           children: [
@@ -147,6 +153,7 @@ class StatusMenuState extends State<StatusMenu> {
                     isElite: vm.isElite,
                     gameState: _gameState,
                     onIceWraithSwitch: () => setState(() {}),
+                    character: headerCharacter,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,

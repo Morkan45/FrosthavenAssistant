@@ -126,6 +126,7 @@
   "tapCardToAddToDeck": "點擊卡牌新增到牌堆",
   "removeCardFromDeckQuestion": "從牌堆移除卡牌？",
   "changeName": "更改名稱：",
+  "characterNamePlaceholder": "姓名",
   "showBosses": "顯示首領",
   "showScenarioSpecialMonsters": "顯示場景特殊怪物",
   "addAsAlly": "新增為盟友",

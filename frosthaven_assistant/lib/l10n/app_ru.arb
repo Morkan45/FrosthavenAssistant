@@ -126,6 +126,7 @@
   "tapCardToAddToDeck": "Нажмите карту, чтобы добавить в колоду",
   "removeCardFromDeckQuestion": "Убрать карту из колоды?",
   "changeName": "Изменить имя:",
+  "characterNamePlaceholder": "Имя",
   "showBosses": "Показать боссов",
   "showScenarioSpecialMonsters": "Показать особых монстров сценария",
   "addAsAlly": "Добавить как союзника",

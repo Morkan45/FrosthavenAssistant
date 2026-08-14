@@ -126,6 +126,7 @@
   "tapCardToAddToDeck": "แตะการ์ดเพื่อเพิ่มในสำรับ",
   "removeCardFromDeckQuestion": "นำการ์ดออกจากสำรับ?",
   "changeName": "เปลี่ยนชื่อ:",
+  "characterNamePlaceholder": "ชื่อ",
   "showBosses": "แสดงบอส",
   "showScenarioSpecialMonsters": "แสดงมอนสเตอร์พิเศษของฉาก",
   "addAsAlly": "เพิ่มเป็นพันธมิตร",
