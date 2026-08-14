@@ -5,12 +5,20 @@ import 'change_stat_command.dart';
 import '../command_l10n.dart';
 
 class ChangeHealthCommand extends ChangeStatCommand {
-  ChangeHealthCommand(super.change, super.figureId, super.ownerId,
-      {required super.gameState});
+  ChangeHealthCommand(
+    super.change,
+    super.figureId,
+    super.ownerId, {
+    required super.gameState,
+  });
 
   @override
   void execute() {
-    FigureState? figure = GameMethods.getFigure(ownerId, figureId);
+    FigureState? figure = GameMethods.getFigure(
+      ownerId,
+      figureId,
+      gameState: gameState,
+    );
     if (figure != null) {
       final previousValue = figure.health.value;
       if (previousValue + change < 0) {
@@ -40,7 +48,11 @@ class ChangeHealthCommand extends ChangeStatCommand {
       //TODO: looks bad
       return commandL10n.cmdIncreaseHealth(figureId, change);
     }
-    FigureState? figure = GameMethods.getFigure(ownerId, figureId);
+    FigureState? figure = GameMethods.getFigure(
+      ownerId,
+      figureId,
+      gameState: gameState,
+    );
     if (figure == null || figure.health.value <= 0) {
       return commandL10n.cmdKill(ownerId ?? '');
     }

@@ -31,8 +31,10 @@ class MonsterWidgetState extends State<MonsterWidget> {
   static const double _kNoteMaxWidth = 150.0;
 
   MonsterWidgetViewModel? _vmInstance;
-  MonsterWidgetViewModel get _vm => _vmInstance ??=
-      MonsterWidgetViewModel(widget.data, gameState: widget.gameState);
+  MonsterWidgetViewModel get _vm => _vmInstance ??= MonsterWidgetViewModel(
+    widget.data,
+    gameState: widget.gameState,
+  );
   List<MonsterInstance> lastList = [];
 
   @override
@@ -62,21 +64,27 @@ class MonsterWidgetState extends State<MonsterWidget> {
     }
 
     final generatedChildren = List<Widget>.generate(
-        monsterInstances.length,
-        (index) => RepaintBoundary(
-                child: AnimatedSize(
-              key: Key(monsterInstances[index].standeeNr.toString()),
-              duration: const Duration(milliseconds: kAnimationDurationMs),
-              child: MonsterBox(
-                  key: Key(monsterInstances[index].standeeNr.toString()),
-                  figureId: monsterInstances[index].name +
-                      monsterInstances[index].gfx +
-                      monsterInstances[index].standeeNr.toString(),
-                  ownerId: widget.data.id,
-                  displayStartAnimation: displayStartAnimation,
-                  blockInput: false,
-                  scale: scale),
-            )));
+      monsterInstances.length,
+      (index) => RepaintBoundary(
+        child: AnimatedSize(
+          key: Key(monsterInstances[index].standeeNr.toString()),
+          duration: const Duration(milliseconds: kAnimationDurationMs),
+          child: MonsterBox(
+            key: Key(monsterInstances[index].standeeNr.toString()),
+            figureId:
+                monsterInstances[index].name +
+                monsterInstances[index].gfx +
+                monsterInstances[index].standeeNr.toString(),
+            ownerId: widget.data.id,
+            displayStartAnimation: displayStartAnimation,
+            blockInput: false,
+            scale: scale,
+            useVerticalHealthSlider: true,
+            gameState: widget.gameState,
+          ),
+        ),
+      ),
+    );
     lastList = monsterInstances.toList();
     return Wrap(
       runSpacing: _kSpacing * scale,
@@ -91,70 +99,82 @@ class MonsterWidgetState extends State<MonsterWidget> {
     double height = scale * _kScaledHeight;
 
     return ListenableBuilder(
-        listenable: _vm.updateList,
-        builder: (context, child) {
-          final Widget monsterRow = SizedBox(
-            height: _kScaledHeight * scale,
-            width: getMainListWidth(context),
-            child: Stack(
-              children: [
-                Row(
-                  children: [
-                    _vm.showTurnTap
-                        ? InkWell(
-                            onTap: () {
-                              _vm.endTurn();
-                            },
-                            child: MonsterImagePart(
-                                data: widget.data,
-                                scale: scale,
-                                height: height,
-                                vm: _vm))
-                        : MonsterImagePart(
+      listenable: _vm.updateList,
+      builder: (context, child) {
+        final Widget monsterRow = SizedBox(
+          height: _kScaledHeight * scale,
+          width: getMainListWidth(context),
+          child: Stack(
+            children: [
+              Row(
+                children: [
+                  _vm.showTurnTap
+                      ? InkWell(
+                          onTap: () {
+                            _vm.endTurn();
+                          },
+                          child: MonsterImagePart(
                             data: widget.data,
                             scale: scale,
                             height: height,
-                            vm: _vm),
-                    RepaintBoundary(
-                        child: MonsterAbilityCardWidget(data: widget.data)),
-                    RepaintBoundary(
-                        child: MonsterStatCardWidget(data: widget.data)),
-                  ],
-                ),
-                // Inline note, overlaid just right of the name box in the
-                // wider area. Only renders when non-empty, so it doesn't
-                // block card taps otherwise. Placement refined on device.
-                Positioned(
-                  left: height + _kNoteGap * scale,
-                  top: _kNoteTop * scale,
-                  child: ConstrainedBox(
-                    constraints:
-                        BoxConstraints(maxWidth: _kNoteMaxWidth * scale),
-                    child: FigureNoteWidget(
-                      figure: widget.data,
-                      scale: scale,
-                      gameState: widget.gameState,
-                    ),
+                            vm: _vm,
+                          ),
+                        )
+                      : MonsterImagePart(
+                          data: widget.data,
+                          scale: scale,
+                          height: height,
+                          vm: _vm,
+                        ),
+                  RepaintBoundary(
+                    child: MonsterAbilityCardWidget(data: widget.data),
+                  ),
+                  RepaintBoundary(
+                    child: MonsterStatCardWidget(data: widget.data),
+                  ),
+                ],
+              ),
+              // Inline note, overlaid just right of the name box in the
+              // wider area. Only renders when non-empty, so it doesn't
+              // block card taps otherwise. Placement refined on device.
+              Positioned(
+                left: height + _kNoteGap * scale,
+                top: _kNoteTop * scale,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: _kNoteMaxWidth * scale),
+                  child: FigureNoteWidget(
+                    figure: widget.data,
+                    scale: scale,
+                    gameState: widget.gameState,
                   ),
                 ),
-              ],
-            ),
-          );
+              ),
+            ],
+          ),
+        );
 
-          return RepaintBoundary(
-              child: Column(mainAxisSize: MainAxisSize.max, children: [
-            grayScaleIf(grayedOut: _vm.isGrayScale, child: monsterRow),
-            Container(
-              margin: EdgeInsets.only(
-                  left: _kMarginH * scale, right: _kMarginH * scale),
-              width: getMainListWidth(context) - _kMarginH * scale * 2,
-              child: ValueListenableBuilder<BuiltList<MonsterInstance>>(
+        return RepaintBoundary(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              grayScaleIf(grayedOut: _vm.isGrayScale, child: monsterRow),
+              Container(
+                margin: EdgeInsets.only(
+                  left: _kMarginH * scale,
+                  right: _kMarginH * scale,
+                ),
+                width: getMainListWidth(context) - _kMarginH * scale * 2,
+                child: ValueListenableBuilder<BuiltList<MonsterInstance>>(
                   valueListenable: _vm.monsterInstancesNotifier,
                   builder: (context, value, child) {
                     return _buildMonsterBoxGrid(scale);
-                  }),
-            ),
-          ]));
-        });
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

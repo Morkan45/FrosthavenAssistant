@@ -9,6 +9,7 @@ import 'package:frosthaven_assistant/Resource/enums.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
 
+import '../../unit_helpers.dart';
 import '../test_helpers.dart';
 
 void main() {
@@ -115,6 +116,27 @@ void main() {
 
       // Assert
       expect(monsterInstance.health.value, initialHealth + 3);
+    });
+
+    test('uses the injected game state when changing health', () {
+      final (injectedState, _) = makeGameAndSettings();
+      expect(injectedState.loadFromData(getIt<GameState>().toString()), isTrue);
+      final injectedMonster =
+          injectedState.currentList.firstWhere((item) => item is Monster)
+              as Monster;
+      final injectedInstance = injectedMonster.monsterInstances.first;
+      final injectedHealth = injectedInstance.health.value;
+      final globalHealth = monsterInstance.health.value;
+
+      ChangeHealthCommand(
+        -1,
+        injectedInstance.getId(),
+        injectedMonster.id,
+        gameState: injectedState,
+      ).execute();
+
+      expect(injectedInstance.health.value, injectedHealth - 1);
+      expect(monsterInstance.health.value, globalHealth);
     });
 
     test('should kill a monster instance when health reaches 0', () {

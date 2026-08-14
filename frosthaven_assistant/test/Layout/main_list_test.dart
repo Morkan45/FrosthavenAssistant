@@ -272,6 +272,141 @@ void main() {
       expect(getIt<GameState>().currentList[1].id, firstId);
     });
 
+    testWidgets('dragging a standee never reorders its initiative row', (
+      WidgetTester tester,
+    ) async {
+      final state = getIt<GameState>();
+      const monsterNames = ['Zealot', 'Vermling Raider'];
+      for (final name in monsterNames) {
+        AddMonsterCommand(name, 1, false, gameState: state).execute();
+        AddStandeeCommand(
+          1,
+          null,
+          name,
+          MonsterType.normal,
+          false,
+          gameState: state,
+        ).execute();
+      }
+      final firstMonster = state.currentList.first as Monster;
+      final firstId = firstMonster.id;
+      final secondId = state.currentList[1].id;
+      final figureId = firstMonster.monsterInstances.single.getId();
+
+      await pumpWidget(tester);
+
+      final target = find.byKey(Key('monster-health-target-$figureId'));
+      final items = find.byType(MainListItem);
+      final gesture = await tester.startGesture(
+        tester.getCenter(target),
+        kind: PointerDeviceKind.mouse,
+      );
+      await gesture.moveBy(const Offset(0, 20));
+      await tester.pump();
+      await gesture.moveTo(tester.getCenter(items.at(1)));
+      await tester.pump(const Duration(milliseconds: 100));
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      expect(state.currentList.first.id, firstId);
+      expect(state.currentList[1].id, secondId);
+    });
+
+    testWidgets('holding a standee does not reorder its row on mobile', (
+      WidgetTester tester,
+    ) async {
+      final state = getIt<GameState>();
+      const monsterNames = ['Zealot', 'Vermling Raider'];
+      for (final name in monsterNames) {
+        AddMonsterCommand(name, 1, false, gameState: state).execute();
+        AddStandeeCommand(
+          1,
+          null,
+          name,
+          MonsterType.normal,
+          false,
+          gameState: state,
+        ).execute();
+      }
+      final firstMonster = state.currentList.first as Monster;
+      final firstId = firstMonster.id;
+      final secondId = state.currentList[1].id;
+      final figureId = firstMonster.monsterInstances.single.getId();
+
+      await pumpWidget(tester, platform: TargetPlatform.android);
+
+      final target = find.byKey(Key('monster-health-target-$figureId'));
+      final items = find.byType(MainListItem);
+      final gesture = await tester.startGesture(tester.getCenter(target));
+      await tester.pump(const Duration(milliseconds: 600));
+      await gesture.moveTo(tester.getCenter(items.at(1)));
+      await tester.pump(const Duration(milliseconds: 100));
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      expect(state.currentList.first.id, firstId);
+      expect(state.currentList[1].id, secondId);
+      expect(
+        find.byKey(Key('monster-health-slider-$figureId')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('swiping from a standee still scrolls the list on mobile', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(800, 300);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final state = getIt<GameState>();
+      const monsterNames = [
+        'Zealot',
+        'Vermling Raider',
+        'Ancient Artillery (FH)',
+        'Rat Monstrosity',
+      ];
+      for (final name in monsterNames) {
+        AddMonsterCommand(name, 1, false, gameState: state).execute();
+        AddStandeeCommand(
+          1,
+          null,
+          name,
+          MonsterType.normal,
+          false,
+          gameState: state,
+        ).execute();
+      }
+      final firstMonster = state.currentList.first as Monster;
+      final figureId = firstMonster.monsterInstances.single.getId();
+
+      await pumpWidget(tester, platform: TargetPlatform.android);
+
+      final target = find.byKey(Key('monster-health-target-$figureId'));
+      final scrollables = find.ancestor(
+        of: target,
+        matching: find.byType(Scrollable),
+      );
+      final positions = tester
+          .stateList<ScrollableState>(scrollables)
+          .map((state) => state.position)
+          .toList();
+      expect(
+        positions.any((position) => position.maxScrollExtent > 0),
+        isTrue,
+      );
+
+      await tester.timedDrag(
+        target,
+        const Offset(0, -180),
+        const Duration(milliseconds: 300),
+      );
+      await tester.pumpAndSettle();
+
+      expect(positions.any((position) => position.pixels > 0), isTrue);
+    });
+
     testWidgets('focused rows can be reordered with Alt and arrow keys', (
       WidgetTester tester,
     ) async {
