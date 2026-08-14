@@ -35,6 +35,8 @@ class MainScaffoldViewModel {
   Listenable get lootDeckCardCount => _gameState.lootDeck.drawPileNotifier;
   ValueListenable<bool> get hideLootDeck => _settings.hideLootDeck;
   ValueListenable<bool> get showAmdDeckNotifier => _settings.showAmdDeck;
+  ValueListenable<bool> get showCharacterAmdNotifier =>
+      _settings.showCharacterAMD;
   ValueListenable<bool> get showAllyDeck => _gameState.showAllyDeck;
   ValueListenable<bool> get allyDeckInOGGloom => _gameState.allyDeckInOGGloom;
   Listenable get currentListNotifier => _gameState.currentListNotifier;

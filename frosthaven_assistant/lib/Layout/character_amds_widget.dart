@@ -28,6 +28,28 @@ class CharacterAmdsWidgetState extends State<CharacterAmdsWidget> {
   _OpenState _openStateUserIntentChooseInit = _OpenState.allOpen;
   _OpenState _lastState = _OpenState.noOpen;
 
+  void _toggleDecks(RoundState roundState, bool canShowOneDeck) {
+    if (_lastState == _OpenState.noOpen) {
+      _openStateUserIntentChooseInit = _OpenState.allOpen;
+      _openStateUserIntentPlayTurns =
+          roundState == RoundState.playTurns && !canShowOneDeck
+              ? _OpenState.allOpen
+              : _OpenState.oneOpen;
+      return;
+    }
+
+    if (roundState == RoundState.playTurns &&
+        canShowOneDeck &&
+        _openStateUserIntentPlayTurns == _OpenState.oneOpen) {
+      _openStateUserIntentPlayTurns = _OpenState.allOpen;
+      return;
+    }
+
+    // Closing is a persistent user choice across both round modes.
+    _openStateUserIntentChooseInit = _OpenState.noOpen;
+    _openStateUserIntentPlayTurns = _OpenState.noOpen;
+  }
+
   List<Offset> _getOffsets(int characterAmount) {
     final roundState = _vm.roundState;
     final currentCharacter = _vm.currentCharacter;
@@ -119,15 +141,16 @@ class CharacterAmdsWidgetState extends State<CharacterAmdsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_vm.showCharacterAmd) {
-      return Container();
-    }
     return ListenableBuilder(
-        listenable: _vm.currentListNotifier,
+        listenable: _vm.changes,
         builder: (context, child) {
+          if (!_vm.showCharacterAmd) {
+            return const SizedBox.shrink();
+          }
+
           final characterAmount = _vm.characterAmount;
           if (characterAmount == 0) {
-            return Container();
+            return const SizedBox.shrink();
           }
 
           final currentCharacter = _vm.currentCharacter;
@@ -149,47 +172,7 @@ class CharacterAmdsWidgetState extends State<CharacterAmdsWidget> {
                     ElevatedButton(
                         onPressed: () => {
                               setState(() {
-                                if (roundState == RoundState.chooseInitiative) {
-                                  if (_openStateUserIntentChooseInit ==
-                                      _OpenState.noOpen) {
-                                    _openStateUserIntentChooseInit =
-                                        _OpenState.allOpen;
-                                  } else if (_openStateUserIntentChooseInit ==
-                                      _OpenState.allOpen) {
-                                    _openStateUserIntentChooseInit =
-                                        _OpenState.noOpen;
-                                  }
-                                } else {
-                                  if (canShowOneDeck) {
-                                    if (_openStateUserIntentPlayTurns ==
-                                        _OpenState.oneOpen) {
-                                      _openStateUserIntentPlayTurns =
-                                          _OpenState.allOpen;
-                                    } else if (_openStateUserIntentPlayTurns ==
-                                        _OpenState.allOpen) {
-                                      _openStateUserIntentPlayTurns =
-                                          _OpenState.oneOpen;
-                                    } else if (_openStateUserIntentPlayTurns ==
-                                        _OpenState.noOpen) {
-                                      _openStateUserIntentPlayTurns =
-                                          _OpenState.oneOpen;
-                                    }
-                                  } else {
-                                    if (_openStateUserIntentPlayTurns ==
-                                        _OpenState.noOpen) {
-                                      _openStateUserIntentPlayTurns =
-                                          _OpenState.allOpen;
-                                    } else if (_openStateUserIntentPlayTurns ==
-                                        _OpenState.allOpen) {
-                                      _openStateUserIntentPlayTurns =
-                                          _OpenState.oneOpen;
-                                    } else if (_openStateUserIntentPlayTurns ==
-                                        _OpenState.oneOpen) {
-                                      _openStateUserIntentPlayTurns =
-                                          _OpenState.allOpen;
-                                    }
-                                  }
-                                }
+                                _toggleDecks(roundState, canShowOneDeck);
                               })
                             },
                         child: Text(text)),
@@ -208,7 +191,9 @@ class CharacterAmdsWidgetState extends State<CharacterAmdsWidget> {
                                     child: ModifierDeckWidget(
                                         key: ValueKey(
                                             currentCharacter?.id ?? ''),
-                                        name: currentCharacter?.id ?? ''))
+                                        name: currentCharacter?.id ?? '',
+                                        gameState: widget.gameState,
+                                        settings: widget.settings))
                                 : Column(
                                     children: _vm.charsWithPerks
                                         .map((item) => Container(
@@ -216,7 +201,9 @@ class CharacterAmdsWidgetState extends State<CharacterAmdsWidget> {
                                                 top: _kDeckMargin * barScale),
                                             child: ModifierDeckWidget(
                                                 key: ValueKey(item.id),
-                                                name: item.id)))
+                                                name: item.id,
+                                                gameState: widget.gameState,
+                                                settings: widget.settings)))
                                         .toList(),
                                   )))
                   ])));

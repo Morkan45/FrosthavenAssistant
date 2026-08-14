@@ -8,6 +8,7 @@ import 'package:frosthaven_assistant/Layout/character_amds_widget.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_character_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/draw_modifier_card_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/remove_character_command.dart';
+import 'package:frosthaven_assistant/Resource/enums.dart';
 import 'package:frosthaven_assistant/Resource/game_methods.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
@@ -101,6 +102,72 @@ void main() {
       // Just ensure it doesn't crash
       expect(find.text('Character Decks'), findsOneWidget);
     });
+
+    testWidgets(
+      'hides all decks in play and keeps them hidden when the round changes',
+      (WidgetTester tester) async {
+        AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
+        AddCharacterCommand('Banner Spear', 'Frosthaven', null, 2).execute();
+
+        final gameState = getIt<GameState>();
+        final blinkblade = GameMethods.getCurrentCharacters()
+            .firstWhere((character) => character.id == 'Blinkblade');
+        (gameState.roundState as ValueNotifier<RoundState>).value =
+            RoundState.playTurns;
+        (blinkblade.turnState as ValueNotifier<TurnsState>).value =
+            TurnsState.current;
+        await pumpWidget(tester);
+
+        // First tap expands from the current deck to every character deck.
+        await tester.tap(find.text('Character Decks'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 600));
+        expect(
+          tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity,
+          1,
+        );
+
+        // A second tap closes the expanded group completely.
+        await tester.tap(find.text('Character Decks'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 600));
+        expect(
+          tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity,
+          0,
+        );
+
+        // Starting initiative selection must not silently reopen all decks.
+        (gameState.roundState as ValueNotifier<RoundState>).value =
+            RoundState.chooseInitiative;
+        await pumpWidget(tester);
+        expect(
+          tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity,
+          0,
+        );
+      },
+    );
+
+    testWidgets(
+      'disabling character decks removes mounted decks immediately',
+      (WidgetTester tester) async {
+        AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
+        await pumpWidget(tester);
+        expect(find.byType(ModifierDeckWidget), findsOneWidget);
+
+        getIt<Settings>().showCharacterAMD.value = false;
+        getIt<GameState>().updateAllUI();
+        await tester.pump();
+
+        expect(find.text('Character Decks'), findsNothing);
+        expect(find.byType(ModifierDeckWidget), findsNothing);
+
+        (getIt<GameState>().roundState as ValueNotifier<RoundState>).value =
+            RoundState.playTurns;
+        getIt<GameState>().updateList.notify();
+        await tester.pump();
+        expect(find.byType(ModifierDeckWidget), findsNothing);
+      },
+    );
 
     testWidgets('returns empty when character has no perks', (
       WidgetTester tester,
