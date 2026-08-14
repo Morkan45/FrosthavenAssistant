@@ -9,13 +9,20 @@ class RemoveConditionCommand extends Command {
   final String? ownerId;
   final GameState _gameState;
 
-  RemoveConditionCommand(this.condition, this.figureId, this.ownerId,
-      {required GameState gameState})
-      : _gameState = gameState;
+  RemoveConditionCommand(
+    this.condition,
+    this.figureId,
+    this.ownerId, {
+    required GameState gameState,
+  }) : _gameState = gameState;
 
   @override
   void execute() {
-    FigureState? figure = GameMethods.getFigure(ownerId, figureId);
+    FigureState? figure = GameMethods.getFigure(
+      ownerId,
+      figureId,
+      gameState: _gameState,
+    );
     if (figure != null) {
       List<Condition> newList = [];
       newList.addAll(figure.conditions.value);
@@ -36,7 +43,6 @@ class RemoveConditionCommand extends Command {
       _gameState.updateList.notify();
     }
   }
-
 
   @override
   String describe() {

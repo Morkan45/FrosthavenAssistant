@@ -4,12 +4,16 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_monster_command.dart';
+import 'package:frosthaven_assistant/Resource/commands/imbue_element_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/set_level_command.dart';
+import 'package:frosthaven_assistant/Resource/commands/use_element_command.dart';
+import 'package:frosthaven_assistant/Resource/enums.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
 
 import '../command/test_helpers.dart';
+import '../unit_helpers.dart';
 
 void main() {
   setUpAll(() async {
@@ -269,6 +273,55 @@ void main() {
         expect(gs.commandIndex.value, 1);
         expect(gs.level.value, 3);
       });
+    });
+
+    group('element restoration', () {
+      test(
+        'rollback restores element values and notifies existing listeners',
+        () {
+          final (gameState, _) = makeGameAndSettings();
+          gameState.save();
+
+          gameState.action(
+            ImbueElementCommand(Elements.fire, false, gameState: gameState),
+          );
+          final fireIndex = gameState.commandIndex.value;
+          gameState.action(
+            ImbueElementCommand(Elements.ice, true, gameState: gameState),
+          );
+          gameState.action(
+            UseElementCommand(Elements.fire, gameState: gameState),
+          );
+
+          final fireNotifier = gameState.elementStateFor(Elements.fire);
+          final iceNotifier = gameState.elementStateFor(Elements.ice);
+          var fireNotifications = 0;
+          var iceNotifications = 0;
+          fireNotifier.addListener(() => fireNotifications++);
+          iceNotifier.addListener(() => iceNotifications++);
+
+          expect(gameState.rollbackToHistoryIndex(fireIndex), isTrue);
+          expect(gameState.elementState[Elements.fire], ElementState.full);
+          expect(gameState.elementState[Elements.ice], ElementState.inert);
+          expect(gameState.elementStateFor(Elements.fire), same(fireNotifier));
+          expect(gameState.elementStateFor(Elements.ice), same(iceNotifier));
+          expect(fireNotifications, 1);
+          expect(iceNotifications, 1);
+          expect(gameState.canRedo, isTrue);
+
+          gameState.redo();
+          expect(gameState.elementState[Elements.fire], ElementState.full);
+          expect(gameState.elementState[Elements.ice], ElementState.half);
+          expect(fireNotifications, 1);
+          expect(iceNotifications, 2);
+
+          gameState.redo();
+          expect(gameState.elementState[Elements.fire], ElementState.inert);
+          expect(gameState.elementState[Elements.ice], ElementState.half);
+          expect(fireNotifications, 2);
+          expect(iceNotifications, 2);
+        },
+      );
     });
   });
 }

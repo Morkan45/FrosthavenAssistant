@@ -20,13 +20,15 @@ void main() {
   setUp(() {
     getIt<GameState>().clearList();
     getIt<Settings>().darkMode.value = false;
-    while (getIt<GameState>().elementState[Elements.fire] != ElementState.inert) {
+    while (getIt<GameState>().elementState[Elements.fire] !=
+        ElementState.inert) {
       getIt<GameState>().undo();
     }
   });
 
   tearDown(() {
-    while (getIt<GameState>().elementState[Elements.fire] != ElementState.inert) {
+    while (getIt<GameState>().elementState[Elements.fire] !=
+        ElementState.inert) {
       getIt<GameState>().undo();
     }
   });
@@ -58,26 +60,27 @@ void main() {
       tester.widget<AnimatedContainer>(find.byType(AnimatedContainer).first);
 
   group('ElementButton', () {
-    testWidgets('fill container is transparent when element is inert',
-        (WidgetTester tester) async {
+    testWidgets('fill container is transparent when element is inert', (
+      WidgetTester tester,
+    ) async {
       await pumpButton(tester);
-      final box =
-          firstAnimatedContainer(tester).decoration as BoxDecoration;
+      final box = firstAnimatedContainer(tester).decoration as BoxDecoration;
       expect(box.color, Colors.transparent);
     });
 
-    testWidgets('fill container shows element color when imbued',
-        (WidgetTester tester) async {
+    testWidgets('fill container shows element color when imbued', (
+      WidgetTester tester,
+    ) async {
       getIt<GameState>().action(ImbueElementCommand(Elements.fire, false));
       await pumpButton(tester);
-      final box =
-          firstAnimatedContainer(tester).decoration as BoxDecoration;
+      final box = firstAnimatedContainer(tester).decoration as BoxDecoration;
       expect(box.color, fireColor);
       getIt<GameState>().undo();
     });
 
-    testWidgets('fill container updates when element is imbued after render',
-        (WidgetTester tester) async {
+    testWidgets('fill container updates when element is imbued after render', (
+      WidgetTester tester,
+    ) async {
       await pumpButton(tester);
       final boxBefore =
           firstAnimatedContainer(tester).decoration as BoxDecoration;
@@ -92,22 +95,64 @@ void main() {
       getIt<GameState>().undo();
     });
 
-    testWidgets('fill container reverts to transparent when element is used after render',
-        (WidgetTester tester) async {
-      getIt<GameState>().action(ImbueElementCommand(Elements.fire, false));
+    testWidgets(
+      'fill container reverts to transparent when element is used after render',
+      (WidgetTester tester) async {
+        getIt<GameState>().action(ImbueElementCommand(Elements.fire, false));
+        await pumpButton(tester);
+        final boxBefore =
+            firstAnimatedContainer(tester).decoration as BoxDecoration;
+        expect(boxBefore.color, fireColor);
+
+        getIt<GameState>().action(UseElementCommand(Elements.fire));
+        await tester.pump();
+
+        final boxAfter =
+            firstAnimatedContainer(tester).decoration as BoxDecoration;
+        expect(boxAfter.color, Colors.transparent);
+        getIt<GameState>().undo();
+        getIt<GameState>().undo();
+      },
+    );
+
+    testWidgets('fill container follows element state through undo and redo', (
+      WidgetTester tester,
+    ) async {
+      final gameState = getIt<GameState>();
+      gameState.resetCommandHistory();
+      gameState.save();
       await pumpButton(tester);
-      final boxBefore =
-          firstAnimatedContainer(tester).decoration as BoxDecoration;
-      expect(boxBefore.color, fireColor);
 
-      getIt<GameState>().action(UseElementCommand(Elements.fire));
+      gameState.action(
+        ImbueElementCommand(Elements.fire, false, gameState: gameState),
+      );
       await tester.pump();
+      expect(
+        firstAnimatedContainer(tester).decoration,
+        isA<BoxDecoration>().having((box) => box.color, 'color', fireColor),
+      );
 
-      final boxAfter =
-          firstAnimatedContainer(tester).decoration as BoxDecoration;
-      expect(boxAfter.color, Colors.transparent);
-      getIt<GameState>().undo();
-      getIt<GameState>().undo();
+      gameState.undo();
+      await tester.pump();
+      expect(gameState.elementState[Elements.fire], ElementState.inert);
+      expect(
+        firstAnimatedContainer(tester).decoration,
+        isA<BoxDecoration>().having(
+          (box) => box.color,
+          'color',
+          Colors.transparent,
+        ),
+      );
+
+      gameState.redo();
+      await tester.pump();
+      expect(gameState.elementState[Elements.fire], ElementState.full);
+      expect(
+        firstAnimatedContainer(tester).decoration,
+        isA<BoxDecoration>().having((box) => box.color, 'color', fireColor),
+      );
+
+      gameState.undo();
     });
   });
 }

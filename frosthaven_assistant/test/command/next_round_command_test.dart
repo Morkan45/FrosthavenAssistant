@@ -8,6 +8,7 @@ import 'package:frosthaven_assistant/Resource/commands/imbue_element_command.dar
 import 'package:frosthaven_assistant/Resource/commands/next_round_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/set_campaign_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/set_scenario_command.dart';
+import 'package:frosthaven_assistant/Resource/commands/use_element_command.dart';
 import 'package:frosthaven_assistant/Resource/enums.dart';
 import 'package:frosthaven_assistant/Resource/game_data.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
@@ -83,16 +84,27 @@ void main() {
       );
     });
 
-    test('undo does not throw', () {
+    test('undo and redo restore element waning', () {
       final gs = getIt<GameState>();
+      UseElementCommand(Elements.fire, gameState: gs).execute();
+      gs.resetCommandHistory();
+      gs.save();
+
+      gs.action(ImbueElementCommand(Elements.fire, false, gameState: gs));
       gs.action(
         NextRoundCommand(
-          gameState: getIt<GameState>(),
+          gameState: gs,
           gameData: getIt<GameData>(),
           settings: getIt<Settings>(),
         ),
       );
-      expect(() => gs.undo(), returnsNormally);
+      expect(gs.elementState[Elements.fire], ElementState.half);
+
+      gs.undo();
+      expect(gs.elementState[Elements.fire], ElementState.full);
+
+      gs.redo();
+      expect(gs.elementState[Elements.fire], ElementState.half);
     });
 
     test('shuffles monster modifier deck when needsShuffle is true', () {

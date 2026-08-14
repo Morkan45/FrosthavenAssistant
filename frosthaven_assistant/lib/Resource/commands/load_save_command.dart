@@ -7,12 +7,11 @@ class LoadSaveCommand extends Command {
   final GameState _gameState;
 
   LoadSaveCommand(this.saveName, this.saveData, {required GameState gameState})
-      : _gameState = gameState;
+    : _gameState = gameState;
 
   @override
   void execute() {
     _gameState.loadFromData(saveData);
-    _gameState.save();
   }
 
   @override

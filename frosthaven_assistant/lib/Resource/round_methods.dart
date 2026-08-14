@@ -4,8 +4,11 @@ part of 'state/game_state.dart';
 class RoundMethods {
   static const int _kMaxLevel = 7;
   static const int _kMinLevel = 0;
-  static void setRoundState(_StateModifier _, RoundState state,
-      {GameState? gameState}) {
+  static void setRoundState(
+    _StateModifier _,
+    RoundState state, {
+    GameState? gameState,
+  }) {
     final gs = gameState ?? getIt<GameState>();
     gs._roundState.value = state;
   }
@@ -16,8 +19,12 @@ class RoundMethods {
     gs._totalRounds.value++;
   }
 
-  static void resetRound(_StateModifier _, int round, bool resetTotal,
-      {GameState? gameState}) {
+  static void resetRound(
+    _StateModifier _,
+    int round,
+    bool resetTotal, {
+    GameState? gameState,
+  }) {
     final gs = gameState ?? getIt<GameState>();
     gs._round.value = round;
     if (resetTotal) {
@@ -64,8 +71,12 @@ class RoundMethods {
     return null;
   }
 
-  static void sortItemToPlace(_StateModifier _, String id, int initiative,
-      {GameState? gameState}) {
+  static void sortItemToPlace(
+    _StateModifier _,
+    String id,
+    int initiative, {
+    GameState? gameState,
+  }) {
     final gs = gameState ?? getIt<GameState>();
     final newList = gs.currentList.toList();
     ListItemData? item;
@@ -101,7 +112,7 @@ class RoundMethods {
               break;
             }
           }
-          if(insertIndex > newList.length) {
+          if (insertIndex > newList.length) {
             newList.add(item);
           } else {
             newList.insert(insertIndex, item);
@@ -169,7 +180,9 @@ class RoundMethods {
   }
 
   static void sortMonsterInstances(
-      _StateModifier _, List<MonsterInstance> instances) {
+    _StateModifier _,
+    List<MonsterInstance> instances,
+  ) {
     instances.sort((a, b) {
       if (a.type == MonsterType.elite && b.type != MonsterType.elite) {
         return -1;
@@ -181,8 +194,12 @@ class RoundMethods {
     });
   }
 
-  static void addToMainList(_StateModifier _, int? index, ListItemData item,
-      {GameState? gameState}) {
+  static void addToMainList(
+    _StateModifier _,
+    int? index,
+    ListItemData item, {
+    GameState? gameState,
+  }) {
     final gs = gameState ?? getIt<GameState>();
     final newList = gs.currentList.toList();
     if (index != null) {
@@ -194,15 +211,22 @@ class RoundMethods {
     gs._notifyCurrentList();
   }
 
-  static void reorderMainList(_StateModifier _, int newIndex, int oldIndex,
-      {GameState? gameState}) {
+  static void reorderMainList(
+    _StateModifier _,
+    int newIndex,
+    int oldIndex, {
+    GameState? gameState,
+  }) {
     final gs = gameState ?? getIt<GameState>();
     gs._currentList.insert(newIndex, gs._currentList.removeAt(oldIndex));
     gs._notifyCurrentList();
   }
 
-  static void removeFromMainList(_StateModifier _, String id,
-      {GameState? gameState}) {
+  static void removeFromMainList(
+    _StateModifier _,
+    String id, {
+    GameState? gameState,
+  }) {
     final gs = gameState ?? getIt<GameState>();
     gs._currentList = gs._currentList.where((item) => item.id != id).toList();
     gs._notifyCurrentList();
@@ -212,14 +236,20 @@ class RoundMethods {
   /// monster [linkedId] — called when that standee is defeated so its note goes
   /// with it. Notes for the whole group (standeeNr 0) are left alone.
   static void removeNoteRowsForStandee(
-      _StateModifier _, String linkedId, int standeeNr,
-      {GameState? gameState}) {
+    _StateModifier _,
+    String linkedId,
+    int standeeNr, {
+    GameState? gameState,
+  }) {
     if (standeeNr <= 0) return;
     final gs = gameState ?? getIt<GameState>();
     final filtered = gs._currentList
-        .where((item) => !(item is NoteRow &&
-            item.linkedId.value == linkedId &&
-            item.standeeNr.value == standeeNr))
+        .where(
+          (item) =>
+              !(item is NoteRow &&
+                  item.linkedId.value == linkedId &&
+                  item.standeeNr.value == standeeNr),
+        )
         .toList();
     if (filtered.length != gs._currentList.length) {
       gs._currentList = filtered;
@@ -227,21 +257,30 @@ class RoundMethods {
     }
   }
 
-  static void updateForSpecialRules(_StateModifier _,
-      {GameState? gameState, GameData? gameData}) {
+  static void updateForSpecialRules(
+    _StateModifier _, {
+    GameState? gameState,
+    GameData? gameData,
+  }) {
     final gs = gameState ?? getIt<GameState>();
     final gd = gameData ?? getIt<GameData>();
-    List<SpecialRule>? rules = gd.modelData.value[gs.currentCampaign.value]
-        ?.scenarios[gs.scenario.value]?.specialRules;
+    List<SpecialRule>? rules = gd
+        .modelData
+        .value[gs.currentCampaign.value]
+        ?.scenarios[gs.scenario.value]
+        ?.specialRules;
     if (rules != null) {
       for (SpecialRule rule in rules) {
         if (rule.type == "Objective" || rule.type == "Escort") {
-          Character? character = gs.currentList
-                  .firstWhereOrNull((element) => element.id == rule.name)
-              as Character?;
+          Character? character =
+              gs.currentList.firstWhereOrNull(
+                    (element) => element.id == rule.name,
+                  )
+                  as Character?;
           if (character != null) {
-            int? newHealth =
-                StatCalculator.calculateFormula(rule.health.toString());
+            int? newHealth = StatCalculator.calculateFormula(
+              rule.health.toString(),
+            );
             if (newHealth != character.characterState.maxHealth.value &&
                 newHealth != null) {
               character.characterState._maxHealth.value = newHealth;
@@ -249,13 +288,17 @@ class RoundMethods {
             }
           }
         } else if (rule.type == "LevelAdjust") {
-          Monster? monster = gs.currentList
-                  .firstWhereOrNull((element) => element.id == rule.name)
-              as Monster?;
+          Monster? monster =
+              gs.currentList.firstWhereOrNull(
+                    (element) => element.id == rule.name,
+                  )
+                  as Monster?;
           if (monster != null) {
             if (gs.level.value == monster.level.value) {
-              int newLevel = (monster.level.value + rule.level)
-                  .clamp(_kMinLevel, _kMaxLevel);
+              int newLevel = (monster.level.value + rule.level).clamp(
+                _kMinLevel,
+                _kMaxLevel,
+              );
               monster._level.value = newLevel;
               for (MonsterInstance instance in monster._monsterInstances) {
                 instance._setLevel(monster);
@@ -268,30 +311,40 @@ class RoundMethods {
   }
 
   static void clearTurnStateConditions(
-      _StateModifier _, FigureState figure, bool clearLastTurnToo) {
+    _StateModifier _,
+    FigureState figure,
+    bool clearLastTurnToo,
+  ) {
     if (!clearLastTurnToo) {
       figure._conditionsAddedPreviousTurn.clear();
-      figure._conditionsAddedPreviousTurn
-          .addAll(figure.conditionsAddedThisTurn.toSet());
+      figure._conditionsAddedPreviousTurn.addAll(
+        figure.conditionsAddedThisTurn.toSet(),
+      );
     } else {
       figure._conditionsAddedPreviousTurn.clear();
     }
 
     figure._conditionsAddedThisTurn.clear();
 
-    figure._chill.value =
-        figure.conditions.value.where((a) => a == Condition.chill).length;
+    figure._chill.value = figure.conditions.value
+        .where((a) => a == Condition.chill)
+        .length;
   }
 
   static void clearTurnState(
-      _StateModifier stateModifier, bool clearLastTurnToo,
-      {GameState? gameState}) {
+    _StateModifier stateModifier,
+    bool clearLastTurnToo, {
+    GameState? gameState,
+  }) {
     final gs = gameState ?? getIt<GameState>();
     for (final item in gs._currentList) {
       item._turnState.value = TurnsState.notDone;
       if (item is Character) {
         clearTurnStateConditions(
-            stateModifier, item.characterState, clearLastTurnToo);
+          stateModifier,
+          item.characterState,
+          clearLastTurnToo,
+        );
         for (final instance in item.characterState._summonList) {
           clearTurnStateConditions(stateModifier, instance, clearLastTurnToo);
         }
@@ -303,27 +356,32 @@ class RoundMethods {
     }
   }
 
-  static void removeExpiringConditions(_StateModifier _, FigureState figure,
-      {Settings? settings}) {
+  static void removeExpiringConditions(
+    _StateModifier stateModifier,
+    FigureState figure, {
+    Settings? settings,
+  }) {
     if ((settings ?? getIt<Settings>()).expireConditions.value) {
-      final conditions = figure._conditions.value;
+      final conditions = List<Condition>.of(figure._conditions.value);
+      bool conditionsChanged = false;
 
       //handle chill separately
-      int nrOfChills =
-          figure.conditions.value.where((a) => a == Condition.chill).length;
+      int nrOfChills = conditions.where((a) => a == Condition.chill).length;
       if (nrOfChills > 0) {
         //remove one if not added this turn
         if (!figure.conditionsAddedThisTurn.contains(Condition.chill) ||
-                nrOfChills >
-                    1 //this is a cop out: you can add more than one chill in a round, but since we store only if a condition has been added this turn, and not the amount, we have no way to tell
-            ) {
+            nrOfChills >
+                1 //this is a cop out: you can add more than one chill in a round, but since we store only if a condition has been added this turn, and not the amount, we have no way to tell
+                ) {
           conditions.remove(Condition.chill);
+          conditionsChanged = true;
           figure._conditionsAddedPreviousTurn.add(Condition.chill);
         }
       }
 
-      figure._chill.value =
-          figure.conditions.value.where((a) => a == Condition.chill).length;
+      figure._chill.value = conditions
+          .where((a) => a == Condition.chill)
+          .length;
 
       for (int i = conditions.length - 1; i >= 0; i--) {
         Condition item = conditions[i];
@@ -331,44 +389,59 @@ class RoundMethods {
           if (item != Condition.chill) {
             if (!figure.conditionsAddedThisTurn.contains(item)) {
               conditions.removeAt(i);
+              conditionsChanged = true;
               figure._conditionsAddedPreviousTurn.add(item);
             }
           }
         }
       }
+
+      if (conditionsChanged) {
+        figure.setConditions(stateModifier, conditions);
+      }
     }
   }
 
   static void removeExpiringConditionsFromListItem(
-      _StateModifier s, ListItemData item) {
+    _StateModifier s,
+    ListItemData item, {
+    Settings? settings,
+  }) {
     if (item is Character) {
-      removeExpiringConditions(s, item.characterState);
+      removeExpiringConditions(s, item.characterState, settings: settings);
       for (final summon in item.characterState._summonList) {
-        removeExpiringConditions(s, summon);
+        removeExpiringConditions(s, summon, settings: settings);
       }
     } else if (item is Monster) {
       for (final instance in item._monsterInstances) {
-        removeExpiringConditions(s, instance);
+        removeExpiringConditions(s, instance, settings: settings);
       }
     }
   }
 
-  static void reapplyConditions(_StateModifier _, FigureState figure) {
+  static void reapplyConditions(
+    _StateModifier stateModifier,
+    FigureState figure,
+  ) {
+    final conditions = List<Condition>.of(figure._conditions.value);
+    bool conditionsChanged = false;
     for (final condition in figure.conditionsAddedPreviousTurn) {
-      final conditions = figure._conditions.value;
       if (!conditions.contains(condition) || condition == Condition.chill) {
         conditions.add(condition);
+        conditionsChanged = true;
         figure._conditionsAddedThisTurn.remove(condition);
       }
-      if (condition == Condition.chill) {
-        figure._chill.value =
-            figure.conditions.value.where((a) => a == Condition.chill).length;
-      }
+    }
+    figure._chill.value = conditions.where((a) => a == Condition.chill).length;
+    if (conditionsChanged) {
+      figure.setConditions(stateModifier, conditions);
     }
   }
 
   static void reapplyConditionsFromListItem(
-      _StateModifier s, ListItemData item) {
+    _StateModifier s,
+    ListItemData item,
+  ) {
     if (item is Character) {
       reapplyConditions(s, item.characterState);
       for (final summon in item.characterState.summonList) {
@@ -383,20 +456,33 @@ class RoundMethods {
 
   //1 if item WAS done OR not done, then set it to current, all before to done, and all after to not done
   //2 if item was current: set item to done, all before to done, next to current and rest to not done
-  static void setTurnDone(_StateModifier s, int index, {GameState? gameState}) {
+  static void setTurnDone(
+    _StateModifier s,
+    int index, {
+    GameState? gameState,
+    Settings? settings,
+  }) {
     final gs = gameState ?? getIt<GameState>();
     //set all before to done.
     for (int i = 0; i < index; i++) {
       if (gs.currentList[i].turnState.value != TurnsState.done) {
         gs.currentList[i]._turnState.value = TurnsState.done;
-        removeExpiringConditionsFromListItem(s, gs.currentList[i]);
+        removeExpiringConditionsFromListItem(
+          s,
+          gs.currentList[i],
+          settings: settings,
+        );
       }
     }
     //if on index is NOT current then set to current else set to done
     int newIndex = index + 1;
     if (gs.currentList[index].turnState.value == TurnsState.current) {
       gs.currentList[index]._turnState.value = TurnsState.done;
-      removeExpiringConditionsFromListItem(s, gs.currentList[index]);
+      removeExpiringConditionsFromListItem(
+        s,
+        gs.currentList[index],
+        settings: settings,
+      );
       //remove expiring conditions
     } else {
       newIndex = index;
@@ -406,7 +492,8 @@ class RoundMethods {
     for (; newIndex < gs.currentList.length; newIndex++) {
       ListItemData data = gs.currentList[newIndex];
       if (data is Monster) {
-        if (data.isActive && !GameMethods.isInactiveForRule(data.type.name)) {
+        if (data.isActive &&
+            !GameMethods.isInactiveForRule(data.type.name, gameState: gs)) {
           if (data.turnState.value == TurnsState.done) {
             reapplyConditionsFromListItem(s, data);
           }

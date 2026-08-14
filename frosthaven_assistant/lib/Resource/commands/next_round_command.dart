@@ -14,13 +14,13 @@ class NextRoundCommand extends Command {
   final GameData _gameData;
   final Settings _settings;
 
-  NextRoundCommand(
-      {required GameState gameState,
-      required GameData gameData,
-      required Settings settings})
-      : _gameState = gameState,
-        _gameData = gameData,
-        _settings = settings;
+  NextRoundCommand({
+    required GameState gameState,
+    required GameData gameData,
+    required Settings settings,
+  }) : _gameState = gameState,
+       _gameData = gameData,
+       _settings = settings;
 
   @override
   void execute() {
@@ -34,19 +34,33 @@ class NextRoundCommand extends Command {
         item.sortMonsterInstances(stateAccess);
       }
     }
-    DeckMethods.shuffleDecksIfNeeded(stateAccess);
-    ElementMethods.updateElements(stateAccess);
-    RoundMethods.setRoundState(stateAccess, RoundState.chooseInitiative);
+    DeckMethods.shuffleDecksIfNeeded(stateAccess, gameState: _gameState);
+    ElementMethods.updateElements(stateAccess, gameState: _gameState);
+    RoundMethods.setRoundState(
+      stateAccess,
+      RoundState.chooseInitiative,
+      gameState: _gameState,
+    );
     if (_gameState.currentList.isNotEmpty &&
         _gameState.currentList.last.turnState.value != TurnsState.done) {
-      RoundMethods.setTurnDone(stateAccess, _gameState.currentList.length - 1);
+      RoundMethods.setTurnDone(
+        stateAccess,
+        _gameState.currentList.length - 1,
+        gameState: _gameState,
+        settings: _settings,
+      );
     }
     if (_gameState.currentList.isNotEmpty &&
         _gameState.currentList.last.turnState.value != TurnsState.done) {
-      RoundMethods.setTurnDone(stateAccess, _gameState.currentList.length - 1);
+      RoundMethods.setTurnDone(
+        stateAccess,
+        _gameState.currentList.length - 1,
+        gameState: _gameState,
+        settings: _settings,
+      );
     }
-    RoundMethods.clearTurnState(stateAccess, false);
-    RoundMethods.sortCharactersFirst(stateAccess);
+    RoundMethods.clearTurnState(stateAccess, false, gameState: _gameState);
+    RoundMethods.sortCharactersFirst(stateAccess, gameState: _gameState);
 
     GameUtilMethods.setToastMessage("");
 
@@ -85,7 +99,11 @@ class NextRoundCommand extends Command {
       }
     }
 
-    RoundMethods.setRound(stateAccess, _gameState.round.value + 1);
+    RoundMethods.setRound(
+      stateAccess,
+      _gameState.round.value + 1,
+      gameState: _gameState,
+    );
 
     Future.delayed(const Duration(milliseconds: 600), () {
       _gameState.updateList.notify();
@@ -98,7 +116,7 @@ class NextRoundCommand extends Command {
     if (_gameState.modifierDeckAllies.needsShuffle) {
       _gameState.modifierDeckAllies.shuffle(stateAccess);
     }
-    final characters = GameMethods.getCurrentCharacters();
+    final characters = GameMethods.getCurrentCharacters(gameState: _gameState);
     for (final character in characters) {
       final modifierDeck = character.characterState.modifierDeck;
       if (modifierDeck.needsShuffle) {
@@ -122,12 +140,16 @@ class NextRoundCommand extends Command {
             ?.scenarios[_gameState.scenario.value];
         if (scenario != null) {
           ScenarioModel? spawnSection = scenario.sections.firstWhereOrNull(
-              (element) => element.name.substring(1) == rule.name);
+            (element) => element.name.substring(1) == rule.name,
+          );
           if (spawnSection != null) {
             final monsterStandees = spawnSection.monsterStandees;
             if (monsterStandees != null) {
               MonsterMethods.autoAddStandees(
-                  stateAccess, monsterStandees, rule.note);
+                stateAccess,
+                monsterStandees,
+                rule.note,
+              );
             }
           }
         }

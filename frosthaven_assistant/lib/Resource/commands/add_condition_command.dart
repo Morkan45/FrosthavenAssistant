@@ -9,13 +9,20 @@ class AddConditionCommand extends Command {
   final String figureId;
   final GameState _gameState;
 
-  AddConditionCommand(this.condition, this.figureId, this.ownerId,
-      {required GameState gameState})
-      : _gameState = gameState;
+  AddConditionCommand(
+    this.condition,
+    this.figureId,
+    this.ownerId, {
+    required GameState gameState,
+  }) : _gameState = gameState;
 
   @override
   void execute() {
-    FigureState? figure = GameMethods.getFigure(ownerId, figureId);
+    FigureState? figure = GameMethods.getFigure(
+      ownerId,
+      figureId,
+      gameState: _gameState,
+    );
     if (figure != null) {
       List<Condition> newList = [];
       newList.addAll(figure.conditions.value);

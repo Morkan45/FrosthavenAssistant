@@ -1,12 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_character_command.dart';
+import 'package:frosthaven_assistant/Resource/commands/imbue_element_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/load_character_save_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/load_save_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/set_campaign_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/set_scenario_command.dart';
+import 'package:frosthaven_assistant/Resource/enums.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
 
+import '../unit_helpers.dart';
 import 'test_helpers.dart';
 
 void main() {
@@ -50,6 +53,27 @@ void main() {
         gameState: getIt<GameState>(),
       );
       expect(command.describe(), 'Load saved game: my save');
+    });
+
+    test('undo restores element state from before loading a save', () {
+      final (gameState, _) = makeGameAndSettings();
+      final fireNotifier = gameState.elementStateFor(Elements.fire);
+      final savedData = gameState.toString();
+
+      ImbueElementCommand(Elements.fire, false, gameState: gameState).execute();
+      gameState.save();
+
+      gameState.action(
+        LoadSaveCommand('inert elements', savedData, gameState: gameState),
+      );
+      expect(gameState.elementState[Elements.fire], ElementState.inert);
+
+      gameState.undo();
+      expect(gameState.elementState[Elements.fire], ElementState.full);
+      expect(gameState.elementStateFor(Elements.fire), same(fireNotifier));
+
+      gameState.redo();
+      expect(gameState.elementState[Elements.fire], ElementState.inert);
     });
   });
 
