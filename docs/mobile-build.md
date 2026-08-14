@@ -97,3 +97,15 @@ To run on a physical iPhone:
 
 The bundle identifier is already unique to this fork. Change it in Xcode if it
 is not available for the selected Apple team.
+
+## Release backlog
+
+The following work is intentionally deferred while local manual builds are
+used:
+
+- [ ] Create and securely back up a permanent Android release keystore.
+- [ ] Configure the four Android signing secrets in the fork.
+- [ ] Merge the release workflow into the fork's default branch and publish a
+      version tag matching `pubspec.yaml`.
+- [ ] Add Authenticode signing for the Windows executable to reduce SmartScreen
+      warnings.
