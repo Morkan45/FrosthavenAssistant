@@ -15,19 +15,28 @@ class CharacterAmdsViewModel {
 
   Listenable get currentListNotifier => _gameState.currentListNotifier;
 
+  late final Listenable changes = Listenable.merge([
+    _gameState.updateList,
+    _gameState.roundState,
+    _settings.showCharacterAMD,
+    _settings.userScalingBars,
+  ]);
+
   bool get showCharacterAmd => _settings.showCharacterAMD.value;
 
   double get barScale => _settings.userScalingBars.value;
 
   RoundState get roundState => _gameState.roundState.value;
 
-  List<Character> get charsWithPerks => GameMethods.getCurrentCharacters()
+  List<Character> get charsWithPerks =>
+      GameMethods.getCurrentCharacters(gameState: _gameState)
       .where((c) => c.characterClass.perks.isNotEmpty)
       .toList();
 
   int get characterAmount => charsWithPerks.length;
 
-  Character? get currentCharacter => GameMethods.getCurrentCharacter();
+  Character? get currentCharacter =>
+      GameMethods.getCurrentCharacter(gameState: _gameState);
 
   bool get canShowOneDeck {
     final c = currentCharacter;

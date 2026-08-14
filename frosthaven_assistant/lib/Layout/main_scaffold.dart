@@ -151,6 +151,7 @@ class MainScaffoldBody extends StatelessWidget {
                           vm.lootDeckCardCount,
                           vm.hideLootDeck,
                           vm.showAmdDeckNotifier,
+                          vm.showCharacterAmdNotifier,
                           vm.showAllyDeck,
                           vm.allyDeckInOGGloom,
                           vm.currentListNotifier,
