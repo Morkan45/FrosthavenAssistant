@@ -1,15 +1,16 @@
 // ignore_for_file: avoid-late-keyword
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Layout/MonsterAbilityCardWidget/monster_ability_card_widget.dart';
-import 'package:frosthaven_assistant/Layout/MonsterBox/monster_box.dart';
 import 'package:frosthaven_assistant/Layout/MonsterBox/monster_health_slider_controller.dart';
 import 'package:frosthaven_assistant/Layout/MonsterStatCardWidget/monster_stat_card_widget.dart';
 import 'package:frosthaven_assistant/Layout/MonsterWidget/monster_widget.dart';
 import 'package:frosthaven_assistant/Layout/menus/StatusMenu/status_menu.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_monster_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_standee_command.dart';
+import 'package:frosthaven_assistant/Resource/commands/change_stat_commands/change_health_command.dart';
 import 'package:frosthaven_assistant/Resource/enums.dart';
 import 'package:frosthaven_assistant/Resource/scaling.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
@@ -86,7 +87,7 @@ void main() {
       expect(find.byType(Wrap), findsAtLeast(1));
     });
 
-    testWidgets('tapping a standee opens the vertical health slider', (
+    testWidgets('pressing monster HP immediately opens the relative slider', (
       WidgetTester tester,
     ) async {
       AddStandeeCommand(
@@ -100,17 +101,31 @@ void main() {
       final figureId = monster.monsterInstances.single.getId();
 
       await pumpWidget(tester);
-      await tester.tap(find.byType(MonsterBox));
+      final target = find.byKey(Key('monster-health-target-$figureId'));
+      final gesture = await tester.startGesture(
+        tester.getCenter(target),
+        kind: PointerDeviceKind.mouse,
+      );
       await tester.pump();
 
       expect(
         find.byKey(Key('monster-health-slider-$figureId')),
         findsOneWidget,
       );
+      expect(
+        find.byKey(Key('monster-health-delta-$figureId-0')),
+        findsOneWidget,
+      );
+      expect(find.text('+1'), findsOneWidget);
+      expect(find.text('-1'), findsOneWidget);
       expect(find.byType(StatusMenu), findsNothing);
+
+      await gesture.up();
+      await tester.pump();
+      expect(find.byKey(Key('monster-health-slider-$figureId')), findsNothing);
     });
 
-    testWidgets('vertical slider uses deliberate travel and is undoable', (
+    testWidgets('dragging HP upward selects a positive undoable change', (
       WidgetTester tester,
     ) async {
       final state = getIt<GameState>();
@@ -124,33 +139,44 @@ void main() {
       ).execute();
       final standee = monster.monsterInstances.single;
       final figureId = standee.getId();
+      ChangeHealthCommand(-2, figureId, monster.id, gameState: state).execute();
       final initialHealth = standee.health.value;
       state.resetCommandHistory();
       state.save();
 
       await pumpWidget(tester);
       final target = find.byKey(Key('monster-health-target-$figureId'));
-      await tester.tap(target);
-      await tester.pump();
-
-      final slider = find.byKey(Key('monster-health-slider-drag-$figureId'));
-      final scale = getScaleByReference(tester.element(slider));
+      final scale = getScaleByReference(tester.element(target));
       final step = MonsterHealthSliderController.dragExtentPerHealth * scale;
-
-      // Less than the explicit threshold does not change one hit point.
-      await tester.drag(slider, Offset(0, step * 0.75));
-      await tester.pump();
-      expect(standee.health.value, initialHealth);
-
-      await tester.tap(target);
-      await tester.pump();
-      await tester.drag(
-        find.byKey(Key('monster-health-slider-drag-$figureId')),
-        Offset(0, step * 1.25),
+      final gesture = await tester.startGesture(
+        tester.getCenter(target),
+        kind: PointerDeviceKind.mouse,
       );
       await tester.pump();
 
-      expect(standee.health.value, initialHealth - 1);
+      // Less than the explicit threshold does not change one hit point.
+      await gesture.moveBy(Offset(0, -step * 0.75));
+      await tester.pump();
+      expect(standee.health.value, initialHealth);
+      final zero = tester.widget<Text>(
+        find.byKey(Key('monster-health-delta-$figureId-0')),
+      );
+      expect(zero.style?.color, Colors.redAccent);
+
+      await gesture.moveBy(Offset(0, -step * 0.5));
+      await tester.pump();
+      final positiveOne = tester.widget<Text>(
+        find.byKey(Key('monster-health-delta-$figureId-1')),
+      );
+      expect(positiveOne.data, '+1');
+      expect(positiveOne.style?.color, Colors.redAccent);
+      expect(standee.health.value, initialHealth);
+
+      await gesture.up();
+      await tester.pump();
+
+      expect(standee.health.value, initialHealth + 1);
+      expect(find.byKey(Key('monster-health-slider-$figureId')), findsNothing);
       await tester.pumpWidget(testMaterialApp(home: const SizedBox.shrink()));
       state.undo();
       final restoredMonster = state.currentList.single as Monster;
@@ -160,7 +186,56 @@ void main() {
       );
     });
 
-    testWidgets('health slider retains access to the full status menu', (
+    testWidgets('dragging HP downward selects a negative change', (
+      WidgetTester tester,
+    ) async {
+      AddStandeeCommand(
+        1,
+        null,
+        monster.id,
+        MonsterType.normal,
+        false,
+        gameState: getIt<GameState>(),
+      ).execute();
+      final standee = monster.monsterInstances.single;
+      final figureId = standee.getId();
+      final initialHealth = standee.health.value;
+
+      await pumpWidget(tester);
+      final target = find.byKey(Key('monster-health-target-$figureId'));
+      final scale = getScaleByReference(tester.element(target));
+      final step = MonsterHealthSliderController.dragExtentPerHealth * scale;
+      final gesture = await tester.startGesture(
+        tester.getCenter(target),
+        kind: PointerDeviceKind.mouse,
+      );
+      await tester.pump();
+      await gesture.moveBy(Offset(0, step * 1.25));
+      await tester.pump();
+
+      final negativeOne = tester.widget<Text>(
+        find.byKey(Key('monster-health-delta-$figureId--1')),
+      );
+      expect(negativeOne.data, '-1');
+      final selectedValues = tester
+          .widgetList<Text>(
+            find.descendant(
+              of: find.byKey(Key('monster-health-slider-$figureId')),
+              matching: find.byType(Text),
+            ),
+          )
+          .where((text) => text.style?.color == Colors.redAccent)
+          .map((text) => text.data)
+          .toList();
+      expect(selectedValues, ['-1']);
+      expect(standee.health.value, initialHealth);
+
+      await gesture.up();
+      await tester.pump();
+      expect(standee.health.value, initialHealth - 1);
+    });
+
+    testWidgets('tapping the standee number opens the full status menu', (
       WidgetTester tester,
     ) async {
       AddStandeeCommand(
@@ -174,9 +249,7 @@ void main() {
       final figureId = monster.monsterInstances.single.getId();
 
       await pumpWidget(tester);
-      await tester.tap(find.byType(MonsterBox));
-      await tester.pump();
-      await tester.tap(find.byKey(Key('monster-health-details-$figureId')));
+      await tester.tap(find.byKey(Key('monster-status-target-$figureId')));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
@@ -195,10 +268,16 @@ void main() {
         false,
         gameState: getIt<GameState>(),
       ).execute();
+      final figureId = monster.monsterInstances.single.getId();
 
       await pumpWidget(tester);
-      await tester.tap(find.byType(MonsterBox));
+      final target = find.byKey(Key('monster-health-target-$figureId'));
+      final gesture = await tester.startGesture(
+        tester.getCenter(target),
+        kind: PointerDeviceKind.mouse,
+      );
       await tester.pumpWidget(testMaterialApp(home: const SizedBox.shrink()));
+      await gesture.cancel();
 
       expect(tester.takeException(), isNull);
     });

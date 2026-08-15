@@ -288,10 +288,10 @@ void main() {
           gameState: state,
         ).execute();
       }
-      final firstMonster = state.currentList.first as Monster;
-      final firstId = firstMonster.id;
+      final secondMonster = state.currentList[1] as Monster;
+      final firstId = state.currentList.first.id;
       final secondId = state.currentList[1].id;
-      final figureId = firstMonster.monsterInstances.single.getId();
+      final figureId = secondMonster.monsterInstances.single.getId();
 
       await pumpWidget(tester);
 
@@ -301,9 +301,9 @@ void main() {
         tester.getCenter(target),
         kind: PointerDeviceKind.mouse,
       );
-      await gesture.moveBy(const Offset(0, 20));
+      await gesture.moveBy(const Offset(0, -20));
       await tester.pump();
-      await gesture.moveTo(tester.getCenter(items.at(1)));
+      await gesture.moveTo(tester.getCenter(items.at(0)));
       await tester.pump(const Duration(milliseconds: 100));
       await gesture.up();
       await tester.pumpAndSettle();
@@ -328,10 +328,10 @@ void main() {
           gameState: state,
         ).execute();
       }
-      final firstMonster = state.currentList.first as Monster;
-      final firstId = firstMonster.id;
+      final secondMonster = state.currentList[1] as Monster;
+      final firstId = state.currentList.first.id;
       final secondId = state.currentList[1].id;
-      final figureId = firstMonster.monsterInstances.single.getId();
+      final figureId = secondMonster.monsterInstances.single.getId();
 
       await pumpWidget(tester, platform: TargetPlatform.android);
 
@@ -339,20 +339,17 @@ void main() {
       final items = find.byType(MainListItem);
       final gesture = await tester.startGesture(tester.getCenter(target));
       await tester.pump(const Duration(milliseconds: 600));
-      await gesture.moveTo(tester.getCenter(items.at(1)));
+      await gesture.moveTo(tester.getCenter(items.at(0)));
       await tester.pump(const Duration(milliseconds: 100));
       await gesture.up();
       await tester.pumpAndSettle();
 
       expect(state.currentList.first.id, firstId);
       expect(state.currentList[1].id, secondId);
-      expect(
-        find.byKey(Key('monster-health-slider-$figureId')),
-        findsOneWidget,
-      );
+      expect(find.byKey(Key('monster-health-slider-$figureId')), findsNothing);
     });
 
-    testWidgets('swiping from a standee still scrolls the list on mobile', (
+    testWidgets('swiping from a standee number scrolls the list on mobile', (
       WidgetTester tester,
     ) async {
       tester.view.physicalSize = const Size(800, 300);
@@ -383,7 +380,7 @@ void main() {
 
       await pumpWidget(tester, platform: TargetPlatform.android);
 
-      final target = find.byKey(Key('monster-health-target-$figureId'));
+      final target = find.byKey(Key('monster-status-target-$figureId'));
       final scrollables = find.ancestor(
         of: target,
         matching: find.byType(Scrollable),
@@ -392,10 +389,7 @@ void main() {
           .stateList<ScrollableState>(scrollables)
           .map((state) => state.position)
           .toList();
-      expect(
-        positions.any((position) => position.maxScrollExtent > 0),
-        isTrue,
-      );
+      expect(positions.any((position) => position.maxScrollExtent > 0), isTrue);
 
       await tester.timedDrag(
         target,

@@ -14,6 +14,10 @@ import 'monster_health_slider_controller.dart';
 class MonsterBox extends StatelessWidget {
   static const double conditionSize = 14;
   static const double _kBaseWidth = 47.0;
+  static const double _kBoxHeight = 30.0;
+  static const double _kStandeeNumberWidth = 22.0;
+  static const double _kHealthTargetLeft = 22.0;
+  static const double _kHealthTargetWidth = 25.0;
   static const double _kAnimationOffset = 30.0;
   static const int _kFlipAnimationDurationMs = 600;
   static const int _kConditionRowDivisor = 2;
@@ -155,15 +159,48 @@ class MonsterBox extends StatelessWidget {
     }
 
     if (useVerticalHealthSlider && !blockInput) {
+      final platform = Theme.of(context).platform;
+      final usesLongPressReorder =
+          platform == TargetPlatform.android || platform == TargetPlatform.iOS;
+      Widget statusTarget = InkWell(
+        key: Key('monster-status-target-${data.getId()}'),
+        onTap: openStatusMenu,
+        onLongPress: usesLongPressReorder ? openStatusMenu : null,
+        child: const SizedBox.expand(),
+      );
+      if (!usesLongPressReorder) {
+        statusTarget = GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onPanStart: (_) {},
+          child: statusTarget,
+        );
+      }
+
       return Material(
         color: Colors.transparent,
-        child: MonsterHealthSliderController(
-          figure: data,
-          figureId: data.getId(),
-          ownerId: ownerId,
-          gameState: gameState,
-          onOpenDetails: openStatusMenu,
-          child: innerWidget,
+        child: Stack(
+          children: [
+            innerWidget,
+            Positioned(
+              left: 0,
+              top: 0,
+              width: _kStandeeNumberWidth * scale,
+              height: _kBoxHeight * scale,
+              child: statusTarget,
+            ),
+            Positioned(
+              left: _kHealthTargetLeft * scale,
+              top: 0,
+              width: _kHealthTargetWidth * scale,
+              height: _kBoxHeight * scale,
+              child: MonsterHealthSliderController(
+                figureId: data.getId(),
+                ownerId: ownerId,
+                gameState: gameState,
+                child: const SizedBox.expand(),
+              ),
+            ),
+          ],
         ),
       );
     }
