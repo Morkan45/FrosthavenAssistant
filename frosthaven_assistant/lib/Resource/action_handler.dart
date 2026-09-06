@@ -19,6 +19,7 @@ class ListUpdateNotifier extends ChangeNotifier {
 
 class ActionHandler {
   final commandIndex = ValueNotifier<int>(-1);
+  final transitionRevision = ValueNotifier<int>(0);
   final ActionHistory _history = ActionHistory();
 
   List<HistoryEntry> get historyEntries => _history.entries;
@@ -39,6 +40,7 @@ class ActionHandler {
     _history.reset(baseline);
     lastEvent.value = const NoEvent();
     commandIndex.value = -1;
+    transitionRevision.value++;
   }
 
   /// Clears only the local commands list (used when connecting to a server).
@@ -61,6 +63,55 @@ class ActionHandler {
   /// Appends a save-state snapshot. Called by [GameState.save] and [GameState.load].
   void addSaveState(GameSaveState state) {
     _history.attachSnapshot(commandIndex.value, state);
+  }
+
+  bool applyReceivedTransition({
+    required String state,
+    required int index,
+    required String description,
+    required GameEvent event,
+    required ReceivedTransitionKind kind,
+  }) {
+    if (index < -1) return false;
+    if (kind == ReceivedTransitionKind.newStep &&
+        index != commandIndex.value + 1) {
+      return false;
+    }
+
+    // Fully parse and apply to a detached graph first. GameSaveState updates
+    // existing notifier-backed objects in place, so discovering a late error
+    // against the live graph could otherwise detach nested UI subscriptions.
+    final validationState = GameState(
+      communication: _communication,
+      settings: _settings,
+      network: _network,
+      stateWriter: (_) async {},
+    )..init();
+    final validationSnapshot = GameSaveState.fromData(state);
+    if (!validationSnapshot.load(validationState, rollbackOnFailure: false)) {
+      return false;
+    }
+
+    final snapshot = GameSaveState.fromData(state);
+    if (!snapshot.load(_gameState)) return false;
+
+    if (kind == ReceivedTransitionKind.newStep) {
+      if (index >= 0) {
+        _history.append(index: index, description: description);
+      }
+    } else {
+      _history.synchronizeDescription(index, description);
+      if (kind == ReceivedTransitionKind.mismatchCorrection) {
+        _history.discardAfter(index);
+      }
+    }
+    _history.attachSnapshot(index, snapshot);
+    lastEvent.value = event;
+    commandIndex.value = index;
+    updateAllUI();
+    unawaited(snapshot.saveToDisk(_gameState));
+    transitionRevision.value++;
+    return true;
   }
 
   /// The event produced by the most recent state transition.
@@ -159,6 +210,7 @@ class ActionHandler {
     lastEvent.value = const NoEvent();
     commandIndex.value = targetIndex;
     if (updateAllUi) updateAllUI();
+    transitionRevision.value++;
     return true;
   }
 
@@ -227,5 +279,6 @@ class ActionHandler {
         ).encode(),
       );
     }
+    transitionRevision.value++;
   }
 }

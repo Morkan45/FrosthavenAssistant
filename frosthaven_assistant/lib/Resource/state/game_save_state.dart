@@ -1,6 +1,10 @@
 part of 'game_state.dart';
 
 class GameSaveState {
+  GameSaveState();
+
+  GameSaveState.fromData(String data) : _savedState = data;
+
   String? _savedState;
 
   String getState() {
@@ -17,6 +21,10 @@ class GameSaveState {
     if (_savedState != null) {
       final failedState = _savedState;
       final originalState = gameState.toString();
+      final originalList = List<ListItemData>.of(gameState._currentList);
+      final originalAbilityDecks = List<MonsterAbilityState>.of(
+        gameState._currentAbilityDecks,
+      );
       try {
         final data = json.decode(_savedState ?? '') as Map<String, dynamic>;
 
@@ -207,6 +215,14 @@ class GameSaveState {
       } catch (e, stack) {
         debugPrint('GameSaveState.load error: $e\n$stack');
         if (rollbackOnFailure) {
+          // A late parse error can happen after the incoming state removed
+          // objects from these collections. Put the original instances back
+          // before replaying the snapshot so their ValueNotifier subscribers
+          // remain attached.
+          gameState._currentList = originalList;
+          gameState._currentAbilityDecks
+            ..clear()
+            ..addAll(originalAbilityDecks);
           _savedState = originalState;
           final restored = load(gameState, rollbackOnFailure: false);
           _savedState = failedState;

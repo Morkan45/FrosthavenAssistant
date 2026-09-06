@@ -237,8 +237,10 @@ class Client {
   }
 
   void _handleContent(String message) {
+    var authoritativeCorrection = false;
     if (message.startsWith("Mismatch:")) {
       message = message.substring("Mismatch:".length);
+      authoritativeCorrection = true;
       _setNetworkMessage(_l10n.stateMismatch);
     }
 
@@ -248,22 +250,24 @@ class Client {
       debugPrint(
         'Client Receive Data, index: ${envelope.index}, event:${event.runtimeType}',
       );
-      if (!_gameState.loadFromData(envelope.state)) {
-        disconnect('Error: server sent an invalid game state.');
+      final kind = authoritativeCorrection
+          ? ReceivedTransitionKind.mismatchCorrection
+          : envelope.index != _gameState.commandIndex.value + 1
+          ? ReceivedTransitionKind.authoritativeCorrection
+          : ReceivedTransitionKind.newStep;
+      if (!_gameState.applyReceivedTransition(
+        state: envelope.state,
+        index: envelope.index,
+        description: envelope.description,
+        event: event,
+        kind: kind,
+      )) {
+        disconnect(
+          'Error: server sent an invalid game state.',
+          preserveHistory: true,
+        );
         return;
       }
-      _gameState.synchronizeReceivedDescription(
-        envelope.index,
-        envelope.description,
-      );
-      // Set event before commandIndex fires so VLB callbacks see it.
-      _gameState.lastEvent.value = event;
-      _gameState.commandIndex.value = envelope.index;
-      _gameState.updateAllUI();
-      Future.delayed(
-        const Duration(milliseconds: 100),
-        () => _gameState.save(),
-      );
     } else if (message.startsWith("Error")) {
       _setNetworkMessage(message, isError: true);
       disconnect(message);
@@ -279,7 +283,7 @@ class Client {
     _communication.sendToAll(data);
   }
 
-  void disconnect(String? message) {
+  void disconnect(String? message, {bool preserveHistory = false}) {
     final session = ++_session;
     message ??= _l10n.clientDisconnected;
     if (_connection.established()) {
@@ -288,16 +292,16 @@ class Client {
       _connection.removeAll();
       _settings.connectClientOnStartup = false;
       _settings.saveToDisk();
-      _cleanup(session);
+      _cleanup(session, resetHistory: !preserveHistory);
     } else {
-      _cleanup(session);
+      _cleanup(session, resetHistory: !preserveHistory);
     }
   }
 
-  void _cleanup(int session) {
+  void _cleanup(int session, {bool resetHistory = true}) {
     if (session != _session) return;
     _settings.client.value = ClientState.disconnected;
-    _gameState.resetCommandHistory();
+    if (resetHistory) _gameState.resetCommandHistory();
     _pinging = false;
     _pingGeneration++;
     _missedPongs = 0;

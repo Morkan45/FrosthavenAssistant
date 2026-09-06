@@ -1,7 +1,7 @@
 // ignore_for_file: no-magic-number, avoid-late-keyword, avoid-top-level-members-in-tests, prefer-match-file-name, avoid-non-null-assertion
 
 import 'dart:async';
-import 'dart:convert' show utf8;
+import 'dart:convert' show utf8, jsonDecode, jsonEncode;
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -212,6 +212,74 @@ void main() {
   // ── State propagation ─────────────────────────────────────────────────────────
 
   group('state propagation', () {
+    test('a burst retains the snapshot for each forwarded index', () async {
+      final sender = await WireClient.connect('127.0.0.1', _serverPort);
+      final observer = await WireClient.connect('127.0.0.1', _serverPort);
+      addTearDown(sender.close);
+      addTearDown(observer.close);
+      final initial = await sender.doInit();
+      await observer.doInit();
+      final firstData = jsonDecode(initial.state) as Map<String, dynamic>;
+      firstData['level'] = 2;
+      final first = jsonEncode(firstData);
+      firstData['level'] = 3;
+      final second = jsonEncode(firstData);
+
+      for (final item in [(initial.index + 1, first), (initial.index + 2, second)]) {
+        sender.send(StateEnvelope(
+          index: item.$1,
+          description: 'burst ${item.$1}',
+          eventJson: '{"type":"none"}',
+          state: item.$2,
+        ).encode());
+      }
+      final receivedFirst = StateEnvelope.tryDecode(await observer.receive())!;
+      final receivedSecond = StateEnvelope.tryDecode(await observer.receive())!;
+
+      expect(receivedFirst.state, first);
+      expect(receivedSecond.state, second);
+      expect(_serverGameState.snapshotAt(receivedFirst.index)?.getState(), first);
+      expect(_serverGameState.snapshotAt(receivedSecond.index)?.getState(), second);
+      expect(_serverGameState.historyEntryAt(receivedFirst.index)?.canRestore, isTrue);
+      expect(_serverGameState.historyEntryAt(receivedSecond.index)?.canRestore, isTrue);
+    });
+
+    test('rejected state leaves the next index available for a valid update', () async {
+      final sender = await WireClient.connect('127.0.0.1', _serverPort);
+      final observer = await WireClient.connect('127.0.0.1', _serverPort);
+      addTearDown(sender.close);
+      addTearDown(observer.close);
+      final initial = await sender.doInit();
+      await observer.doInit();
+      final before = _serverGameState.toString();
+      final snapshotBefore = _serverGameState.currentSnapshot;
+      final invalid = jsonDecode(initial.state) as Map<String, dynamic>;
+      invalid['level'] = 7;
+      invalid['currentList'] = [];
+      invalid['elementState'] = false;
+      sender.send(StateEnvelope(
+        index: initial.index + 1,
+        description: 'invalid',
+        eventJson: '{"type":"none"}',
+        state: jsonEncode(invalid),
+      ).encode());
+      expect(await sender.receive(), startsWith('Error:'));
+      expect(_serverGameState.toString(), before);
+      expect(_serverGameState.commandIndex.value, initial.index);
+      expect(_serverGameState.currentSnapshot, same(snapshotBefore));
+
+      sender.send(StateEnvelope(
+        index: initial.index + 1,
+        description: 'accepted',
+        eventJson: '{"type":"none"}',
+        state: initial.state,
+      ).encode());
+      final forwarded = StateEnvelope.tryDecode(await observer.receive())!;
+      expect(forwarded.description, 'accepted');
+      expect(forwarded.index, initial.index + 1);
+      expect(_serverGameState.descriptionAt(forwarded.index), 'accepted');
+    });
+
     test('server-side action is pushed to connected clients', () async {
       final client = await WireClient.connect('127.0.0.1', _serverPort);
       addTearDown(client.close);

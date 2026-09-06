@@ -136,6 +136,9 @@ class ActionHistory {
     _enforceSnapshotLimit();
   }
 
+  /// Discards a rejected local future while retaining the corrected state.
+  void discardAfter(int index) => _truncateFrom(index + 1);
+
   void _truncateFrom(int index) {
     final firstToRemove = _entries.indexWhere((entry) => entry.index >= index);
     if (firstToRemove >= 0) {

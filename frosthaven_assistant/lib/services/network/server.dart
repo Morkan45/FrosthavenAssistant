@@ -107,21 +107,17 @@ class Server extends GameServer {
         ).encode(),
       );
     } else if (message.index == _gameState.commandIndex.value + 1) {
-      if (!_gameState.loadFromData(message.data)) {
+      final event = GameEvent.fromJsonString(message.eventJson);
+      if (!_gameState.applyReceivedTransition(
+        state: message.data,
+        index: message.index,
+        description: message.description,
+        event: event,
+        kind: ReceivedTransitionKind.newStep,
+      )) {
         sendToOnly('Error: rejected invalid game state.', client);
         return;
       }
-      if (message.index >= 0) {
-        _gameState.insertReceivedDescription(
-          message.index,
-          message.description,
-        );
-      }
-      // Set event before commandIndex fires so VLB callbacks see it.
-      _gameState.lastEvent.value = GameEvent.fromJsonString(message.eventJson);
-      _gameState.commandIndex.value = message.index;
-      _gameState.save();
-      _gameState.updateAllUI();
       sendToOthers(
         StateEnvelope(
           index: _gameState.commandIndex.value,

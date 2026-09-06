@@ -52,9 +52,10 @@ class ActionLogMenu extends StatelessWidget {
 
     return ModalBackground(
       width: _kMenuWidth * scale,
-      child: ValueListenableBuilder<int>(
-        valueListenable: gs.commandIndex,
-        builder: (context, index, child) {
+      child: ListenableBuilder(
+        listenable: gs.transitionRevision,
+        builder: (context, child) {
+          final index = gs.commandIndex.value;
           final appliedEntries = gs.historyEntries
               .where((entry) => entry.index <= index)
               .toList(growable: false);

@@ -56,6 +56,12 @@ part "sanctuary_deck.dart";
 
 // ignore_for_file: library_private_types_in_public_api
 
+enum ReceivedTransitionKind {
+  newStep,
+  authoritativeCorrection,
+  mismatchCorrection,
+}
+
 class GameState {
   late final ActionHandler _actionHandler;
   late final LatestValueQueue<String> _persistenceQueue;
@@ -158,8 +164,23 @@ class GameState {
   void synchronizeReceivedDescription(int index, String description) =>
       _actionHandler.synchronizeReceivedDescription(index, description);
   void addSaveState(GameSaveState state) => _actionHandler.addSaveState(state);
+  bool applyReceivedTransition({
+    required String state,
+    required int index,
+    required String description,
+    required GameEvent event,
+    required ReceivedTransitionKind kind,
+  }) => _actionHandler.applyReceivedTransition(
+    state: state,
+    index: index,
+    description: description,
+    event: event,
+    kind: kind,
+  );
 
   ValueNotifier<int> get commandIndex => _actionHandler.commandIndex;
+  ValueListenable<int> get transitionRevision =>
+      _actionHandler.transitionRevision;
   ValueNotifier<GameEvent> get lastEvent => _actionHandler.lastEvent;
   ListUpdateNotifier get updateList => _actionHandler.updateList;
   int get maxUndo => _actionHandler.maxUndo;

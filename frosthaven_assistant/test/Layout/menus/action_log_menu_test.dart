@@ -7,6 +7,7 @@ import 'package:frosthaven_assistant/Layout/menus/action_log_menu.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_character_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_monster_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/set_level_command.dart';
+import 'package:frosthaven_assistant/Resource/game_event.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
@@ -62,6 +63,49 @@ void main() {
   testWidgets('shows empty state when there are no actions', (tester) async {
     await pump(tester);
     expect(find.text('No actions yet'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('mounted history shows received snapshots and same-index corrections', (tester) async {
+    gs().action(SetLevelCommand(2, null));
+    final first = gs().toString();
+    gs().action(SetLevelCommand(3, null));
+    final second = gs().toString();
+    gs().resetCommandHistory();
+    await pump(tester);
+
+    for (final item in [(0, first, 'received A'), (1, second, 'received B')]) {
+      expect(gs().applyReceivedTransition(
+        state: item.$2,
+        index: item.$1,
+        description: item.$3,
+        event: const NoEvent(),
+        kind: ReceivedTransitionKind.newStep,
+      ), isTrue);
+    }
+    await tester.pump();
+    expect(find.text('received A'), findsOneWidget);
+    expect(find.text('received B'), findsOneWidget);
+
+    expect(gs().applyReceivedTransition(
+      state: second,
+      index: 1,
+      description: 'corrected B',
+      event: const NoEvent(),
+      kind: ReceivedTransitionKind.authoritativeCorrection,
+    ), isTrue);
+    await tester.pump();
+    expect(find.text('received B'), findsNothing);
+    expect(find.text('corrected B'), findsOneWidget);
+
+    await tester.tap(find.ancestor(
+      of: find.text('received A'), matching: find.byType(InkWell),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Roll back'));
+    await tester.pumpAndSettle();
+    expect(gs().commandIndex.value, 0);
+    expect(gs().level.value, 2);
     expect(tester.takeException(), isNull);
   });
 

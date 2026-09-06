@@ -7,7 +7,8 @@ The user authorized the full [2026-09-05 improvement plan](codebase-improvement-
 | Item | Status | Evidence |
 | --- | --- | --- |
 | F01 | Complete (2026-09-06) | CI mock generation precedes analysis. Broad overflow/asset filters removed; strict viewport suite, bundled fonts, valid fixture assets, and bounded layout repairs added. Clean source codegen and analysis pass; full suite: 1,693 passed, 1 existing connection test skipped. |
-| F02–F15 | Pending | Follow the dependencies and acceptance criteria in the plan. |
+| F02 | Complete (2026-09-06) | Shared synchronous received transitions, detached validation, immediate per-index snapshots, completed-transition UI revision, and mismatch branch invalidation. Analysis passes; full suite: 1,704 passed, 1 existing connection test skipped. |
+| F03–F15 | Pending | Follow the dependencies and acceptance criteria in the plan. |
 
 ## Decisions pending
 
@@ -29,3 +30,11 @@ Layout repairs keep operational controls reachable through flexible labels, wrap
 The strict suite covers five viewports with a mixed character/monster board, status/settings dialogs, explicit 1–3 character columns, and negative controls for overflow/missing images. 200% phone text still exposes status/settings layout issues and remains F05 work, not a passing F01 claim.
 
 The final verification uses `artifacts/f01-clean-source`, copied only from versioned source paths plus the new strict test and documentation, without generated mocks, `.dart_tool`, or build output. Local logs are `artifacts/f01-clean-{pub-get,codegen,analyze,test}.log`; large generated verification artifacts are not versioned.
+
+## F02 transition contract
+
+Client and Flutter host apply accepted states synchronously through `applyReceivedTransition`. A detached graph validates the incoming snapshot before live notifier-backed objects are updated. Each accepted index receives its own exact snapshot and persistence is queued immediately. History UI listens for the completed transition revision, including same-index corrections.
+
+Ordinary host rollback preserves redo history. An explicit `Mismatch:` correction discards the rejected future branch; the next received step starts a new branch. Invalid client state is rejected by the host without consuming an index or broadcasting. A client receiving invalid server state disconnects while retaining its last accepted state and history. The 100 ms client snapshot callback has been removed.
+
+Validation targets include two envelopes in one fake-clock tick, disconnect/reset, late malformed data and nested figure identity, host plus two wire clients, mismatch/rollback/retry, and a mounted history panel that can restore the earlier received state. Full observer atomicity and a versioned save codec remain outside F02.
