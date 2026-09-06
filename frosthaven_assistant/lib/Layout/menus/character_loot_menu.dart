@@ -94,9 +94,14 @@ class _CharacterLootWidget extends StatelessWidget {
                 image: AssetImage("assets/images/class-icons/$characterId.png"),
               ),
               const SizedBox(width: _kCharIconSpacing),
-              Text(
-                AppLocalizations.of(context)!.characterLootTitle(characterName),
-                style: kTitleStyle,
+              Flexible(
+                child: Text(
+                  AppLocalizations.of(
+                    context,
+                  )!.characterLootTitle(characterName),
+                  overflow: TextOverflow.ellipsis,
+                  style: kTitleStyle,
+                ),
               ),
             ],
           ),

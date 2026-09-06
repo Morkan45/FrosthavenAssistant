@@ -16,9 +16,6 @@ void main() {
   });
 
   Future<void> pumpMenu(WidgetTester tester) async {
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -43,7 +40,6 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    FlutterError.onError = originalOnError;
   }
 
   group('AddCharacterMenu', () {
@@ -102,11 +98,8 @@ void main() {
       final tileFinder = find.byType(CharacterTile);
       if (tileFinder.evaluate().isNotEmpty) {
         await tester.tap(tileFinder.first);
-        final originalOnError = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
-        FlutterError.onError = originalOnError;
         // Character was added to the game state
         expect(
           getIt<GameState>().currentList.any((item) =>

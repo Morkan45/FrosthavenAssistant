@@ -26,7 +26,6 @@ void main() {
   Future<void> pumpMenu(WidgetTester tester) async {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     // One normal standee slot for Zealot
     final monsterData = [
       const RoomMonsterData('Zealot', [1, 0, 0], [0, 0, 0]),
@@ -98,7 +97,6 @@ void main() {
         expect(monster.monsterInstances.length, greaterThan(instancesBefore));
         // Ignore errors from dialog closing animation
         final originalOnError = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.pump();
         FlutterError.onError = originalOnError;
       }
@@ -149,14 +147,12 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpMenu(tester);
       final checkbox = tester.widget<Checkbox>(find.byType(Checkbox));
       expect(
         () => checkbox.onChanged?.call(true),
         returnsNormally,
       );
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pump();
       FlutterError.onError = originalOnError;
     });
@@ -173,7 +169,6 @@ void main() {
     Future<void> pumpLargeMenu(WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final monsterData = [
         const RoomMonsterData('Rat Monstrosity', [6, 0, 0], [0, 0, 0]),
       ];
@@ -231,7 +226,6 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       // First monster needs 0 standees — while loop advances to Vermling Raider
       final monsterData = [
         const RoomMonsterData('Zealot', [0, 0, 0], [0, 0, 0]),
@@ -271,7 +265,6 @@ void main() {
         (WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final monsterData = [
         const RoomMonsterData('Zealot', [1, 0, 0], [0, 0, 0]),
         const RoomMonsterData('Vermling Raider', [1, 0, 0], [0, 0, 0]),
@@ -306,7 +299,6 @@ void main() {
       // Tap standee 1 for Zealot to complete first monster
       final button1 = find.text('1');
       if (button1.evaluate().isNotEmpty) {
-        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.tap(button1.first);
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
@@ -335,11 +327,8 @@ void main() {
     testWidgets(
         'adding last standee closes dialog exactly once without Navigator crash',
         (tester) async {
-      // Use a custom error handler that:
-      //  - Suppresses FlutterErrors (e.g. "No Material widget", layout overflow)
-      //    which are expected in the test environment for this dialog.
-      //  - Fails the test on StateError so the double-Navigator.pop crash
-      //    ("Bad state: No element") is caught as a real test failure.
+      // Capture StateError to diagnose the double-Navigator.pop regression;
+      // forward every other error to the test framework.
       //
       // Without the fix, two Navigator.pop calls are scheduled per user action
       // (commandIndex change + setState both trigger the ValueListenableBuilder
@@ -353,8 +342,9 @@ void main() {
         if (exception is StateError) {
           stateError = exception;
         }
-        // FlutterErrors (No Material ancestor, overflow) are environmental
-        // test artefacts — suppress them so they don't mask the real check.
+        else {
+          originalOnError?.call(details);
+        }
       };
 
       final monsterData = [
@@ -407,7 +397,6 @@ void main() {
     Future<void> pumpEliteMenu(WidgetTester tester) async {
       final originalOnError = FlutterError.onError;
       addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       // characterIndex=0: normal[0]=0, elite[0]=1
       final monsterData = [
         const RoomMonsterData('Zealot', [0, 0, 0], [1, 0, 0]),
@@ -461,7 +450,6 @@ void main() {
           expect(monster.monsterInstances.last.type, MonsterType.elite);
         }
         final originalOnError = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.pump();
         FlutterError.onError = originalOnError;
       }

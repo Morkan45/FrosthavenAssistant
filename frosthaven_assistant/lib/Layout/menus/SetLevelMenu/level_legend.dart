@@ -27,30 +27,33 @@ class LevelLegend extends StatelessWidget {
   Widget build(BuildContext context) {
     final shadow = textShadow(scale);
     final textStyleLevelWidget = TextStyle(
-        color: Colors.white,
-        overflow: TextOverflow.fade,
-        fontSize: kFontSizeTitle * scale,
-        shadows: [shadow]);
+      color: Colors.white,
+      overflow: TextOverflow.fade,
+      fontSize: kFontSizeTitle * scale,
+      shadows: [shadow],
+    );
     double height = _kLegendImageHeight * scale;
     if (gfx.contains("level")) {
       height = _kLegendLevelImageHeight * scale;
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+    return Wrap(
+      alignment: WrapAlignment.start,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         SizedBox(width: _kLegendSpacer * scale),
         Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: _kBoxShadowAlpha),
-                  spreadRadius: _kBoxShadowSpread,
-                  blurRadius: _kBoxShadowBlur,
-                ),
-              ],
-            ),
-            child: Image(height: height, image: AssetImage(gfx))),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: _kBoxShadowAlpha),
+                spreadRadius: _kBoxShadowSpread,
+                blurRadius: _kBoxShadowBlur,
+              ),
+            ],
+          ),
+          child: Image(height: height, image: AssetImage(gfx)),
+        ),
         Text(value, style: textStyleLevelWidget),
         Text(" ($name)", style: textStyleLevelWidget),
       ],

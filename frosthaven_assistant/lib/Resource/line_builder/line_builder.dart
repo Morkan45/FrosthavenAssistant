@@ -642,11 +642,8 @@ class LineBuilder {
                 : Text(textPart, style: styleToUse)));
       }
 
-      Row row = Row(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: rowMainAxisAlignment,
-          children: textPartListRowContent);
+      Widget row = _buildConstrainedRow(
+          rowMainAxisAlignment, textPartListRowContent);
 
       if (isRightPartOfLastLine) {
         if (hasInnerRow) {
@@ -666,11 +663,8 @@ class LineBuilder {
         }
         textPartListRowContent.insertAll(0, lastLineTextPartListRowContent);
 
-        row = Row(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: rowMainAxisAlignment,
-            children: textPartListRowContent);
+        row = _buildConstrainedRow(
+            rowMainAxisAlignment, textPartListRowContent);
       }
 
       if (hasInnerRow) {
@@ -687,4 +681,27 @@ class LineBuilder {
     return createLinesColumn(alignment, lines);
   }
 
+
+  static Widget _buildConstrainedRow(
+    MainAxisAlignment mainAxisAlignment,
+    List<Widget> children,
+  ) {
+    final alignment = switch (mainAxisAlignment) {
+      MainAxisAlignment.end => Alignment.centerRight,
+      MainAxisAlignment.center => Alignment.center,
+      _ => Alignment.centerLeft,
+    };
+    return Align(
+      alignment: alignment,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: alignment,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: children,
+        ),
+      ),
+    );
+  }
 }

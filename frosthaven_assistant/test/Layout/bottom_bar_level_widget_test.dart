@@ -19,9 +19,6 @@ void main() {
   });
 
   Future<void> pumpWidget(WidgetTester tester) async {
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       testMaterialApp(
         home: const Scaffold(
@@ -30,7 +27,6 @@ void main() {
       ),
     );
     await tester.pump();
-    FlutterError.onError = originalOnError;
   }
 
   group('BottomBarLevelWidget', () {
@@ -54,9 +50,6 @@ void main() {
     });
 
     testWidgets('tapping opens SetLevelMenu', (WidgetTester tester) async {
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         testMaterialApp(
           home: const Scaffold(
@@ -68,7 +61,6 @@ void main() {
       await tester.tap(find.byType(InkWell).first);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      FlutterError.onError = originalOnError;
       expect(find.byType(SetLevelMenu), findsOneWidget);
     });
 

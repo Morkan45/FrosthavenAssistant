@@ -63,7 +63,7 @@ class BottomBar extends StatelessWidget {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     const DrawButton(),
-                                    BottomBarLevelWidget(),
+                                    const Flexible(child: BottomBarLevelWidget()),
                                     const NetworkUI(),
                                     if (vm.showModifierDeck(context))
                                       const ModifierDeckWidget(name: '')

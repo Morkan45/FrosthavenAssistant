@@ -21,12 +21,16 @@ class LootCardRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Wrap(
+      alignment: WrapAlignment.spaceEvenly,
+      spacing: 4,
+      runSpacing: 4,
       children: List.generate(
         count,
         (i) => EnhancementCounterButton(
-            card: getCard(type, start + i)!, gameState: gameState),
+          card: getCard(type, start + i)!,
+          gameState: gameState,
+        ),
       ),
     );
   }

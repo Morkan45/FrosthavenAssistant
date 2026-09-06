@@ -23,9 +23,6 @@ void main() {
   });
 
   Future<void> pumpScaffold(WidgetTester tester) async {
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       testMaterialApp(
         home: const MainScaffold(),
@@ -33,7 +30,6 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    FlutterError.onError = originalOnError;
   }
 
   group('MainScaffold', () {
@@ -79,9 +75,6 @@ void main() {
     testWidgets('renders CircularProgressIndicator when loading',
         (WidgetTester tester) async {
       loading.value = true;
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         testMaterialApp(
           home: const MainScaffold(),
@@ -89,7 +82,6 @@ void main() {
       );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      FlutterError.onError = originalOnError;
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
       loading.value = false;
@@ -103,9 +95,6 @@ void main() {
 
   group('ToastNotifier', () {
     testWidgets('renders SizedBox(0, 0)', (WidgetTester tester) async {
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(body: ToastNotifier()),
@@ -113,7 +102,6 @@ void main() {
       );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      FlutterError.onError = originalOnError;
 
       final sizedBox = tester.widget<SizedBox>(
         find.byWidgetPredicate(
@@ -125,15 +113,11 @@ void main() {
     testWidgets('does not crash when toastMessage is empty',
         (WidgetTester tester) async {
       (getIt<GameState>().toastMessage as ValueNotifier<String>).value = '';
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         const MaterialApp(home: Scaffold(body: ToastNotifier())),
       );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      FlutterError.onError = originalOnError;
       expect(find.byType(ToastNotifier), findsOneWidget);
     });
   });

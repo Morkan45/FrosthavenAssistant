@@ -27,6 +27,9 @@ jobs:
           sudo apt-get install -y libcurl4-openssl-dev
           flutter pub get
 
+      - name: Create mocks
+        run: dart run build_runner build
+
       - name: Analyze
         run: flutter analyze --no-fatal-infos
 
@@ -34,9 +37,6 @@ jobs:
         run: |
           flutter config --enable-linux-desktop
           flutter build linux
-
-      - name: Create mocks
-        run: dart run build_runner build
 
       - name: Run tests
         run: flutter test --coverage

@@ -24,8 +24,6 @@ void main() {
     Character character,
     bool isCharacter,
   ) async {
-    final originalOnError = FlutterError.onError;
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -40,7 +38,6 @@ void main() {
       ),
     );
     await tester.pump();
-    FlutterError.onError = originalOnError;
   }
 
   group('CharacterIconWidget', () {
@@ -188,8 +185,6 @@ void main() {
               as Character;
 
       // Pump with scale=1.0
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -204,7 +199,6 @@ void main() {
         ),
       );
       await tester.pump();
-      FlutterError.onError = originalOnError;
       expect(find.byType(CharacterIconWidget), findsOneWidget);
     });
   });

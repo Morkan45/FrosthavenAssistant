@@ -75,81 +75,97 @@ class AddStandeeMenuState extends State<AddStandeeMenu> {
       height = AddStandeeMenu._kHeightThreeRows;
     }
     return ModalBackground(
-        width: AddStandeeMenu._kMenuWidth * scale,
-        height: height * scale,
-        child: Stack(children: [
+      width: AddStandeeMenu._kMenuWidth * scale,
+      height: height * scale,
+      child: Stack(
+        children: [
           ListenableBuilder(
-              listenable: Listenable.merge([
-                widget.monster.monsterInstancesNotifier,
-                _gameState.currentCampaign,
-              ]),
-              builder: (context, child) {
-                return Column(
+            listenable: Listenable.merge([
+              widget.monster.monsterInstancesNotifier,
+              _gameState.currentCampaign,
+            ]),
+            builder: (context, child) {
+              return SingleChildScrollView(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SizedBox(height: kMenuTopPadding * scale),
-                    Text(AppLocalizations.of(context)!.addStandeeNr,
-                        style: getTitleTextStyle(scale)),
+                    Text(
+                      AppLocalizations.of(context)!.addStandeeNr,
+                      style: getTitleTextStyle(scale),
+                    ),
                     ...List.generate(
                       (nrOfStandees + AddStandeeMenu._kRow1Max - 1) ~/
                           AddStandeeMenu._kRow1Max,
                       (rowIdx) => Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(
-                          AddStandeeMenu._kRow1Max,
-                          (colIdx) {
-                            final nr =
-                                rowIdx * AddStandeeMenu._kRow1Max + colIdx + 1;
-                            if (nr > nrOfStandees) return Container();
-                            bool isOut = widget.monster.monsterInstances
-                                .any((item) => item.standeeNr == nr);
-                            Color color = isOut
-                                ? Colors.grey
-                                : (_gameState.currentCampaign.value ==
+                        children: List.generate(AddStandeeMenu._kRow1Max, (
+                          colIdx,
+                        ) {
+                          final nr =
+                              rowIdx * AddStandeeMenu._kRow1Max + colIdx + 1;
+                          if (nr > nrOfStandees) return Container();
+                          bool isOut = widget.monster.monsterInstances.any(
+                            (item) => item.standeeNr == nr,
+                          );
+                          Color color = isOut
+                              ? Colors.grey
+                              : (_gameState.currentCampaign.value ==
                                         "Buttons and Bugs"
                                     ? (AddStandeeMenu._kBnBColors[nr] ??
-                                        baseColor)
+                                          baseColor)
                                     : baseColor);
-                            return StandeeNrButton(
-                              nr: nr,
-                              scale: scale,
-                              color: color,
-                              onPressed: isOut
-                                  ? null
-                                  : () => _gameState.action(AddStandeeCommand(
+                          return StandeeNrButton(
+                            nr: nr,
+                            scale: scale,
+                            color: color,
+                            onPressed: isOut
+                                ? null
+                                : () => _gameState.action(
+                                    AddStandeeCommand(
                                       nr,
                                       null,
                                       widget.monster.id,
                                       type,
                                       addAsSummon,
-                                      gameState: _gameState)),
-                            );
-                          },
-                        ),
+                                      gameState: _gameState,
+                                    ),
+                                  ),
+                          );
+                        }),
                       ),
                     ),
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Text(AppLocalizations.of(context)!.summonedLabel,
-                          style: getSmallTextStyle(scale)),
-                      Checkbox(
-                        checkColor: Colors.black,
-                        activeColor: Colors.grey.shade200,
-                        side: BorderSide(
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.summonedLabel,
+                          style: getSmallTextStyle(scale),
+                        ),
+                        Checkbox(
+                          checkColor: Colors.black,
+                          activeColor: Colors.grey.shade200,
+                          side: BorderSide(
                             color: _settings.darkMode.value
                                 ? Colors.white
-                                : Colors.black),
-                        onChanged: (bool? newValue) {
-                          setState(() {
-                            addAsSummon = newValue ?? false;
-                          });
-                        },
-                        value: addAsSummon,
-                      )
-                    ])
+                                : Colors.black,
+                          ),
+                          onChanged: (bool? newValue) {
+                            setState(() {
+                              addAsSummon = newValue ?? false;
+                            });
+                          },
+                          value: addAsSummon,
+                        ),
+                      ],
+                    ),
                   ],
-                );
-              }),
-        ]));
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 }
-

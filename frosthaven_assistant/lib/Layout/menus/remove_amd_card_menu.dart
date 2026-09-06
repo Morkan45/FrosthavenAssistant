@@ -23,8 +23,6 @@ class RemoveAMDCardMenu extends StatelessWidget {
 
   final GameState? gameState;
 
-  static const double _kModalHeight = 180.0;
-
   GameState get _gameState => gameState ?? getIt<GameState>();
 
   @override
@@ -43,57 +41,59 @@ class RemoveAMDCardMenu extends StatelessWidget {
     if (screenSize.width < cardWidth) {
       scale = kCardZoomDefaultScale * (screenSize.width / cardWidth);
     }
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ModifierCardFront(card: card, name: name, scale: scale),
-        const SizedBox(height: kMenuTopPadding),
-        ModalBackground(
-          width: kMenuNarrowWidth,
-          height: _kModalHeight,
-          child: Column(
-            children: [
-              const SizedBox(height: kMenuTopPadding),
-              TextButton(
-                onPressed: () {
-                  _gameState.action(
-                    RemoveAMDCardCommand(
-                      index: index,
-                      name: name,
-                      gameState: _gameState,
-                    ),
-                  );
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ModifierCardFront(card: card, name: name, scale: scale),
+          const SizedBox(height: kMenuTopPadding),
+          ModalBackground(
+            width: kMenuNarrowWidth,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: kMenuTopPadding),
+                TextButton(
+                  onPressed: () {
+                    _gameState.action(
+                      RemoveAMDCardCommand(
+                        index: index,
+                        name: name,
+                        gameState: _gameState,
+                      ),
+                    );
 
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  AppLocalizations.of(context)!.removeCardQuestion,
-                  textAlign: TextAlign.center,
-                  style: kButtonLabelStyle,
-                ),
-              ),
-              const SizedBox(height: kMenuTopPadding),
-              TextButton(
-                onPressed: () {
-                  _gameState.action(ReturnModifierCardCommand(name));
-                  final deck = GameMethods.getModifierDeck(name, _gameState);
-                  //if last card, remove modal
-                  if (deck.discardPileIsEmpty) {
                     Navigator.pop(context);
-                  }
-                },
-                child: Text(
-                  AppLocalizations.of(context)!.returnTopCard,
-                  textAlign: TextAlign.center,
-                  style: kButtonLabelStyle,
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!.removeCardQuestion,
+                    textAlign: TextAlign.center,
+                    style: kButtonLabelStyle,
+                  ),
                 ),
-              ),
-              const SizedBox(height: kMenuTopPadding),
-            ],
+                const SizedBox(height: kMenuTopPadding),
+                TextButton(
+                  onPressed: () {
+                    _gameState.action(ReturnModifierCardCommand(name));
+                    final deck = GameMethods.getModifierDeck(name, _gameState);
+                    //if last card, remove modal
+                    if (deck.discardPileIsEmpty) {
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!.returnTopCard,
+                    textAlign: TextAlign.center,
+                    style: kButtonLabelStyle,
+                  ),
+                ),
+                const SizedBox(height: kMenuTopPadding),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

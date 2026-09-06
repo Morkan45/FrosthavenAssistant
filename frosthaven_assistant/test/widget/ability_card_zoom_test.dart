@@ -21,8 +21,6 @@ void main() {
           .currentList
           .firstWhere((e) => e is Monster) as Monster;
       final card = getIt<GameState>().currentAbilityDecks.first.drawPileTop;
-
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       // Act
       await tester.pumpWidget(
         MaterialApp(
@@ -71,8 +69,6 @@ void main() {
           .currentList
           .firstWhere((e) => e is Monster) as Monster;
       final card = getIt<GameState>().currentAbilityDecks.first.drawPileTop;
-
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       // Act
       await tester.pumpWidget(
         MaterialApp(

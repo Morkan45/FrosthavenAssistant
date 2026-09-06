@@ -19,9 +19,6 @@ void main() {
   });
 
   Future<void> pumpMenu(WidgetTester tester) async {
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -45,7 +42,6 @@ void main() {
     );
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
-    FlutterError.onError = originalOnError;
   }
 
   group('SpecialUnlocksMenu', () {

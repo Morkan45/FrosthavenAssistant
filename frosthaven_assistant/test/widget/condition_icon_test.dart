@@ -38,8 +38,6 @@ void main() {
     Condition condition,
   ) async {
     final character = getBlinkblade();
-    final originalOnError = FlutterError.onError;
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -54,7 +52,6 @@ void main() {
       ),
     );
     await tester.pump();
-    FlutterError.onError = originalOnError;
   }
 
   group('ConditionIcon', () {
@@ -111,8 +108,6 @@ void main() {
       final character = getBlinkblade();
       final owner = character;
       final figure = character.characterState;
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -127,7 +122,6 @@ void main() {
         ),
       );
       await tester.pump();
-      FlutterError.onError = originalOnError;
       // character condition renders two images (token bg + class icon)
       expect(find.byType(Image), findsAtLeast(2));
     });
@@ -197,8 +191,6 @@ void main() {
       WidgetTester tester,
     ) async {
       final character = getBlinkblade();
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -213,7 +205,6 @@ void main() {
         ),
       );
       await tester.pump();
-      FlutterError.onError = originalOnError;
       // character condition renders using Stack (bg + icon)
       expect(find.byType(Stack), findsAtLeast(1));
     });
@@ -253,9 +244,6 @@ void main() {
       final monster =
           gameState.currentList.firstWhere((e) => e.id == 'Zealot') as Monster;
       final instance = monster.monsterInstances.first;
-
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -270,7 +258,6 @@ void main() {
         ),
       );
       await tester.pump();
-      FlutterError.onError = originalOnError;
       expect(find.byType(ConditionIcon), findsOneWidget);
       expect(find.byType(Image), findsAtLeast(1));
     });
@@ -307,9 +294,6 @@ void main() {
       final gameState = getIt<GameState>();
       final character =
           gameState.currentList.firstWhere((e) => e is Character) as Character;
-
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -324,7 +308,6 @@ void main() {
         ),
       );
       await tester.pump();
-      FlutterError.onError = originalOnError;
 
       final state = tester.state<ConditionIconState>(
         find.byType(ConditionIcon),
@@ -339,12 +322,9 @@ void main() {
           gameState: getIt<GameState>(),
         ),
       );
-
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pump();
       expect(state.animate.value, isTrue);
       await tester.pump(const Duration(milliseconds: 400));
-      FlutterError.onError = originalOnError;
 
       expect(find.byType(ConditionIcon), findsOneWidget);
       expect(state.animate.value, isFalse);
@@ -358,9 +338,6 @@ void main() {
         final character =
             gameState.currentList.firstWhere((e) => e is Character)
                 as Character;
-
-        final originalOnError = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         // stun is not in the health-decrease or health-increase animation lists
         // so _runAnimation() is NOT called → no pending timer
         await tester.pumpWidget(
@@ -377,7 +354,6 @@ void main() {
           ),
         );
         await tester.pump();
-        FlutterError.onError = originalOnError;
 
         // Health decrease: covers lines 128, 198-207 (all conditions evaluated, none match stun)
         gameState.action(
@@ -388,9 +364,7 @@ void main() {
             gameState: getIt<GameState>(),
           ),
         );
-        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.pump();
-        FlutterError.onError = originalOnError;
 
         // Health increase: covers lines 210-216 (all conditions evaluated, none match stun)
         gameState.action(
@@ -401,9 +375,7 @@ void main() {
             gameState: getIt<GameState>(),
           ),
         );
-        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.pump();
-        FlutterError.onError = originalOnError;
 
         expect(find.byType(ConditionIcon), findsOneWidget);
         gameState.undo();

@@ -22,9 +22,6 @@ void main() {
   });
 
   Future<void> pumpMenu(WidgetTester tester) async {
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -48,7 +45,6 @@ void main() {
     );
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
-    FlutterError.onError = originalOnError;
   }
 
   group('SaveCharacterMenu', () {
@@ -90,10 +86,7 @@ void main() {
       final iconButtons = find.byType(IconButton);
       expect(iconButtons, findsAtLeast(1));
       await tester.tap(iconButtons.first);
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpAndSettle();
-      FlutterError.onError = originalOnError;
       expect(find.byType(SaveCharacterModalMenu), findsOneWidget);
     });
 
@@ -110,10 +103,7 @@ void main() {
 
       // Tapping a save opens SaveCharacterModalMenu
       await tester.tap(find.text('BlinkbladeSave'));
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpAndSettle();
-      FlutterError.onError = originalOnError;
       expect(find.byType(SaveCharacterModalMenu), findsOneWidget);
 
       // cleanup

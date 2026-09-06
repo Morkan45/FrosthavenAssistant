@@ -31,9 +31,6 @@ void main() {
     bool saveOnly = false,
     Character? char,
   }) async {
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -64,7 +61,6 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    FlutterError.onError = originalOnError;
   }
 
   group('SaveCharacterModalMenu', () {

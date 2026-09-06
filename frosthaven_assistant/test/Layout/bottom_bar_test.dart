@@ -24,9 +24,6 @@ void main() {
   });
 
   Future<void> pumpBar(WidgetTester tester) async {
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       const MaterialApp(
         localizationsDelegates: [
@@ -42,7 +39,6 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    FlutterError.onError = originalOnError;
   }
 
   group('BottomBar', () {

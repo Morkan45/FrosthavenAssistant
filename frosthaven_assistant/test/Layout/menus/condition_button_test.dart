@@ -57,9 +57,6 @@ void main() {
   group('ConditionButton', () {
     testWidgets('renders a button when the figure exists',
         (WidgetTester tester) async {
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final figureId = standee.getId();
 
       await tester.pumpWidget(buildConditionButton(
@@ -73,9 +70,6 @@ void main() {
 
     testWidgets('returns empty SizedBox when figure does not exist',
         (WidgetTester tester) async {
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
 
       await tester.pumpWidget(buildConditionButton(
         condition: Condition.stun,
@@ -90,9 +84,6 @@ void main() {
 
     testWidgets('tapping an inactive condition adds it to the figure',
         (WidgetTester tester) async {
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final figureId = standee.getId();
       expect(standee.conditions.value, isNot(contains(Condition.stun)));
 
@@ -110,9 +101,6 @@ void main() {
 
     testWidgets('tapping an active condition removes it from the figure',
         (WidgetTester tester) async {
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final figureId = standee.getId();
 
       // Add the condition first
@@ -136,9 +124,6 @@ void main() {
     testWidgets(
         'button is disabled and shows immunity overlay for immune condition',
         (WidgetTester tester) async {
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final figureId = standee.getId();
 
       await tester.pumpWidget(buildConditionButton(
@@ -154,9 +139,6 @@ void main() {
 
     testWidgets('infect is disabled when immune to poison',
         (WidgetTester tester) async {
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final figureId = standee.getId();
 
       await tester.pumpWidget(buildConditionButton(
@@ -172,9 +154,6 @@ void main() {
 
     testWidgets('rupture is disabled when immune to wound',
         (WidgetTester tester) async {
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final figureId = standee.getId();
 
       await tester.pumpWidget(buildConditionButton(
@@ -190,9 +169,6 @@ void main() {
 
     testWidgets('button updates reactively when condition is added via command',
         (WidgetTester tester) async {
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       final figureId = standee.getId();
 
       await tester.pumpWidget(buildConditionButton(

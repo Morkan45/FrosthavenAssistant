@@ -38,9 +38,12 @@ class LootTypeHeader extends StatelessWidget {
           fit: BoxFit.contain,
           image: AssetImage("assets/images/loot/${type}_icon.png"),
         ),
-        Text(
-          "${_displayName(l10n, type)} $amount",
-          style: kBodyStyle,
+        Flexible(
+          child: Text(
+            "${_displayName(l10n, type)} $amount",
+            overflow: TextOverflow.ellipsis,
+            style: kBodyStyle,
+          ),
         ),
       ],
     );

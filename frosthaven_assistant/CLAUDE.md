@@ -16,7 +16,7 @@ flutter doctor                 # Check Flutter installation and dependencies
 
 ### Testing
 ```bash
-dart run build_runner build    # Generate .mocks.dart files (REQUIRED before testing)
+dart run build_runner build    # Generate .mocks.dart files (REQUIRED before analysis and testing)
 flutter test                   # Run all unit tests
 flutter test test/path/to/test_file.dart  # Run a specific test file
 ```
@@ -29,8 +29,12 @@ dart run build_runner build    # Retry generating mocks
 
 ### Analysis
 ```bash
-flutter analyze                # Run static analysis with dart_code_metrics rules
+flutter analyze --no-fatal-infos # Run Dart analysis and configured flutter_lints
 ```
+
+The `dart_code_metrics` configuration is not an active CI gate: no workflow
+invokes DCM. See [verification instructions](../docs/testing.md) for the clean
+checkout command order and UI test policy.
 
 ### Building
 ```bash

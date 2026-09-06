@@ -80,10 +80,7 @@ void main() {
   group('main-list rebuild budgets', () {
     for (final fixture in performanceFixtures) {
       testWidgets('${fixture.name} 2560x1440 rebuild latency', (tester) async {
-        final originalOnError = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors(originalOnError);
         addTearDown(() async {
-          FlutterError.onError = originalOnError;
           await tester.binding.setSurfaceSize(null);
         });
 

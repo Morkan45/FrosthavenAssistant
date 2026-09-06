@@ -18,182 +18,196 @@ class BottomBarLevelWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final vm =
-        BottomBarLevelWidgetViewModel(gameState: gameState, settings: settings);
+    final vm = BottomBarLevelWidgetViewModel(
+      gameState: gameState,
+      settings: settings,
+    );
 
     final userScalingBars = vm.userScalingBars;
     final fontHeight = vm.fontHeight;
     final textStyle = vm.textStyle(userScalingBars);
 
     return RepaintBoundary(
-        child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                openDialog(
-                  context,
-                  const SetLevelMenu(),
-                );
-              },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ValueListenableBuilder<String>(
-                      valueListenable: vm.scenario,
-                      builder: (context, value, child) {
-                        return SizedBox(
-                            width: _kScenarioWidth * userScalingBars,
-                            child: Text(
-                              overflow: TextOverflow.ellipsis,
-                              vm.formattedScenarioName,
-                              textAlign: TextAlign.center,
-                              style: textStyle,
-                            ));
-                      }),
-                  ValueListenableBuilder<int>(
-                      valueListenable: vm.level,
-                      builder: (context, value, child) {
-                        const double blurRadius = 3.0;
-                        const double spreadRadius = 1.0;
-                        const double opacity = 0.3;
-                        final color = Colors.black.withValues(alpha: opacity);
-                        return Text.rich(
-                          TextSpan(children: [
-                            WidgetSpan(
-                                alignment: PlaceholderAlignment.middle,
-                                style: textStyle,
-                                child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: color,
-                                          spreadRadius: spreadRadius,
-                                          blurRadius:
-                                              blurRadius * userScalingBars,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Image(
-                                      height: fontHeight * _kLevelIconScale,
-                                      filterQuality: FilterQuality
-                                          .medium, //needed because of the edges
-                                      image: const AssetImage(
-                                          "assets/images/psd/level.png"),
-                                    ))),
-                            TextSpan(
-                              text: ": $value ",
-                              style: textStyle,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            openDialog(context, const SetLevelMenu());
+          },
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ValueListenableBuilder<String>(
+                  valueListenable: vm.scenario,
+                  builder: (context, value, child) {
+                    return SizedBox(
+                      width: _kScenarioWidth * userScalingBars,
+                      child: Text(
+                        overflow: TextOverflow.ellipsis,
+                        vm.formattedScenarioName,
+                        textAlign: TextAlign.center,
+                        style: textStyle,
+                      ),
+                    );
+                  },
+                ),
+                ValueListenableBuilder<int>(
+                  valueListenable: vm.level,
+                  builder: (context, value, child) {
+                    const double blurRadius = 3.0;
+                    const double spreadRadius = 1.0;
+                    const double opacity = 0.3;
+                    final color = Colors.black.withValues(alpha: opacity);
+                    return Text.rich(
+                      TextSpan(
+                        children: [
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            style: textStyle,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: color,
+                                    spreadRadius: spreadRadius,
+                                    blurRadius: blurRadius * userScalingBars,
+                                  ),
+                                ],
+                              ),
+                              child: Image(
+                                height: fontHeight * _kLevelIconScale,
+                                filterQuality: FilterQuality
+                                    .medium, //needed because of the edges
+                                image: const AssetImage(
+                                  "assets/images/psd/level.png",
+                                ),
+                              ),
                             ),
-                            WidgetSpan(
-                                alignment: PlaceholderAlignment.middle,
-                                style: textStyle,
-                                child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: color,
-                                          spreadRadius: spreadRadius,
-                                          blurRadius:
-                                              blurRadius * userScalingBars,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Image(
-                                      height: fontHeight,
-                                      filterQuality: FilterQuality
-                                          .medium, //needed because of the edges
-                                      image: const AssetImage(
-                                          "assets/images/psd/traps-fh.png"),
-                                    ))),
-                            TextSpan(
-                              text: ": ${vm.trapValue} ",
-                              style: textStyle,
+                          ),
+                          TextSpan(text: ": $value ", style: textStyle),
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            style: textStyle,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: color,
+                                    spreadRadius: spreadRadius,
+                                    blurRadius: blurRadius * userScalingBars,
+                                  ),
+                                ],
+                              ),
+                              child: Image(
+                                height: fontHeight,
+                                filterQuality: FilterQuality
+                                    .medium, //needed because of the edges
+                                image: const AssetImage(
+                                  "assets/images/psd/traps-fh.png",
+                                ),
+                              ),
                             ),
-                            WidgetSpan(
-                                alignment: PlaceholderAlignment.middle,
-                                style: textStyle,
-                                child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: color,
-                                          spreadRadius: spreadRadius,
-                                          blurRadius:
-                                              blurRadius * userScalingBars,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Image(
-                                      height: fontHeight,
-                                      filterQuality: FilterQuality
-                                          .medium, //needed because of the edges
-                                      image: const AssetImage(
-                                          "assets/images/psd/hazard-fh.png"),
-                                    ))),
-                            TextSpan(
-                              text: ": ${vm.hazardValue} ",
-                              style: textStyle,
+                          ),
+                          TextSpan(
+                            text: ": ${vm.trapValue} ",
+                            style: textStyle,
+                          ),
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            style: textStyle,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: color,
+                                    spreadRadius: spreadRadius,
+                                    blurRadius: blurRadius * userScalingBars,
+                                  ),
+                                ],
+                              ),
+                              child: Image(
+                                height: fontHeight,
+                                filterQuality: FilterQuality
+                                    .medium, //needed because of the edges
+                                image: const AssetImage(
+                                  "assets/images/psd/hazard-fh.png",
+                                ),
+                              ),
                             ),
-                            WidgetSpan(
-                                alignment: PlaceholderAlignment.middle,
-                                style: textStyle,
-                                child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: color,
-                                          spreadRadius: spreadRadius,
-                                          blurRadius:
-                                              blurRadius * userScalingBars,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Image(
-                                      height: fontHeight * _kXpIconScale,
-                                      filterQuality: FilterQuality
-                                          .medium, //needed because of the edges
-                                      image: const AssetImage(
-                                          "assets/images/psd/xp.png"),
-                                    ))),
-                            TextSpan(
-                              text: ": +${vm.xpValue} ",
-                              style: textStyle,
+                          ),
+                          TextSpan(
+                            text: ": ${vm.hazardValue} ",
+                            style: textStyle,
+                          ),
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            style: textStyle,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: color,
+                                    spreadRadius: spreadRadius,
+                                    blurRadius: blurRadius * userScalingBars,
+                                  ),
+                                ],
+                              ),
+                              child: Image(
+                                height: fontHeight * _kXpIconScale,
+                                filterQuality: FilterQuality
+                                    .medium, //needed because of the edges
+                                image: const AssetImage(
+                                  "assets/images/psd/xp.png",
+                                ),
+                              ),
                             ),
-                            WidgetSpan(
-                                alignment: PlaceholderAlignment.middle,
-                                style: textStyle,
-                                child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: color,
-                                          spreadRadius: spreadRadius,
-                                          blurRadius:
-                                              blurRadius * userScalingBars,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Image(
-                                      height: fontHeight,
-                                      filterQuality: FilterQuality
-                                          .medium, //needed because of the edges
-                                      image: const AssetImage(
-                                          "assets/images/psd/coins-fh.png"),
-                                    ))),
-                            TextSpan(
-                              text: ": x${vm.coinValue}",
-                              style: textStyle,
+                          ),
+                          TextSpan(text: ": +${vm.xpValue} ", style: textStyle),
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            style: textStyle,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: color,
+                                    spreadRadius: spreadRadius,
+                                    blurRadius: blurRadius * userScalingBars,
+                                  ),
+                                ],
+                              ),
+                              child: Image(
+                                height: fontHeight,
+                                filterQuality: FilterQuality
+                                    .medium, //needed because of the edges
+                                image: const AssetImage(
+                                  "assets/images/psd/coins-fh.png",
+                                ),
+                              ),
                             ),
-                          ]),
-                        );
-                      }),
-                ],
-              ),
-            )));
+                          ),
+                          TextSpan(
+                            text: ": x${vm.coinValue}",
+                            style: textStyle,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -364,6 +364,10 @@ class FrosthavenConverter {
       retVal.addAll(
         getAllImagesInWidget(widget.child ?? const SizedBox.shrink()),
       );
+    } else if (widget is Align && widget.child != null) {
+      retVal.addAll(getAllImagesInWidget(widget.child!));
+    } else if (widget is FittedBox && widget.child != null) {
+      retVal.addAll(getAllImagesInWidget(widget.child!));
     } else if (widget is Image) {
       final label = widget.semanticLabel;
       if (label != null) retVal.add(label);
@@ -384,6 +388,10 @@ class FrosthavenConverter {
       }
     } else if (widget is Container && widget.child != null) {
       retVal += getAllTextInWidget(widget.child ?? const SizedBox.shrink());
+    } else if (widget is Align && widget.child != null) {
+      retVal += getAllTextInWidget(widget.child!);
+    } else if (widget is FittedBox && widget.child != null) {
+      retVal += getAllTextInWidget(widget.child!);
     } else if (widget is Text) {
       retVal += widget.data ?? '';
     }

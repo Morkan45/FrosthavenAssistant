@@ -36,9 +36,6 @@ void main() {
   const fireColor = Color.fromARGB(255, 226, 66, 30);
 
   Future<void> pumpButton(WidgetTester tester) async {
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -53,7 +50,6 @@ void main() {
       ),
     );
     await tester.pump();
-    FlutterError.onError = originalOnError;
   }
 
   AnimatedContainer firstAnimatedContainer(WidgetTester tester) =>

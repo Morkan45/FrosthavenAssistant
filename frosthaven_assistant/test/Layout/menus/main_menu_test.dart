@@ -42,9 +42,6 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -68,7 +65,6 @@ void main() {
     );
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
-    FlutterError.onError = originalOnError;
   }
 
   /// Brings [target] into view and taps it.
@@ -142,11 +138,8 @@ void main() {
     ) async {
       await pumpMenu(tester);
       await scrollAndTap(tester, find.text('Add Monsters'));
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      FlutterError.onError = originalOnError;
       expect(find.byType(AddMonsterMenu), findsOneWidget);
     });
 
@@ -155,11 +148,8 @@ void main() {
     ) async {
       await pumpMenu(tester);
       await scrollAndTap(tester, find.text('Set Level'));
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      FlutterError.onError = originalOnError;
       expect(find.byType(SetLevelMenu), findsOneWidget);
     });
 
@@ -259,11 +249,8 @@ void main() {
     ) async {
       await pumpMenu(tester);
       await scrollAndTap(tester, find.text('Settings'));
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      FlutterError.onError = originalOnError;
       expect(find.byType(SettingsMenu), findsOneWidget);
     });
 

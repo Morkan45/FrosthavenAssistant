@@ -30,8 +30,6 @@ void main() {
   });
 
   Future<void> pumpMenu(WidgetTester tester) async {
-    final originalOnError = FlutterError.onError;
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -55,7 +53,6 @@ void main() {
     );
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
-    FlutterError.onError = originalOnError;
   }
 
   group('ModifierDeckMenu', () {
@@ -304,8 +301,6 @@ void main() {
     });
 
     Future<void> pumpCharacterMenu(WidgetTester tester) async {
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           localizationsDelegates: const [
@@ -330,7 +325,6 @@ void main() {
       );
       await tester.tap(find.text('Open'));
       await tester.pumpAndSettle();
-      FlutterError.onError = originalOnError;
     }
 
     testWidgets('renders Perks button for character deck', (
@@ -398,10 +392,6 @@ void main() {
       gameState.action(
         DrawModifierCardCommand(deckName, gameState: getIt<GameState>()),
       );
-
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           localizationsDelegates: const [
@@ -459,9 +449,6 @@ void main() {
     });
 
     Future<void> pumpAlliesMenu(WidgetTester tester) async {
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           localizationsDelegates: const [

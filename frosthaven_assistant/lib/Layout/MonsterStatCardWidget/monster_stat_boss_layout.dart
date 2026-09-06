@@ -152,15 +152,19 @@ class MonsterStatBossLayout extends StatelessWidget {
             children: <Widget>[
               Text(health, style: leftStyle),
               Text(move, style: leftStyle),
-              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                Container(
-                    margin: EdgeInsets.only(
-                        right: bossAttackAttributes.contains("target")
-                            ? _kBossAttribMarginRight * scale
-                            : 0),
-                    child: attackAttributes),
-                Text(attack, style: leftStyle)
-              ]),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerRight,
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Container(
+                      margin: EdgeInsets.only(
+                          right: bossAttackAttributes.contains("target")
+                              ? _kBossAttribMarginRight * scale
+                              : 0),
+                      child: attackAttributes),
+                  Text(attack, style: leftStyle)
+                ]),
+              ),
               Text(normal?.range != 0 ? normal?.range.toString() ?? " " : "",
                   style: leftStyle),
             ],

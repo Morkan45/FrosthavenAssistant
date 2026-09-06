@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Resource/game_data.dart';
@@ -14,8 +15,25 @@ import 'package:json_diff/json_diff.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 late final GameState gameState;
+Future<void>? _testFontsLoaded;
+
+Future<void> _loadTestFonts() {
+  return _testFontsLoaded ??= Future.wait([
+    _loadTestFont('Majalla', 'assets/fonts/majallab.ttf'),
+    _loadTestFont('Pirata', 'assets/fonts/PirataOne-Gloomhaven.ttf'),
+    _loadTestFont('GermaniaOne', 'assets/fonts/GermaniaOne-Regular.ttf'),
+    _loadTestFont('Markazi', 'assets/fonts/MarkaziText-VariableFont_wght.ttf'),
+  ]);
+}
+
+Future<void> _loadTestFont(String family, String asset) async {
+  final loader = FontLoader(family)..addFont(rootBundle.load(asset));
+  await loader.load();
+}
+
 Future<void> setUpGame() async {
   TestWidgetsFlutterBinding.ensureInitialized();
+  await _loadTestFonts();
 
   // Provide an in-memory SharedPreferences stub so that Settings.saveToDisk()
   // and GameSaveState.saveToDisk() don't throw MissingPluginException.
@@ -83,20 +101,3 @@ Widget testApp(Widget home) => MaterialApp(
 );
 
 Widget testMaterialApp({required Widget home}) => testApp(home);
-
-FlutterExceptionHandler ignoreOverflowErrors(
-  FlutterExceptionHandler? delegate,
-) {
-  return (FlutterErrorDetails details) {
-    final message = details.exceptionAsString();
-    final isOverflow = message.startsWith('A RenderFlex overflowed by');
-    final isMissingAsset = message.startsWith('Unable to load asset');
-
-    if (isOverflow || isMissingAsset) {
-      debugPrint('Ignored expected test layout error: $message');
-      return;
-    }
-
-    (delegate ?? FlutterError.presentError)(details);
-  };
-}

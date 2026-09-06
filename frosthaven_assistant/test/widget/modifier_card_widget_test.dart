@@ -12,13 +12,10 @@ void main() {
   });
 
   Future<void> pumpCard(WidgetTester tester, ModifierCardWidget widget) async {
-    final originalOnError = FlutterError.onError;
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(home: Scaffold(body: widget)),
     );
     await tester.pump();
-    FlutterError.onError = originalOnError;
   }
 
   group('ModifierCardWidget', () {
@@ -41,8 +38,6 @@ void main() {
     testWidgets('buildFront with imbue card renders without error',
         (WidgetTester tester) async {
       final card = ModifierCard(CardType.add, 'imbue-plus1');
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -51,7 +46,6 @@ void main() {
         ),
       );
       await tester.pump();
-      FlutterError.onError = originalOnError;
       expect(find.byType(ModifierCardFront), findsOneWidget);
     });
 
@@ -59,8 +53,6 @@ void main() {
         (WidgetTester tester) async {
       final card =
           ModifierCard(CardType.add, 'Military-perks/plus1shield1flip');
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -69,15 +61,12 @@ void main() {
         ),
       );
       await tester.pump();
-      FlutterError.onError = originalOnError;
       expect(find.byType(ModifierCardFront), findsOneWidget);
     });
 
     testWidgets('buildFront with allies deck renders without error',
         (WidgetTester tester) async {
       final card = ModifierCard(CardType.add, 'plus1');
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -86,7 +75,6 @@ void main() {
         ),
       );
       await tester.pump();
-      FlutterError.onError = originalOnError;
       expect(find.byType(ModifierCardFront), findsOneWidget);
     });
   });

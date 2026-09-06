@@ -31,8 +31,6 @@ void main() {
   }
 
   Future<void> pumpWidget(WidgetTester tester, Monster monster) async {
-    final originalOnError = FlutterError.onError;
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       testMaterialApp(
         home: Scaffold(
@@ -41,7 +39,6 @@ void main() {
       ),
     );
     await tester.pump();
-    FlutterError.onError = originalOnError;
   }
 
   group('MonsterAbilityCardWidget', () {
@@ -63,8 +60,6 @@ void main() {
     testWidgets('tapping card opens AbilityCardsMenu',
         (WidgetTester tester) async {
       final monster = getZealot();
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         testMaterialApp(
           home: Scaffold(
@@ -73,10 +68,8 @@ void main() {
         ),
       );
       await tester.pump();
-      FlutterError.onError = originalOnError;
 
       final originalOnError2 = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.tap(find.byType(InkWell).first);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
@@ -103,9 +96,6 @@ void main() {
       // Enter playTurns by drawing
       DrawCommand(gameState: getIt<GameState>()).execute();
       expect(gameState.roundState.value, RoundState.playTurns);
-
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         testMaterialApp(
           home: Scaffold(
@@ -114,13 +104,11 @@ void main() {
         ),
       );
       await tester.pump();
-      FlutterError.onError = originalOnError;
 
       expect(find.byType(MonsterAbilityCardWidget), findsOneWidget);
 
       // Cleanup: advance past the 600ms AnimatedSwitcher timer from NextRoundCommand
       final originalOnError2 = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       NextRoundCommand(
               gameState: getIt<GameState>(),
               gameData: getIt<GameData>(),
@@ -134,9 +122,6 @@ void main() {
         (WidgetTester tester) async {
       final monster = getZealot();
       await pumpWidget(tester, monster);
-
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.tap(find.byType(InkWell).first, warnIfMissed: false);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
@@ -144,7 +129,6 @@ void main() {
       final navigator = tester.state<NavigatorState>(find.byType(Navigator));
       navigator.pop();
       await tester.pumpAndSettle();
-      FlutterError.onError = originalOnError;
 
       expect(find.byType(MonsterAbilityCardWidget), findsOneWidget);
     });

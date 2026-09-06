@@ -25,10 +25,6 @@ Future<void> _pumpBoss(WidgetTester tester, Monster monster,
       frosthavenStyle: frosthavenStyle,
       viewModel:
           MonsterStatCardViewModel(monster, gameState: getIt<GameState>()));
-
-  final originalOnError = FlutterError.onError;
-  addTearDown(() => FlutterError.onError = originalOnError);
-  FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
   await tester.pumpWidget(
     MaterialApp(
       home: Scaffold(
@@ -37,7 +33,6 @@ Future<void> _pumpBoss(WidgetTester tester, Monster monster,
     ),
   );
   await tester.pump();
-  FlutterError.onError = originalOnError;
 }
 
 void main() {
@@ -107,6 +102,18 @@ void main() {
       // At level 1: attack=4
       await _pumpBoss(tester, monster);
       expect(find.text('4'), findsAtLeast(1));
+    });
+
+    testWidgets('fits attack attributes inside the stat lane',
+        (WidgetTester tester) async {
+      AddMonsterCommand('Test Boss (FH)', 1, false,
+              gameState: getIt<GameState>())
+          .execute();
+      await _pumpBoss(tester, _getBoss());
+
+      final fittedBox = tester.widget<FittedBox>(find.byType(FittedBox).first);
+      expect(fittedBox.fit, BoxFit.scaleDown);
+      expect(fittedBox.alignment, Alignment.centerRight);
     });
 
     testWidgets('displays level text', (WidgetTester tester) async {
@@ -265,9 +272,6 @@ void main() {
               gameState: getIt<GameState>())
           .execute();
       final monster = _getBoss();
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -280,7 +284,6 @@ void main() {
         ),
       );
       await tester.pump();
-      FlutterError.onError = originalOnError;
       expect(find.byType(MonsterStatCardWidget), findsOneWidget);
     });
 

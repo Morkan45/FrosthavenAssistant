@@ -75,8 +75,8 @@ class SetLevelMenu extends StatelessWidget {
         height: vm.showLegend
             ? SetLevelMenu._kMenuHeightWithLegend * scale
             : SetLevelMenu._kMenuHeightNoLegend * scale,
-        child: Stack(children: [
-          Column(
+        child: SingleChildScrollView(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
@@ -111,7 +111,13 @@ class SetLevelMenu extends StatelessWidget {
                 ),
               if (figure == null)
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Text(l10n.soloLabel, style: getSmallTextStyle(scale)),
+                  Flexible(
+                    child: Text(
+                      l10n.soloLabel,
+                      style: getSmallTextStyle(scale),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                   ValueListenableBuilder<bool>(
                       valueListenable: _gameState.solo,
                       builder: (context, value, child) {
@@ -130,8 +136,13 @@ class SetLevelMenu extends StatelessWidget {
                 ]),
               if (figure == null)
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Text(l10n.automaticScenarioLevel,
-                      style: getSmallTextStyle(scale)),
+                  Flexible(
+                    child: Text(
+                      l10n.automaticScenarioLevel,
+                      style: getSmallTextStyle(scale),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                   ValueListenableBuilder<bool>(
                       valueListenable: _gameState.autoScenarioLevel,
                       builder: (context, value, child) {
@@ -150,7 +161,10 @@ class SetLevelMenu extends StatelessWidget {
                       })
                 ]),
               if (figure == null)
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
                   Text(l10n.difficultyLabel, style: getSmallTextStyle(scale)),
                   ...List.generate(
                     SetLevelMenu._kDifficultyCount,
@@ -210,6 +224,6 @@ class SetLevelMenu extends StatelessWidget {
                 )
             ],
           ),
-        ]));
+        ));
   }
 }

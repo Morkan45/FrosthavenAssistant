@@ -28,9 +28,6 @@ void main() {
   });
 
   Future<void> pumpWidget(WidgetTester tester) async {
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -44,7 +41,6 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 600));
-    FlutterError.onError = originalOnError;
   }
 
   group('CharacterAmdsWidget', () {
@@ -87,17 +83,12 @@ void main() {
     ) async {
       AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
       await pumpWidget(tester);
-
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.tap(find.text('Character Decks'));
       // Flush 0ms timers created by animation state changes, then advance
       // past the 500ms animation duration so all timers complete.
       await tester.pump();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 600));
-      FlutterError.onError = originalOnError;
 
       // Just ensure it doesn't crash
       expect(find.text('Character Decks'), findsOneWidget);
@@ -193,13 +184,8 @@ void main() {
       (WidgetTester tester) async {
         AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
         await pumpWidget(tester);
-
-        final originalOnError = FlutterError.onError;
-        addTearDown(() => FlutterError.onError = originalOnError);
-        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         AddCharacterCommand('Banner Spear', 'Frosthaven', null, 2).execute();
         await tester.pump();
-        FlutterError.onError = originalOnError;
 
         final deckWidgets = tester
             .widgetList<ModifierDeckWidget>(find.byType(ModifierDeckWidget))
@@ -240,15 +226,10 @@ void main() {
 
         final blinkblade = GameMethods.getCurrentCharacters()
             .firstWhere((c) => c.id == 'Blinkblade');
-
-        final originalOnError = FlutterError.onError;
-        addTearDown(() => FlutterError.onError = originalOnError);
-        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         gameState.action(
           RemoveCharacterCommand([blinkblade], gameState: gameState),
         );
         await tester.pump();
-        FlutterError.onError = originalOnError;
 
         // After removing Blinkblade the widget must show Banner Spear's deck.
         // Without ValueKey on ModifierDeckWidget, Flutter reuses the Blinkblade

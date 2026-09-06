@@ -39,9 +39,6 @@ void main() {
   });
 
   Future<void> pumpWidget(WidgetTester tester) async {
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       testMaterialApp(
         home: Scaffold(body: MonsterWidget(data: monster)),
@@ -49,7 +46,6 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    FlutterError.onError = originalOnError;
   }
 
   group('MonsterWidget', () {

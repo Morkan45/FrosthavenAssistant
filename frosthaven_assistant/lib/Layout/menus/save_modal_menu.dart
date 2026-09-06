@@ -72,18 +72,19 @@ class SaveModalMenuState extends State<SaveModalMenu> {
         width: _kMenuWidth * scale,
         height: kSaveModalHeight * scale,
         alignment: Alignment.center,
-        child: Stack(children: [
-          Column(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
                 height: _kTopSpacing * scale,
               ),
-              Row(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
+              Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  alignment: WrapAlignment.center,
+                  spacing: _kButtonSpacing * scale,
                   children: [
                     if (!widget.saveOnly)
                       OutlinedButton(
@@ -96,9 +97,6 @@ class SaveModalMenuState extends State<SaveModalMenu> {
                         child: Text(AppLocalizations.of(context)!.loadButton,
                             style: getButtonTextStyle(scale)),
                       ),
-                    SizedBox(
-                      width: _kButtonSpacing * scale,
-                    ),
                     OutlinedButton(
                       style: buttonStyle,
                       onPressed: () {
@@ -109,9 +107,6 @@ class SaveModalMenuState extends State<SaveModalMenu> {
                       },
                       child: Text(AppLocalizations.of(context)!.saveButton,
                           style: getButtonTextStyle(scale)),
-                    ),
-                    SizedBox(
-                      width: _kButtonSpacing * scale,
                     ),
                     if (!widget.saveOnly)
                       OutlinedButton(
@@ -144,6 +139,6 @@ class SaveModalMenuState extends State<SaveModalMenu> {
                   ))
             ],
           ),
-        ]));
+        ));
   }
 }

@@ -28,8 +28,6 @@ class SendToBottomMenu extends StatelessWidget {
 
   final GameState? gameState;
 
-  static const double _kModalHeight = 240.0;
-
   GameState get _gameState => gameState ?? getIt<GameState>();
 
   @override
@@ -42,71 +40,75 @@ class SendToBottomMenu extends StatelessWidget {
     if (screenWidth < cardWidth) {
       scale = kCardZoomDefaultScale * (screenWidth / cardWidth);
     }
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (revealed) ModifierCardFront(card: card, name: name, scale: scale),
-        const SizedBox(height: kMenuTopPadding),
-        ModalBackground(
-          width: kMenuNarrowWidth,
-          height: _kModalHeight,
-          child: Column(
-            children: [
-              const SizedBox(height: kMenuTopPadding),
-              TextButton(
-                onPressed: () {
-                  int oldIndex = length - 1 - currentIndex;
-                  _gameState.action(
-                    ReorderModifierListCommand(
-                      0,
-                      oldIndex,
-                      name,
-                      gameState: _gameState,
-                    ),
-                  );
-                  Navigator.pop(context);
-                },
-                child: Text(AppLocalizations.of(context)!.sendToBottom,
-                    style: kButtonLabelStyle),
-              ),
-              const SizedBox(height: kMenuTopPadding),
-              TextButton(
-                onPressed: () {
-                  _gameState.action(
-                    ShuffleAMDCardCommand(name, gameState: _gameState),
-                  );
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  AppLocalizations.of(context)!.shuffleUndrawnCards,
-                  style: kButtonLabelStyle,
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (revealed) ModifierCardFront(card: card, name: name, scale: scale),
+          const SizedBox(height: kMenuTopPadding),
+          ModalBackground(
+            width: kMenuNarrowWidth,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: kMenuTopPadding),
+                TextButton(
+                  onPressed: () {
+                    int oldIndex = length - 1 - currentIndex;
+                    _gameState.action(
+                      ReorderModifierListCommand(
+                        0,
+                        oldIndex,
+                        name,
+                        gameState: _gameState,
+                      ),
+                    );
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!.sendToBottom,
+                    style: kButtonLabelStyle,
+                  ),
                 ),
-              ),
-              const SizedBox(height: kMenuTopPadding),
-              TextButton(
-                onPressed: () {
-                  _gameState.action(
-                    RemoveAMDCardCommand(
-                      index: length - 1 - currentIndex,
-                      name: name,
-                      gameState: _gameState,
-                      fromDrawPile: true,
-                    ),
-                  );
+                const SizedBox(height: kMenuTopPadding),
+                TextButton(
+                  onPressed: () {
+                    _gameState.action(
+                      ShuffleAMDCardCommand(name, gameState: _gameState),
+                    );
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!.shuffleUndrawnCards,
+                    style: kButtonLabelStyle,
+                  ),
+                ),
+                const SizedBox(height: kMenuTopPadding),
+                TextButton(
+                  onPressed: () {
+                    _gameState.action(
+                      RemoveAMDCardCommand(
+                        index: length - 1 - currentIndex,
+                        name: name,
+                        gameState: _gameState,
+                        fromDrawPile: true,
+                      ),
+                    );
 
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  AppLocalizations.of(context)!.removeCardQuestion,
-                  textAlign: TextAlign.center,
-                  style: kButtonLabelStyle,
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!.removeCardQuestion,
+                    textAlign: TextAlign.center,
+                    style: kButtonLabelStyle,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

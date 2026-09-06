@@ -27,8 +27,6 @@ void main() {
           as Character;
 
   Future<void> pumpWidget(WidgetTester tester, Character character) async {
-    final originalOnError = FlutterError.onError;
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -49,7 +47,6 @@ void main() {
       ),
     );
     await tester.pump();
-    FlutterError.onError = originalOnError;
   }
 
   group('InitiativeWidget', () {

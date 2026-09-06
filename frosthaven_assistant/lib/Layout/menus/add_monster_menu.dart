@@ -161,9 +161,10 @@ class AddMonsterMenuState extends State<AddMonsterMenu> {
         child: Column(
           children: [
             Row(children: [
-              Text(AppLocalizations.of(context)!.showMonstersFrom),
-              DropdownButtonHideUnderline(
+              Flexible(child: Text(AppLocalizations.of(context)!.showMonstersFrom)),
+              Expanded(child: DropdownButtonHideUnderline(
                   child: DropdownButton(
+                      isExpanded: true,
                       value: _currentCampaign,
                       items: buildEditionDroopDownMenuItems(),
                       onChanged: (value) {
@@ -172,7 +173,7 @@ class AddMonsterMenuState extends State<AddMonsterMenu> {
                             _setCampaign(value);
                           });
                         }
-                      }))
+                      })))
             ]),
             CheckboxListTile(
                 title: Text(AppLocalizations.of(context)!.showBosses),

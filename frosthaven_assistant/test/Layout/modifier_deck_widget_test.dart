@@ -33,9 +33,6 @@ void main() {
   const monsterDeckName = '';
 
   Future<void> pumpWidget(WidgetTester tester, String name) async {
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -51,7 +48,6 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    FlutterError.onError = originalOnError;
   }
 
   group('ModifierDeckWidget monster deck', () {
@@ -86,10 +82,6 @@ void main() {
       final before = deck.discardPileSize;
 
       await pumpWidget(tester, monsterDeckName);
-
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       // Tap the first InkWell (the draw pile)
       await tester.tap(find.byType(InkWell).first);
       // flush 0ms timers from TranslationAnimatedWidget.initState, then advance
@@ -97,7 +89,6 @@ void main() {
       await tester.pump();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 1300));
-      FlutterError.onError = originalOnError;
 
       expect(deck.discardPileSize, before + 1);
       // restore
@@ -192,10 +183,6 @@ void main() {
           DrawModifierCardCommand(monsterDeckName, gameState: gameState),
         );
 
-        final originalOnError = FlutterError.onError;
-        addTearDown(() => FlutterError.onError = originalOnError);
-        FlutterError.onError = ignoreOverflowErrors(originalOnError);
-
         await pumpWidget(tester, monsterDeckName);
         // The pending draw animates on first build.
         expect(find.byType(ModifierSlideAnimationWidget), findsOneWidget);
@@ -209,8 +196,6 @@ void main() {
         await tester.pump();
 
         expect(find.byType(ModifierSlideAnimationWidget), findsNothing);
-
-        FlutterError.onError = originalOnError;
         settings.userScalingBars.value = scalingBefore;
         gameState.undo();
         gameState.undo();
@@ -269,15 +254,10 @@ void main() {
       final before = deck.discardPileSize;
 
       await pumpWidget(tester, 'Blinkblade');
-
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.tap(find.byType(InkWell).first);
       await tester.pump();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 1300));
-      FlutterError.onError = originalOnError;
 
       expect(deck.discardPileSize, before + 1);
       gameState.undo();
@@ -325,10 +305,6 @@ void main() {
 
         await pumpWidget(tester, monsterDeckName);
         expect(find.byType(ModifierCardRear), findsOneWidget);
-
-        final originalOnError = FlutterError.onError;
-        addTearDown(() => FlutterError.onError = originalOnError);
-        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         gameState.action(
           AMDRevealCommand(
             amount: 1,
@@ -337,7 +313,6 @@ void main() {
           ),
         );
         await tester.pump();
-        FlutterError.onError = originalOnError;
 
         expect(find.byType(ModifierCardFront), findsOneWidget);
 
@@ -359,10 +334,6 @@ void main() {
 
         await pumpWidget(tester, monsterDeckName);
         expect(find.byType(ModifierCardFront), findsOneWidget);
-
-        final originalOnError = FlutterError.onError;
-        addTearDown(() => FlutterError.onError = originalOnError);
-        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         gameState.action(
           AMDRevealCommand(
             amount: 0,
@@ -371,7 +342,6 @@ void main() {
           ),
         );
         await tester.pump();
-        FlutterError.onError = originalOnError;
 
         expect(find.byType(ModifierCardRear), findsOneWidget);
 

@@ -17,9 +17,6 @@ void main() {
   });
 
   Future<void> pumpWidget(WidgetTester tester, String data) async {
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -28,7 +25,6 @@ void main() {
       ),
     );
     await tester.pump();
-    FlutterError.onError = originalOnError;
   }
 
   group('SectionButton', () {
@@ -69,13 +65,8 @@ void main() {
       await pumpWidget(tester, sectionName);
       expect(
           getIt<GameState>().scenarioSectionsAdded.contains(sectionName), false);
-
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.tap(find.byType(OutlinedButton));
       await tester.pump();
-      FlutterError.onError = originalOnError;
 
       expect(
           getIt<GameState>().scenarioSectionsAdded.contains(sectionName), true);

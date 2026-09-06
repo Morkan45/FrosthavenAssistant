@@ -24,9 +24,6 @@ void main() {
   });
 
   Future<void> pumpWidget(WidgetTester tester) async {
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       testMaterialApp(
         home: const Scaffold(
@@ -35,7 +32,6 @@ void main() {
       ),
     );
     await tester.pump();
-    FlutterError.onError = originalOnError;
   }
 
   group('LootDeckWidget empty deck', () {
@@ -111,16 +107,11 @@ void main() {
       final before = deck.discardPileSize;
 
       await pumpWidget(tester);
-
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       // First InkWell is the draw pile
       await tester.tap(find.byType(InkWell).first);
       await tester.pump();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 1700));
-      FlutterError.onError = originalOnError;
 
       expect(deck.discardPileSize, before + 1);
       gameState.undo();
@@ -133,19 +124,13 @@ void main() {
         return;
       }
       await pumpWidget(tester);
-
-      final originalOnError = FlutterError.onError;
-      addTearDown(() => FlutterError.onError = originalOnError);
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       // Second InkWell is the discard pile
       final inkWells = find.byType(InkWell);
       if (inkWells.evaluate().length >= 2) {
         await tester.tap(inkWells.last);
         await tester.pumpAndSettle();
-        FlutterError.onError = originalOnError;
         expect(find.byType(LootCardsMenu), findsOneWidget);
       }
-      FlutterError.onError = originalOnError;
     });
 
     testWidgets('SizedBox has expected dimensions from userScalingBars',

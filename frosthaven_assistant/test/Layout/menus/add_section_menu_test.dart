@@ -29,8 +29,6 @@ void main() {
   });
 
   Future<void> pumpMenu(WidgetTester tester) async {
-    final originalOnError = FlutterError.onError;
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -57,7 +55,6 @@ void main() {
     // instead of pumpAndSettle to avoid infinite animation loop.
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    FlutterError.onError = originalOnError;
   }
 
   group('AddSectionMenu', () {

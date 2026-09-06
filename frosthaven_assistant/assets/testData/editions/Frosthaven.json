@@ -1037,7 +1037,7 @@
             "Immune to %muddle%"
           ],
           "special1": [
-            "All enemies adjacent take 3 %damage%"
+            "All enemies adjacent take 3 damage"
           ],
           "special2": [
             "Summon 1 elite minion"
@@ -1055,7 +1055,7 @@
             "Immune to %muddle%"
           ],
           "special1": [
-            "All enemies adjacent take 3 %damage%"
+            "All enemies adjacent take 3 damage"
           ],
           "special2": [
             "Summon 1 elite minion"
@@ -1073,7 +1073,7 @@
             "%target% 2"
           ],
           "special1": [
-            "All enemies adjacent take 3 %damage%"
+            "All enemies adjacent take 3 damage"
           ],
           "special2": [
             "Summon 1 elite minion"
@@ -1092,7 +1092,7 @@
             "%target% 2"
           ],
           "special1": [
-            "All enemies adjacent take 3 %damage%"
+            "All enemies adjacent take 3 damage"
           ],
           "special2": [
             "Summon 1 elite minion"
@@ -1111,7 +1111,7 @@
             "%target% 2"
           ],
           "special1": [
-            "All enemies adjacent take 3 %damage%"
+            "All enemies adjacent take 3 damage"
           ],
           "special2": [
             "Summon 1 elite minion"
@@ -1130,7 +1130,7 @@
             "%target% 2"
           ],
           "special1": [
-            "All enemies adjacent take 3 %damage%"
+            "All enemies adjacent take 3 damage"
           ],
           "special2": [
             "Summon 1 elite minion"
@@ -1149,7 +1149,7 @@
             "%target% 2"
           ],
           "special1": [
-            "All enemies adjacent take 3 %damage%"
+            "All enemies adjacent take 3 damage"
           ],
           "special2": [
             "Summon 1 elite minion"
@@ -1168,7 +1168,7 @@
             "%target% 2"
           ],
           "special1": [
-            "All enemies adjacent take 3 %damage%"
+            "All enemies adjacent take 3 damage"
           ],
           "special2": [
             "Summon 1 elite minion"

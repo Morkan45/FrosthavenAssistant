@@ -25,8 +25,6 @@ void main() {
                 (e) => e.id == 'Banner Spear',
               )
               as Character;
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -35,7 +33,6 @@ void main() {
         ),
       );
       await tester.pump();
-      FlutterError.onError = originalOnError;
       expect(find.byType(CharacterSummonsButton), findsOneWidget);
     });
 
@@ -48,8 +45,6 @@ void main() {
                 (e) => e.id == 'Banner Spear',
               )
               as Character;
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -58,7 +53,6 @@ void main() {
         ),
       );
       await tester.pump();
-      FlutterError.onError = originalOnError;
 
       await tester.tap(find.byKey(const Key('character-add-summon')));
       await tester.pump();

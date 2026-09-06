@@ -33,9 +33,7 @@ void main() {
   }
 
   Future<void> pumpMenu(WidgetTester tester) async {
-    final originalOnError = FlutterError.onError;
     final character = getBlinkblade();
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       testMaterialApp(
         home: Builder(
@@ -57,7 +55,6 @@ void main() {
     );
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
-    FlutterError.onError = originalOnError;
   }
 
   group('StatusMenu', () {
@@ -221,8 +218,6 @@ void main() {
     testWidgets('tapping level icon button opens SetCharacterLevelMenu', (
       WidgetTester tester,
     ) async {
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpMenu(tester);
       // The level button is an IconButton with 'assets/images/psd/level.png'
       final levelButton = find.byWidgetPredicate(
@@ -237,7 +232,6 @@ void main() {
       await tester.tap(levelButton);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      FlutterError.onError = originalOnError;
       expect(find.byType(SetCharacterLevelMenu), findsOneWidget);
     });
 
@@ -248,9 +242,6 @@ void main() {
       final originalHp = character.characterState.health.value;
       // Ensure HP > 0
       expect(originalHp, greaterThan(0));
-
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpMenu(tester);
       final skullButton = find.byWidgetPredicate(
         (w) =>
@@ -263,7 +254,6 @@ void main() {
       expect(skullButton, findsOneWidget);
       await tester.tap(skullButton);
       await tester.pump();
-      FlutterError.onError = originalOnError;
 
       // HP should be 0 after skull
       expect(character.characterState.health.value, 0);
@@ -301,8 +291,6 @@ void main() {
     Future<void> pumpMonsterMenu(WidgetTester tester) async {
       final zealot = getZealot();
       final instance = zealot.monsterInstances.first;
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         testMaterialApp(
           home: Builder(
@@ -324,7 +312,6 @@ void main() {
       );
       await tester.tap(find.text('Open'));
       await tester.pumpAndSettle();
-      FlutterError.onError = originalOnError;
     }
 
     testWidgets('renders condition buttons for monster', (
@@ -357,8 +344,6 @@ void main() {
     testWidgets('tapping level button for monster opens SetLevelMenu', (
       WidgetTester tester,
     ) async {
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpMonsterMenu(tester);
       final levelButton = find.byWidgetPredicate(
         (w) =>
@@ -372,7 +357,6 @@ void main() {
       await tester.tap(levelButton);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      FlutterError.onError = originalOnError;
       // The else branch (monster level) was covered; menu opened
       expect(find.byType(StatusMenu), findsOneWidget);
     });
@@ -382,8 +366,6 @@ void main() {
     ) async {
       final zealot = getZealot();
       final instance = zealot.monsterInstances.first;
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpMonsterMenu(tester);
       final summonButton = find.byWidgetPredicate(
         (w) =>
@@ -398,7 +380,6 @@ void main() {
         await tester.tap(summonButton.first);
         await tester.pump();
       }
-      FlutterError.onError = originalOnError;
       // roundSummoned is set (not -1) after tapping the summon button
       expect(instance.roundSummoned, isNot(-1));
       getIt<GameState>().undo();
@@ -431,9 +412,6 @@ void main() {
         final zealot =
             gameState.currentList.firstWhere((e) => e is Monster) as Monster;
         final instance = zealot.monsterInstances.first;
-
-        final originalOnError = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.pumpWidget(
           testMaterialApp(
             home: Builder(
@@ -455,7 +433,6 @@ void main() {
         );
         await tester.tap(find.text('Open'));
         await tester.pumpAndSettle();
-        FlutterError.onError = originalOnError;
         expect(find.byType(StatusMenu), findsOneWidget);
         expect(instance.type, MonsterType.elite);
       },
@@ -497,9 +474,6 @@ void main() {
         final zealot =
             gameState.currentList.firstWhere((e) => e is Monster) as Monster;
         final instance = zealot.monsterInstances.first;
-
-        final originalOnError = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.pumpWidget(
           testMaterialApp(
             home: Builder(
@@ -521,7 +495,6 @@ void main() {
         );
         await tester.tap(find.text('Open'));
         await tester.pumpAndSettle();
-        FlutterError.onError = originalOnError;
         // character condition buttons (1-4) are rendered when 4 characters present
         expect(
           find.byWidgetPredicate(
@@ -543,10 +516,7 @@ void main() {
     testWidgets('tapping chill plus button adds chill condition', (
       WidgetTester tester,
     ) async {
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpMenu(tester);
-      FlutterError.onError = originalOnError;
 
       // The chill + button is the last add.png IconButton in the status menu
       final addButtons = find.byWidgetPredicate(
@@ -560,7 +530,6 @@ void main() {
       if (addButtons.evaluate().isNotEmpty) {
         final chillPlusButton = addButtons.last;
         final originalOnError2 = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.tap(chillPlusButton);
         await tester.pump();
         FlutterError.onError = originalOnError2;
@@ -582,11 +551,7 @@ void main() {
         gameState: getIt<GameState>(),
       ).execute();
       expect(character.characterState.chill.value, greaterThan(0));
-
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpMenu(tester);
-      FlutterError.onError = originalOnError;
 
       final subButtons = find.byWidgetPredicate(
         (w) =>
@@ -599,7 +564,6 @@ void main() {
       if (subButtons.evaluate().isNotEmpty) {
         final chillMinusButton = subButtons.last;
         final originalOnError2 = FlutterError.onError;
-        FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
         await tester.tap(chillMinusButton);
         await tester.pump();
         FlutterError.onError = originalOnError2;

@@ -18,8 +18,6 @@ void main() {
   });
 
   Future<void> pumpController(WidgetTester tester) async {
-    final originalOnError = FlutterError.onError;
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -36,7 +34,6 @@ void main() {
       ),
     );
     await tester.pump();
-    FlutterError.onError = originalOnError;
   }
 
   group('HealthWheelController', () {
@@ -53,8 +50,6 @@ void main() {
     testWidgets('horizontal drag gesture can be performed without error', (
       WidgetTester tester,
     ) async {
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpController(tester);
 
       // Start drag — should open overlay
@@ -66,7 +61,6 @@ void main() {
       // End drag — should close overlay
       await gesture.up();
       await tester.pump();
-      FlutterError.onError = originalOnError;
 
       // Child should still be present after drag ends
       expect(find.text('child'), findsOneWidget);

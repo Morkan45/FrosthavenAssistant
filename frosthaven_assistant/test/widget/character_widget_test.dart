@@ -39,8 +39,6 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
     }
-    final originalOnError = FlutterError.onError;
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       testMaterialApp(
         home: Scaffold(
@@ -51,7 +49,6 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    FlutterError.onError = originalOnError;
   }
 
   group('CharacterWidget', () {
@@ -148,13 +145,10 @@ void main() {
     testWidgets('tapping character widget opens StatusMenu', (
       WidgetTester tester,
     ) async {
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await pumpCharacterWidget(tester);
       await tester.tap(find.byKey(const Key('character-status-hit-area')));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      FlutterError.onError = originalOnError;
       expect(find.byType(StatusMenu), findsOneWidget);
     });
 
@@ -211,15 +205,12 @@ void main() {
     testWidgets('returns empty Container when character not found', (
       WidgetTester tester,
     ) async {
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(body: CharacterWidget(characterId: 'NonExistent')),
         ),
       );
       await tester.pump();
-      FlutterError.onError = originalOnError;
       // Should render without crash — returns Container()
       expect(find.byType(CharacterWidget), findsOneWidget);
     });
@@ -232,8 +223,6 @@ void main() {
       // playTurns). Draw to enter playTurns, then mark the character's turn done.
       DrawCommand(gameState: gs).execute();
       TurnDoneCommand('Blinkblade', gameState: gs).execute();
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -245,7 +234,6 @@ void main() {
       );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 700));
-      FlutterError.onError = originalOnError;
       expect(find.byType(ColorFiltered), findsAtLeast(1));
       // Reset round state for subsequent tests.
       NextRoundCommand(
@@ -261,8 +249,6 @@ void main() {
     ) async {
       // Draw changes roundState to playTurns, triggering buildWithHealthWheel path
       DrawCommand(gameState: getIt<GameState>()).execute();
-      final originalOnError = FlutterError.onError;
-      FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -275,7 +261,6 @@ void main() {
       // Pump past DrawCommand's 600ms Future.delayed timer
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 700));
-      FlutterError.onError = originalOnError;
       expect(find.byType(CharacterWidget), findsOneWidget);
       // Reset round state (NextRoundCommand also has 600ms timer — pump past it)
       NextRoundCommand(

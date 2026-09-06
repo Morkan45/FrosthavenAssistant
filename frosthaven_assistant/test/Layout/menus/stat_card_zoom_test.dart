@@ -25,9 +25,6 @@ void main() {
   });
 
   Future<void> pumpStatCardZoom(WidgetTester tester, Monster m) async {
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         home: Builder(

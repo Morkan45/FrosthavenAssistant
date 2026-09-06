@@ -13,9 +13,6 @@ void main() {
   final card = ModifierCard(CardType.add, 'minus1');
 
   Future<void> pumpModifierCardZoom(WidgetTester tester) async {
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         home: Builder(

@@ -14,16 +14,12 @@ void main() {
   });
 
   Future<void> pumpBackground(WidgetTester tester, Widget child) async {
-    final originalOnError = FlutterError.onError;
-    addTearDown(() => FlutterError.onError = originalOnError);
-    FlutterError.onError = ignoreOverflowErrors(FlutterError.onError);
     await tester.pumpWidget(
       MaterialApp(
         home: BackGround(child: child),
       ),
     );
     await tester.pump();
-    FlutterError.onError = originalOnError;
   }
 
   group('BackGround', () {
