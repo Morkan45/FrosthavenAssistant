@@ -9,7 +9,8 @@ The user authorized the full [2026-09-05 improvement plan](codebase-improvement-
 | F01 | Complete (2026-09-06) | CI mock generation precedes analysis. Broad overflow/asset filters removed; strict viewport suite, bundled fonts, valid fixture assets, and bounded layout repairs added. Clean source codegen and analysis pass; full suite: 1,693 passed, 1 existing connection test skipped. |
 | F02 | Complete (2026-09-06) | Shared synchronous received transitions, detached validation, immediate per-index snapshots, completed-transition UI revision, and mismatch branch invalidation. Analysis passes; full suite: 1,704 passed, 1 existing connection test skipped. |
 | F03 | Complete (2026-09-08) | Validated settings codec, latest-value persistence with observable/retryable failure, protected corrupt-save recovery, staged startup, desktop close recovery, and guarded role changes. Analysis passes; full suite: 1,746 passed, 1 existing connection test skipped. |
-| F04–F15 | Pending | Follow the dependencies and acceptance criteria in the plan. |
+| F04 | Complete (2026-09-08) | Standalone server retains a bounded, byte-capped absolute-index history; evicted rollback receives an authoritative correction. Socket/health cleanup is idempotent and safe during broadcast. Server analysis passes; 14 server tests pass. |
+| F05–F15 | Pending | Follow the dependencies and acceptance criteria in the plan. |
 
 ## Decisions pending
 

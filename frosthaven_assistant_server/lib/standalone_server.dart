@@ -15,16 +15,19 @@ class StandaloneServer extends GameServer {
 
   static const String _noEventJson = '{"type":"none"}';
 
+  /// Exposed for host diagnostics and regression tests. Both collections must
+  /// shrink together when a connection is removed.
+  int get activeConnectionCount => _clientConnections.length;
+  int get retainedConnectionHealthCount => _connectionHealth.length;
+
   String _lastSavedState() {
-    final stateIndex = _state.commandIndex + 1;
-    return stateIndex >= 0 && stateIndex < _state.gameSaveStates.length
-        ? _state.gameSaveStates[stateIndex].getState()
-        : "{}";
+    return _state.currentState;
   }
 
   @override
   void addClientConnection(Socket client) {
     print("Add client connection ${safeGetClientAddress(client)}");
+    if (_clientConnections.contains(client)) return;
     _connectionHealth[client] = ConnectionHealth();
     _clientConnections.add(client);
   }
@@ -68,31 +71,31 @@ class StandaloneServer extends GameServer {
   @override
   void removeAllClientConnections() {
     print("Remove all Client Connections");
-    for (var client in _clientConnections) {
-      print(
-        "Close Connection ${safeGetClientAddress(client)} ${_connectionHealth[client]}",
-      );
-      try {
-        client.close();
-      } catch (exception) {
-        print("Client already closed");
-      }
+    for (final client in List<Socket>.of(_clientConnections)) {
+      _removeConnection(client);
     }
-    _clientConnections.clear();
   }
 
   @override
   void removeClientConnection(Socket client) {
     print("Remove client connection ${safeGetClientAddress(client)}");
+    _removeConnection(client);
+  }
+
+  /// Closes and forgets a socket once. It is safe for `onDone`, a failed
+  /// broadcast and stopServer to race over the same connection.
+  void _removeConnection(Socket client) {
+    final wasTracked = _clientConnections.remove(client);
+    final health = _connectionHealth.remove(client);
+    if (!wasTracked && health == null) return;
     print(
-      "Close Connection ${safeGetClientAddress(client)} ${_connectionHealth[client]}",
+      "Close Connection ${safeGetClientAddress(client)} $health",
     );
     try {
       client.close();
     } catch (exception) {
       print("Client already closed");
     }
-    _clientConnections.remove(client);
   }
 
   @override
@@ -105,8 +108,8 @@ class StandaloneServer extends GameServer {
   void sendInitResponse(Socket client) {
     String commandDescription = "";
     if (_state.commandIndex >= 0 &&
-        _state.commandDescriptions.length > _state.commandIndex) {
-      commandDescription = _state.commandDescriptions[_state.commandIndex];
+        _state.commandIndex >= _state.firstRetainedIndex) {
+      commandDescription = _state.currentDescription;
     }
     print(
       'Server sends init response at index ${_state.commandIndex}: $commandDescription',
@@ -125,7 +128,7 @@ class StandaloneServer extends GameServer {
   @override
   void send(String data) {
     final message = MessageFramer.encode(data);
-    for (Socket client in _clientConnections) {
+    for (final client in List<Socket>.of(_clientConnections)) {
       _writeToClient(client, message);
     }
   }
@@ -139,7 +142,7 @@ class StandaloneServer extends GameServer {
   @override
   void sendToOthers(String data, Socket client) {
     final message = MessageFramer.encode(data);
-    for (Socket clientConnection in _clientConnections) {
+    for (final clientConnection in List<Socket>.of(_clientConnections)) {
       try {
         if (client.remoteAddress != clientConnection.remoteAddress ||
             clientConnection.remotePort != client.remotePort) {
@@ -157,6 +160,7 @@ class StandaloneServer extends GameServer {
       client.add(message);
     } catch (error) {
       print(error);
+      _removeConnection(client);
     }
   }
 
@@ -180,9 +184,7 @@ class StandaloneServer extends GameServer {
     if (message.index > _state.commandIndex + 1) {
       //invalid: index too high. send correction to clients
       String commandDescription = "";
-      if (_state.commandDescriptions.isNotEmpty) {
-        commandDescription = _state.commandDescriptions.last;
-      }
+      commandDescription = _state.currentDescription;
       send(
         GameServer.encodeStateEnvelope(
           index: _state.commandIndex,
@@ -196,7 +198,7 @@ class StandaloneServer extends GameServer {
       sendToOthers(
         GameServer.encodeStateEnvelope(
           index: _state.commandIndex,
-          description: _state.commandDescriptions.last,
+          description: _state.currentDescription,
           eventJson: message.eventJson,
           state: _lastSavedState(),
         ),
@@ -209,9 +211,7 @@ class StandaloneServer extends GameServer {
 
       //overwrite client state with current server state.
       final idx = _state.commandIndex;
-      final mismatchDesc = (idx >= 0 && idx < _state.commandDescriptions.length)
-          ? _state.commandDescriptions[idx]
-          : '';
+      final mismatchDesc = _state.currentDescription;
       sendToOnly(
         "Mismatch:${GameServer.encodeStateEnvelope(index: idx, description: mismatchDesc, eventJson: _noEventJson, state: _lastSavedState())}",
         client,
@@ -230,7 +230,7 @@ class StandaloneServer extends GameServer {
           return;
         }
         send("ping");
-        for (Socket client in _clientConnections) {
+        for (final client in List<Socket>.of(_clientConnections)) {
           _connectionHealth[client]?.logPing();
         }
         pingCount++;
