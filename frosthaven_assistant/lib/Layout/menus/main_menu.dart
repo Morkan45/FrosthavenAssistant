@@ -21,6 +21,7 @@ import 'package:window_manager/window_manager.dart';
 import '../../Resource/settings.dart';
 import '../../Resource/ui_utils.dart';
 import '../../services/network/network.dart';
+import '../persistence_action.dart';
 import 'add_monster_menu.dart';
 import 'note_row_menu.dart';
 
@@ -82,18 +83,22 @@ class MainMenu extends StatelessWidget {
                 ),
               ),
               ListTile(
-                title: Text(vm.undoDescription != null
-                    ? l10n.undoWithDescription(vm.undoDescription!)
-                    : l10n.undo),
+                title: Text(
+                  vm.undoDescription != null
+                      ? l10n.undoWithDescription(vm.undoDescription!)
+                      : l10n.undo,
+                ),
                 enabled: vm.undoEnabled,
                 onTap: () {
                   vm.undo();
                 },
               ),
               ListTile(
-                title: Text(vm.redoDescription != null
-                    ? l10n.redoWithDescription(vm.redoDescription!)
-                    : l10n.redo),
+                title: Text(
+                  vm.redoDescription != null
+                      ? l10n.redoWithDescription(vm.redoDescription!)
+                      : l10n.redo,
+                ),
                 enabled: vm.redoEnabled,
                 onTap: () {
                   vm.redo();
@@ -115,9 +120,11 @@ class MainMenu extends StatelessWidget {
                 },
               ),
               ListTile(
-                title: Text(vm.isRandomDungeon
-                    ? l10n.menuAddRandomDungeonCard
-                    : l10n.menuAddSection),
+                title: Text(
+                  vm.isRandomDungeon
+                      ? l10n.menuAddRandomDungeonCard
+                      : l10n.menuAddSection,
+                ),
                 enabled: true,
                 onTap: () {
                   Navigator.pop(context);
@@ -203,52 +210,72 @@ class MainMenu extends StatelessWidget {
               ),
               const Divider(),
               if (vm.showClientTile)
-                ValueListenableBuilder<ClientState>(
-                  valueListenable: vm.clientState,
-                  builder: (context, value, child) {
-                    final l10n = AppLocalizations.of(context)!;
-                    return CheckboxListTile(
-                      enabled: !vm.isServer && !vm.isConnecting,
-                      secondary: vm.isConnecting
-                          ? IconButton(
-                              icon: const Icon(Icons.close),
-                              tooltip: l10n.cancelConnect,
-                              onPressed: vm.cancelClientConnection,
-                            )
-                          : null,
-                      title: Text(vm.isConnected
-                          ? l10n.connectedAsClient
-                          : vm.isConnecting
-                              ? l10n.connecting
-                              : l10n.connectAsClientWithIp(
-                                  vm.lastKnownConnection)),
-                      value: vm.isConnected,
-                      onChanged: (bool? value) {
-                        vm.toggleClientConnection();
-                      },
-                    );
-                  },
+                ValueListenableBuilder<bool>(
+                  valueListenable: vm.roleChangePending,
+                  builder: (context, roleChangePending, _) =>
+                      ValueListenableBuilder<ClientState>(
+                        valueListenable: vm.clientState,
+                        builder: (context, value, child) {
+                          final l10n = AppLocalizations.of(context)!;
+                          return CheckboxListTile(
+                            enabled:
+                                !roleChangePending &&
+                                !vm.isServer &&
+                                !vm.isConnecting,
+                            secondary: vm.isConnecting
+                                ? IconButton(
+                                    icon: const Icon(Icons.close),
+                                    tooltip: l10n.cancelConnect,
+                                    onPressed: vm.cancelClientConnection,
+                                  )
+                                : null,
+                            title: Text(
+                              vm.isConnected
+                                  ? l10n.connectedAsClient
+                                  : vm.isConnecting
+                                  ? l10n.connecting
+                                  : l10n.connectAsClientWithIp(
+                                      vm.lastKnownConnection,
+                                    ),
+                            ),
+                            value: vm.isConnected,
+                            onChanged: (bool? value) {
+                              runPersistenceAction(
+                                context,
+                                vm.toggleClientConnection,
+                              );
+                            },
+                          );
+                        },
+                      ),
                 ),
               ValueListenableBuilder<bool>(
-                valueListenable: vm.serverState,
-                builder: (context, value, child) {
-                  return ValueListenableBuilder<String>(
-                    valueListenable: vm.wifiIPv6,
-                    builder: (context, value, child) {
-                      final l10n = AppLocalizations.of(context)!;
-                      final ip = "(${vm.wifiIPv6.value})";
-                      return CheckboxListTile(
-                        title: Text(vm.isServer
-                            ? l10n.stopServerWithIp(ip)
-                            : l10n.startHostServerWithIp(ip)),
-                        value: vm.isServer,
-                        onChanged: (bool? value) {
-                          vm.toggleServer();
-                        },
-                      );
-                    },
-                  );
-                },
+                valueListenable: vm.roleChangePending,
+                builder: (context, roleChangePending, _) =>
+                    ValueListenableBuilder<bool>(
+                      valueListenable: vm.serverState,
+                      builder: (context, value, child) {
+                        return ValueListenableBuilder<String>(
+                          valueListenable: vm.wifiIPv6,
+                          builder: (context, value, child) {
+                            final l10n = AppLocalizations.of(context)!;
+                            final ip = "(${vm.wifiIPv6.value})";
+                            return CheckboxListTile(
+                              enabled: !roleChangePending && !vm.isConnecting,
+                              title: Text(
+                                vm.isServer
+                                    ? l10n.stopServerWithIp(ip)
+                                    : l10n.startHostServerWithIp(ip),
+                              ),
+                              value: vm.isServer,
+                              onChanged: (bool? value) {
+                                runPersistenceAction(context, vm.toggleServer);
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
               ),
               const Divider(),
               ListTile(
@@ -284,7 +311,6 @@ class MainMenu extends StatelessWidget {
                       enabled: true,
                       onTap: () async {
                         Navigator.pop(context);
-                        await vm.save();
                         await windowManager.close();
                       },
                     )

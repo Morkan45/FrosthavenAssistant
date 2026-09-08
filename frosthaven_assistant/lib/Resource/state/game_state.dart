@@ -20,6 +20,7 @@ import '../../Model/scenario.dart';
 import '../../services/network/communication.dart';
 import '../../services/network/network.dart';
 import '../../services/latest_value_queue.dart';
+import '../../services/persistence_status.dart';
 import '../../services/service_locator.dart';
 import '../action_handler.dart';
 import '../action_history.dart';
@@ -65,6 +66,7 @@ enum ReceivedTransitionKind {
 class GameState {
   late final ActionHandler _actionHandler;
   late final LatestValueQueue<String> _persistenceQueue;
+  bool _diskLoadFailed = false;
 
   //state
   final _currentCampaign = ValueNotifier<String>("Jaws of the Lion");
@@ -297,30 +299,58 @@ class GameState {
     await flushPersistence();
   }
 
-  Future<void> flushPersistence() => _persistenceQueue.flush();
+  Future<void> flushPersistence() => _diskLoadFailed
+      ? Future<void>.error(StateError('The saved game could not be loaded.'))
+      : _persistenceQueue.flush();
 
-  Future<void> _persistState(String state) => _persistenceQueue.schedule(state);
+  ValueListenable<PersistenceStatus> get persistenceStatus =>
+      _persistenceQueue.status;
+
+  Future<void> retryPersistence() => _persistenceQueue.retryLatest();
+
+  Future<void> _persistState(String state) {
+    if (_diskLoadFailed) {
+      final failure = Future<void>.error(
+        StateError('The unreadable saved game must be reset before saving.'),
+      );
+      failure.ignore();
+      return failure;
+    }
+    return _persistenceQueue.schedule(state);
+  }
 
   Future<void> _writeGameStateToDisk(String state) async {
     const sharedPrefsKey = 'gameState';
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(sharedPrefsKey, state);
-    } catch (error) {
-      if (kDebugMode) {
-        print(error);
-      }
+    final prefs = await SharedPreferences.getInstance();
+    if (!await prefs.setString(sharedPrefsKey, state)) {
+      throw StateError('Unable to write saved game.');
     }
   }
 
   Future<bool> load() async {
     GameSaveState state = GameSaveState();
-    final loaded = await state.loadFromDisk(this);
-    if (!loaded) state.save(this);
+    bool loaded;
+    try {
+      loaded = await state.loadFromDisk(this);
+      if (!loaded) throw const FormatException('The saved game is unreadable.');
+      _diskLoadFailed = false;
+    } catch (_) {
+      _diskLoadFailed = true;
+      rethrow;
+    }
     addSaveState(
       state,
     ); //init state: means game save state is one larger than command list
     return loaded;
+  }
+
+  /// Only called after an explicit reset choice on the startup error screen.
+  Future<void> resetSavedGame() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!await prefs.remove('gameState')) {
+      throw StateError('Unable to reset saved game.');
+    }
+    _diskLoadFailed = false;
   }
 
   bool loadFromData(String data) {

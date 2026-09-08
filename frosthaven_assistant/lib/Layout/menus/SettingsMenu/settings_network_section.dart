@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../Resource/app_constants.dart';
+import '../../persistence_action.dart';
+import '../../view_models/main_menu_view_model.dart';
 import '../../../Resource/settings.dart';
 import '../../../Resource/state/game_state.dart';
 import '../../../l10n/app_localizations.dart';
@@ -57,77 +59,71 @@ class SettingsNetworkSectionState extends State<SettingsNetworkSection> {
         .toList();
   }
 
-  Future<void> _toggleClientConnection() async {
-    await widget.gameState.flushPersistence();
-    if (!mounted) return;
+  MainMenuViewModel get _roles => MainMenuViewModel(
+    gameState: widget.gameState,
+    settings: widget.settings,
+    client: widget.client,
+    network: widget.network,
+  );
 
-    if (widget.settings.client.value != ClientState.connected) {
-      setState(() {
-        widget.settings.client.value = ClientState.connecting;
-        widget.settings.lastKnownPort = _portTextController.text;
-        widget.settings.lastKnownConnection = _serverTextController.text;
-      });
-      await widget.client.connect(_serverTextController.text);
-      await widget.settings.saveToDisk();
-    } else {
-      setState(() {
-        widget.client.disconnect(null);
-      });
-    }
-  }
+  Future<void> _toggleClientConnection() => runPersistenceAction(
+    context,
+    () => _roles.toggleClientConnection(
+      address: _serverTextController.text,
+      port: _portTextController.text,
+    ),
+  );
 
-  Future<void> _toggleServer() async {
-    await widget.gameState.flushPersistence();
-    if (!mounted) return;
-
-    if (!widget.settings.server.value) {
-      widget.settings.lastKnownPort = _portTextController.text;
-      widget.settings.lastKnownHostIP =
-          "(${widget.network.networkInfo.wifiIPv6.value})";
-      await widget.settings.saveToDisk();
-      widget.network.server.startServer();
-    } else {
-      widget.network.server.stopServer(null);
-    }
-  }
-
+  Future<void> _toggleServer() => runPersistenceAction(
+    context,
+    () => _roles.toggleServer(port: _portTextController.text),
+  );
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Text(AppLocalizations.of(context)!.networkConnectLocal),
-        ValueListenableBuilder<ClientState>(
-            valueListenable: widget.settings.client,
-            builder: (context, value, child) {
-              final l10n = AppLocalizations.of(context)!;
-              bool connected = false;
-              final clientState = widget.settings.client.value;
-              String connectionText = l10n.connectAsClientLabel;
-              if (clientState == ClientState.connected) {
-                connected = true;
-                connectionText = l10n.connectedAsClient;
-              }
-              if (clientState == ClientState.connecting) {
-                connectionText = l10n.connecting;
-              }
-              return CheckboxListTile(
-                  enabled: !widget.settings.server.value &&
-                      widget.settings.client.value != ClientState.connecting,
-                  secondary: clientState == ClientState.connecting
-                      ? IconButton(
-                          icon: const Icon(Icons.close),
-                          tooltip: l10n.cancelConnect,
-                          onPressed: () => widget.client.cancelConnect(),
-                        )
-                      : null,
-                  title: Text(connectionText),
-                  value: connected,
-                  onChanged: (bool? value) =>
-                      unawaited(_toggleClientConnection()));
-            }),
+        ValueListenableBuilder<bool>(
+          valueListenable: widget.network.roleChangePending,
+          builder: (context, roleChangePending, _) =>
+              ValueListenableBuilder<ClientState>(
+                valueListenable: widget.settings.client,
+                builder: (context, value, child) {
+                  final l10n = AppLocalizations.of(context)!;
+                  bool connected = false;
+                  final clientState = widget.settings.client.value;
+                  String connectionText = l10n.connectAsClientLabel;
+                  if (clientState == ClientState.connected) {
+                    connected = true;
+                    connectionText = l10n.connectedAsClient;
+                  }
+                  if (clientState == ClientState.connecting) {
+                    connectionText = l10n.connecting;
+                  }
+                  return CheckboxListTile(
+                    enabled:
+                        !roleChangePending &&
+                        !widget.settings.server.value &&
+                        widget.settings.client.value != ClientState.connecting,
+                    secondary: clientState == ClientState.connecting
+                        ? IconButton(
+                            icon: const Icon(Icons.close),
+                            tooltip: l10n.cancelConnect,
+                            onPressed: () => widget.client.cancelConnect(),
+                          )
+                        : null,
+                    title: Text(connectionText),
+                    value: connected,
+                    onChanged: (bool? value) =>
+                        unawaited(_toggleClientConnection()),
+                  );
+                },
+              ),
+        ),
         Container(
-          margin:
-              const EdgeInsets.only(top: SettingsNetworkSection._kInputHeight),
+          margin: const EdgeInsets.only(
+            top: SettingsNetworkSection._kInputHeight,
+          ),
           width: SettingsNetworkSection._kInputWidth,
           child: TextField(
             controller: _serverTextController,
@@ -152,38 +148,54 @@ class SettingsNetworkSectionState extends State<SettingsNetworkSection> {
           ),
         ),
         ValueListenableBuilder<bool>(
-            valueListenable: widget.settings.server,
-            builder: (context, value, child) {
-              final l10n = AppLocalizations.of(context)!;
-              return CheckboxListTile(
-                  title: Text(widget.settings.server.value
-                      ? l10n.stopServerButton
-                      : l10n.startHostServerButton),
-                  value: widget.settings.server.value,
-                  onChanged: (bool? value) => unawaited(_toggleServer()));
-            }),
+          valueListenable: widget.network.roleChangePending,
+          builder: (context, roleChangePending, _) =>
+              ValueListenableBuilder<bool>(
+                valueListenable: widget.settings.server,
+                builder: (context, value, child) {
+                  final l10n = AppLocalizations.of(context)!;
+                  return CheckboxListTile(
+                    enabled:
+                        !roleChangePending &&
+                        widget.settings.client.value != ClientState.connecting,
+                    title: Text(
+                      widget.settings.server.value
+                          ? l10n.stopServerButton
+                          : l10n.startHostServerButton,
+                    ),
+                    value: widget.settings.server.value,
+                    onChanged: (bool? value) => unawaited(_toggleServer()),
+                  );
+                },
+              ),
+        ),
         ValueListenableBuilder<String>(
-            valueListenable: widget.network.networkInfo.wifiIPv6,
-            builder: (context, value, child) {
-              return SizedBox(
-                width: SettingsNetworkSection._kInputWidth,
-                height: SettingsNetworkSection._kDropdownHeight,
-                child: DropdownButtonHideUnderline(
-                    child: DropdownButton(
-                        value: widget.network.networkInfo.wifiIPv6.value,
-                        items: _getIPList(),
-                        onChanged: (value) => widget
-                            .network.networkInfo.wifiIPv6.value = value ?? "")),
-              );
-            }),
+          valueListenable: widget.network.networkInfo.wifiIPv6,
+          builder: (context, value, child) {
+            return SizedBox(
+              width: SettingsNetworkSection._kInputWidth,
+              height: SettingsNetworkSection._kDropdownHeight,
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton(
+                  value: widget.network.networkInfo.wifiIPv6.value,
+                  items: _getIPList(),
+                  onChanged: (value) =>
+                      widget.network.networkInfo.wifiIPv6.value = value ?? "",
+                ),
+              ),
+            );
+          },
+        ),
         ValueListenableBuilder<String>(
-            valueListenable: widget.network.networkInfo.outgoingIPv6,
-            builder: (context, value, child) {
-              return SizedBox(
-                  width: SettingsNetworkSection._kInputWidth,
-                  height: SettingsNetworkSection._kDropdownHeight,
-                  child: Text(widget.network.networkInfo.outgoingIPv6.value));
-            }),
+          valueListenable: widget.network.networkInfo.outgoingIPv6,
+          builder: (context, value, child) {
+            return SizedBox(
+              width: SettingsNetworkSection._kInputWidth,
+              height: SettingsNetworkSection._kDropdownHeight,
+              child: Text(widget.network.networkInfo.outgoingIPv6.value),
+            );
+          },
+        ),
       ],
     );
   }

@@ -12,13 +12,41 @@ import 'package:window_manager/window_manager.dart';
 
 import '../services/network/client.dart';
 import '../services/network/network.dart';
+import '../services/latest_value_queue.dart';
+import '../services/persistence_status.dart';
 import '../services/service_locator.dart';
 import 'commands/load_character_save_command.dart';
 import 'commands/load_save_command.dart';
 import 'enums.dart';
+import 'settings_codec.dart';
 
 class Settings {
   static const double _kDesktopBarScale = 1.6;
+  static const String _sharedPrefsKey = 'settingsState';
+
+  Settings({Future<void> Function(String value)? writer}) {
+    _defaultSnapshot = _snapshot();
+    _saveQueue = LatestValueQueue<String>(writer ?? _writeToSharedPreferences);
+  }
+
+  final SettingsCodec _codec = const SettingsCodec();
+  late final SettingsSnapshot _defaultSnapshot;
+  late final LatestValueQueue<String> _saveQueue;
+  bool _diskLoadFailed = false;
+
+  ValueListenable<PersistenceStatus> get persistenceStatus => _saveQueue.status;
+  Future<void> retryPersistence() =>
+      _diskLoadFailed ? _loadFailure() : _saveQueue.retryLatest();
+  Future<void> flushPersistence() =>
+      _diskLoadFailed ? _loadFailure() : _saveQueue.flush();
+
+  Future<void> _loadFailure() {
+    final result = Future<void>.error(
+      StateError('Unreadable settings must be reset before saving.'),
+    );
+    result.ignore();
+    return result;
+  }
 
   final userScalingMainList = ValueNotifier<double>(1.0);
   final fitMainListToWidth = ValueNotifier<bool>(false);
@@ -80,8 +108,8 @@ class Settings {
   bool connectClientOnStartup = false;
   Timer? _startupConnectTimer;
 
-  Future<void> init({Network? network}) async {
-    await loadFromDisk();
+  Future<void> init({Network? network, bool reconnectOnStartup = true}) async {
+    await loadFromDisk(reconnectOnStartup: reconnectOnStartup);
     setFullscreen(fullScreen.value);
 
     (network ?? getIt<Network>()).networkInfo.initNetworkInfo();
@@ -219,176 +247,146 @@ class Settings {
     }
   }
 
-  Future<void> saveToDisk() async {
-    String saveState = toString();
+  Future<void> saveToDisk() {
+    if (_diskLoadFailed) return _loadFailure();
+    final result = _saveQueue.schedule(toString());
+    result.ignore();
+    return result;
+  }
 
-    const sharedPrefsKey = 'settingsState';
+  Future<void> loadFromDisk({
+    Client? client,
+    bool reconnectOnStartup = true,
+  }) async {
+    //have to call after init or element state overridden
+
+    _startupConnectTimer?.cancel();
     try {
       final prefs = await SharedPreferences.getInstance();
-      // save
-      await prefs.setString(sharedPrefsKey, saveState);
-    } catch (error) {
-      if (kDebugMode) {
-        print(error);
+      await prefs.reload();
+      final state = prefs.getString(_sharedPrefsKey);
+      if (state != null) {
+        final snapshot = _codec.decode(state, defaults: _defaultSnapshot);
+        _apply(snapshot);
       }
+      _diskLoadFailed = false;
+    } catch (_) {
+      _diskLoadFailed = true;
+      rethrow;
+    }
+    if (reconnectOnStartup) {
+      startStartupConnection(client: client);
     }
   }
 
-  Future<void> loadFromDisk({Client? client}) async {
-    //have to call after init or element state overridden
-
-    const sharedPrefsKey = 'settingsState';
-    String? state;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      state = prefs.getString(sharedPrefsKey);
-    } catch (error) {
-      if (kDebugMode) {
-        print(error);
-      }
+  /// Deletes settings only after an explicit recovery choice by the user.
+  Future<void> resetSavedSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!await prefs.remove(_sharedPrefsKey)) {
+      throw StateError('Unable to reset saved settings.');
     }
-    if (state != null) {
-      Map<String, dynamic> data = jsonDecode(state);
+    _startupConnectTimer?.cancel();
+    _apply(_defaultSnapshot);
+    _diskLoadFailed = false;
+  }
 
-      if (data["userScalingMainList"] != null) {
-        userScalingMainList.value = data["userScalingMainList"];
-        setMaxWidth();
+  /// Starts the delayed reconnect after startup has reached a ready state.
+  void startStartupConnection({Client? client}) {
+    if (!connectClientOnStartup) return;
+    _startupConnectTimer?.cancel();
+    _startupConnectTimer = Timer(const Duration(milliseconds: 2000), () {
+      final reconnectClient = client ?? getIt<Client>();
+      if (this.client.value == ClientState.disconnected &&
+          !reconnectClient.hasActiveConnection) {
+        this.client.value = ClientState.connecting;
+        reconnectClient.connect(lastKnownConnection);
       }
-      if (data["fitMainListToWidth"] != null) {
-        fitMainListToWidth.value = data["fitMainListToWidth"];
-      }
-      if (data["mainListColumns"] != null) {
-        mainListColumns.value = data["mainListColumns"];
-      }
-      if (data["userScalingBars"] != null) {
-        userScalingBars.value = data["userScalingBars"];
-      }
-      if (data["userScalingMenus"] != null) {
-        userScalingMenus.value = data["userScalingMenus"];
-      }
-      if (data["fullScreen"] != null) {
-        fullScreen.value = data["fullScreen"];
-      }
-      if (data["softNumpadInput"] != null) {
-        softNumpadInput.value = data["softNumpadInput"];
-      }
-      if (data["darkMode"] != null) {
-        darkMode.value = data["darkMode"];
-      }
-      if (data["noInit"] != null) {
-        noInit.value = data["noInit"];
-      }
-      if (data["noStandees"] != null) {
-        noStandees.value = data["noStandees"];
-      }
-      if (data["randomStandees"] != null) {
-        randomStandees.value = data["randomStandees"];
-      }
-      if (data["noCalculation"] != null) {
-        noCalculation.value = data["noCalculation"];
-      }
-      if (data["hideLootDeck"] != null) {
-        hideLootDeck.value = data["hideLootDeck"];
-      }
-      if (data["style"] != null) {
-        style.value = Style.values[data["style"]];
-      }
-      if (data["expireConditions"] != null) {
-        expireConditions.value = data["expireConditions"];
-      }
-      if (data["lastKnownConnection"] != null) {
-        lastKnownConnection = data["lastKnownConnection"];
-      }
-      if (data["lastKnownPort"] != null) {
-        lastKnownPort = data["lastKnownPort"];
-      }
-      if (data["lastKnownHostIP"] != null) {
-        lastKnownHostIP = data["lastKnownHostIP"];
-      }
+    });
+  }
 
-      if (data["shimmer"] != null) {
-        shimmer.value = data["shimmer"];
-      }
-      final powerModeIdx = data["powerMode"] as int?;
-      if (powerModeIdx != null &&
-          powerModeIdx >= 0 &&
-          powerModeIdx < PowerMode.values.length) {
-        powerMode.value = PowerMode.values[powerModeIdx];
-      }
-      if (data["showScenarioNames"] != null) {
-        showScenarioNames.value = data["showScenarioNames"];
-      }
-      if (data["showCustomContent"] != null) {
-        showCustomContent.value = data["showCustomContent"];
-      }
-
-      if (data["showSectionsInMainView"] != null) {
-        showSectionsInMainView.value = data["showSectionsInMainView"];
-      }
-
-      if (data["showReminders"] != null) {
-        showReminders.value = data["showReminders"];
-      }
-
-      if (data["autoAddStandees"] != null) {
-        autoAddStandees.value = data["autoAddStandees"];
-      }
-
-      if (data["autoAddSpawns"] != null) {
-        autoAddSpawns.value = data["autoAddSpawns"];
-      }
-
-      if (data["showAmdDeck"] != null) {
-        showAmdDeck.value = data["showAmdDeck"];
-      }
-
-      if (data["showBattleGoalReminder"] != null) {
-        showBattleGoalReminder.value = data["showBattleGoalReminder"];
-      }
-
-      if (data["fhHazTerrainCalcInOGGloom"] != null) {
-        fhHazTerrainCalcInOGGloom.value = data["fhHazTerrainCalcInOGGloom"];
-      }
-
-      if (data["showCharacterAMD"] != null) {
-        showCharacterAMD.value = data["showCharacterAMD"];
-      }
-
-      if (data["enableHeathWheel"] != null) {
-        enableHeathWheel.value = data["enableHeathWheel"];
-      }
-
-      if (data["locale"] != null) {
-        locale.value = data["locale"];
-      }
-
-      if (data["saves"] != null) {
-        Map<String, dynamic> map = data["saves"];
-        for (final key in map.keys) {
-          saves.value[key] = map[key];
-        }
-      }
-
-      if (data["characterSaves"] != null) {
-        Map<String, dynamic> map = data["characterSaves"];
-        for (final key in map.keys) {
-          characterSaves.value[key] = map[key];
-        }
-      }
-
-      if (data["connectClientOnStartup"] != null &&
-          data["connectClientOnStartup"] != false) {
-        _startupConnectTimer?.cancel();
-        _startupConnectTimer = Timer(const Duration(milliseconds: 2000), () {
-          final reconnectClient = client ?? getIt<Client>();
-          if (this.client.value == ClientState.disconnected &&
-              !reconnectClient.hasActiveConnection) {
-            this.client.value = ClientState.connecting;
-            reconnectClient.connect(lastKnownConnection);
-          }
-        });
-      }
+  static Future<void> _writeToSharedPreferences(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = await prefs.setString(_sharedPrefsKey, value);
+    if (!saved) {
+      throw StateError('SharedPreferences rejected the settings write.');
     }
+  }
+
+  SettingsSnapshot _snapshot() => SettingsSnapshot({
+    'userScalingMainList': userScalingMainList.value,
+    'fitMainListToWidth': fitMainListToWidth.value,
+    'mainListColumns': mainListColumns.value,
+    'userScalingBars': userScalingBars.value,
+    'userScalingMenus': userScalingMenus.value,
+    'fullScreen': fullScreen.value,
+    'softNumpadInput': softNumpadInput.value,
+    'darkMode': darkMode.value,
+    'noInit': noInit.value,
+    'noStandees': noStandees.value,
+    'randomStandees': randomStandees.value,
+    'noCalculation': noCalculation.value,
+    'expireConditions': expireConditions.value,
+    'hideLootDeck': hideLootDeck.value,
+    'style': style.value,
+    'shimmer': shimmer.value,
+    'powerMode': powerMode.value,
+    'showScenarioNames': showScenarioNames.value,
+    'showCustomContent': showCustomContent.value,
+    'showSectionsInMainView': showSectionsInMainView.value,
+    'showReminders': showReminders.value,
+    'autoAddStandees': autoAddStandees.value,
+    'autoAddSpawns': autoAddSpawns.value,
+    'showAmdDeck': showAmdDeck.value,
+    'showBattleGoalReminder': showBattleGoalReminder.value,
+    'fhHazTerrainCalcInOGGloom': fhHazTerrainCalcInOGGloom.value,
+    'showCharacterAMD': showCharacterAMD.value,
+    'enableHeathWheel': enableHeathWheel.value,
+    'locale': locale.value,
+    'saves': Map<String, String>.of(saves.value),
+    'characterSaves': Map<String, String>.of(characterSaves.value),
+    'connectClientOnStartup': connectClientOnStartup,
+    'lastKnownConnection': lastKnownConnection,
+    'lastKnownPort': lastKnownPort,
+    'lastKnownHostIP': lastKnownHostIP,
+  });
+
+  void _apply(SettingsSnapshot data) {
+    userScalingMainList.value = data.value('userScalingMainList');
+    fitMainListToWidth.value = data.value('fitMainListToWidth');
+    mainListColumns.value = data.value('mainListColumns');
+    userScalingBars.value = data.value('userScalingBars');
+    userScalingMenus.value = data.value('userScalingMenus');
+    fullScreen.value = data.value('fullScreen');
+    softNumpadInput.value = data.value('softNumpadInput');
+    darkMode.value = data.value('darkMode');
+    noInit.value = data.value('noInit');
+    noStandees.value = data.value('noStandees');
+    randomStandees.value = data.value('randomStandees');
+    noCalculation.value = data.value('noCalculation');
+    expireConditions.value = data.value('expireConditions');
+    hideLootDeck.value = data.value('hideLootDeck');
+    style.value = data.value('style');
+    shimmer.value = data.value('shimmer');
+    powerMode.value = data.value('powerMode');
+    showScenarioNames.value = data.value('showScenarioNames');
+    showCustomContent.value = data.value('showCustomContent');
+    showSectionsInMainView.value = data.value('showSectionsInMainView');
+    showReminders.value = data.value('showReminders');
+    autoAddStandees.value = data.value('autoAddStandees');
+    autoAddSpawns.value = data.value('autoAddSpawns');
+    showAmdDeck.value = data.value('showAmdDeck');
+    showBattleGoalReminder.value = data.value('showBattleGoalReminder');
+    fhHazTerrainCalcInOGGloom.value = data.value('fhHazTerrainCalcInOGGloom');
+    showCharacterAMD.value = data.value('showCharacterAMD');
+    enableHeathWheel.value = data.value('enableHeathWheel');
+    locale.value = data.value('locale');
+    saves.value = Map<String, String>.of(data.value('saves'));
+    characterSaves.value = Map<String, String>.of(data.value('characterSaves'));
+    connectClientOnStartup = data.value('connectClientOnStartup');
+    lastKnownConnection = data.value('lastKnownConnection');
+    lastKnownPort = data.value('lastKnownPort');
+    lastKnownHostIP = data.value('lastKnownHostIP');
+    setMaxWidth();
   }
 
   @override

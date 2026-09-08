@@ -8,7 +8,8 @@ The user authorized the full [2026-09-05 improvement plan](codebase-improvement-
 | --- | --- | --- |
 | F01 | Complete (2026-09-06) | CI mock generation precedes analysis. Broad overflow/asset filters removed; strict viewport suite, bundled fonts, valid fixture assets, and bounded layout repairs added. Clean source codegen and analysis pass; full suite: 1,693 passed, 1 existing connection test skipped. |
 | F02 | Complete (2026-09-06) | Shared synchronous received transitions, detached validation, immediate per-index snapshots, completed-transition UI revision, and mismatch branch invalidation. Analysis passes; full suite: 1,704 passed, 1 existing connection test skipped. |
-| F03–F15 | Pending | Follow the dependencies and acceptance criteria in the plan. |
+| F03 | Complete (2026-09-08) | Validated settings codec, latest-value persistence with observable/retryable failure, protected corrupt-save recovery, staged startup, desktop close recovery, and guarded role changes. Analysis passes; full suite: 1,746 passed, 1 existing connection test skipped. |
+| F04–F15 | Pending | Follow the dependencies and acceptance criteria in the plan. |
 
 ## Decisions pending
 
@@ -38,3 +39,13 @@ Client and Flutter host apply accepted states synchronously through `applyReceiv
 Ordinary host rollback preserves redo history. An explicit `Mismatch:` correction discards the rejected future branch; the next received step starts a new branch. Invalid client state is rejected by the host without consuming an index or broadcasting. A client receiving invalid server state disconnects while retaining its last accepted state and history. The 100 ms client snapshot callback has been removed.
 
 Validation targets include two envelopes in one fake-clock tick, disconnect/reset, late malformed data and nested figure identity, host plus two wire clients, mismatch/rollback/retry, and a mounted history panel that can restore the earlier received state. Full observer atomicity and a versioned save codec remain outside F02.
+
+## F03 persistence and recovery contract
+
+Settings are decoded completely before application. Missing or invalid individual fields use constructor defaults, preserving platform defaults. Scale limits match the existing controls: main list 0.2–3, bars 0.8–3, menus 0.7–1.5; columns accept 0–3, and enum/locale values must be supported. Invalid save-map fields use an empty map. Malformed JSON or a non-object root is a recoverable load failure, and saving is refused until a successful read or an explicit reset. The JSON format is unchanged.
+
+Settings and game writes retain the latest pending value, serialize disk access, and expose writing/error status. Explicit save/flush reports thrown errors and rejected writes, including an already-settled failed write. A successful later write clears the status. Background scheduling owns error futures; Retry retains the latest failed snapshot. A batch containing a failed write reports failure to its awaiters even if its later pending write succeeds.
+
+Startup renders game controls only after required initialization succeeds. Retry preserves completed stages; reset removes only the affected preference. Reset settings also removes named game and character saves, which the recovery screen explains. Reconnection and shortcuts cannot run while recovery is pending. Address discovery stays in the background so internet access is not a startup prerequisite.
+
+Network policy: starting a client or host requires successful game and settings persistence; rejected endpoint changes are restored and replaced in the settings queue. Stopping an active client or host is always allowed. Desktop close captures the current state and offers Retry, Close anyway, or Cancel on failure. Mobile/background lifecycle callbacks make a best-effort save attempt and report failures; they cannot guarantee completion before the operating system terminates the app.

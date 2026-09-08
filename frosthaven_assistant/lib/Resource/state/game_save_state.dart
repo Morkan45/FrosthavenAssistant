@@ -236,23 +236,22 @@ class GameSaveState {
     return false;
   }
 
-  Future<void> saveToDisk(GameState gameState) async {
+  Future<void> saveToDisk(GameState gameState) {
     if (_savedState == null) {
       save(gameState);
     }
-    await gameState._persistState(_savedState ?? '');
+    return gameState._persistState(_savedState ?? '');
   }
 
   Future<bool> loadFromDisk(GameState gameState) async {
     //have to call after init or element state overridden
 
     const sharedPrefsKey = 'gameState';
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      _savedState = prefs.getString(sharedPrefsKey);
-    } catch (error) {
-      //todo
-    }
+    final prefs = await SharedPreferences.getInstance();
+    // Retry reads storage again; a failed plugin write/removal can leave the
+    // legacy SharedPreferences cache different from the durable value.
+    await prefs.reload();
+    _savedState = prefs.getString(sharedPrefsKey);
 
     if (_savedState != null) {
       return load(gameState);

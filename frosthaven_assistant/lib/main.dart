@@ -14,10 +14,13 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'Layout/idle_dimmer.dart';
+import 'Layout/startup_recovery_screen.dart';
 import 'Resource/game_data.dart';
 import 'Resource/theme_switcher.dart';
 import 'l10n/app_localizations.dart';
 import 'services/linux_font_loader.dart';
+import 'services/app_startup_controller.dart';
+import 'services/network/network.dart';
 import 'services/translation_service.dart';
 
 // SocketExceptions caused by normal TCP connection lifecycle events (client
@@ -141,31 +144,58 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Future<void> _initializeApp() async {
-    try {
-      await getIt<GameData>().loadData("assets/data/");
-      await getIt<GameState>().load();
-      await getIt<Settings>().init();
-      await getIt<TranslationService>().load(getIt<Settings>().locale.value);
-      loading.value = false;
-    } catch (error, stack) {
-      Sentry.captureException(error, stackTrace: stack);
-      debugPrint('Init failed: $error');
-      loading.value = false;
-    }
-  }
+  late final AppStartupController _startup;
 
   @override
   void initState() {
     super.initState();
-    try {
-      getIt<GameState>().init();
-      unawaited(_initializeApp());
-    } catch (error, stack) {
-      Sentry.captureException(error, stackTrace: stack);
-      debugPrint('Init failed: $error');
+    _startup = AppStartupController(
+      loadData: () => getIt<GameData>().loadData('assets/data/'),
+      initializeGame: () async => getIt<GameState>().init(),
+      loadGame: () => getIt<GameState>().load(),
+      // Decode/read failures are the only startup failures which can offer a
+      // settings reset. Platform effects run in the following, ordinary stage.
+      loadSettings: () =>
+          getIt<Settings>().loadFromDisk(reconnectOnStartup: false),
+      initializeSettingsRuntime: () async {
+        final settings = getIt<Settings>();
+        await settings.setFullscreen(settings.fullScreen.value);
+        // Address discovery includes an external lookup. It improves the
+        // network settings UI, but an offline table must still be able to
+        // start its local game.
+        unawaited(
+          getIt<Network>().networkInfo.initNetworkInfo().catchError(
+            (Object error, StackTrace stackTrace) => debugPrint(
+              'Network address refresh failed: $error\n$stackTrace',
+            ),
+          ),
+        );
+      },
+      loadTranslations: () =>
+          getIt<TranslationService>().load(getIt<Settings>().locale.value),
+      // Settings defers this until the complete startup pipeline succeeds.
+      beginStartupConnection: () async =>
+          getIt<Settings>().startStartupConnection(),
+      resetGame: () => getIt<GameState>().resetSavedGame(),
+      resetSettings: () => getIt<Settings>().resetSavedSettings(),
+    );
+    unawaited(_start());
+  }
+
+  Future<void> _start() async {
+    await _startup.start();
+    if (_startup.value.phase == AppStartupPhase.ready) {
       loading.value = false;
+    } else if (_startup.value.error != null) {
+      Sentry.captureException(_startup.value.error);
+      debugPrint('Init failed: ${_startup.value.error}');
     }
+  }
+
+  @override
+  void dispose() {
+    _startup.dispose();
+    super.dispose();
   }
 
   // This widget is the root of the application.
@@ -200,10 +230,38 @@ class _MyAppState extends State<MyApp> {
           if (child == null) {
             return const SizedBox.shrink();
           }
-          return ExcludeSemantics(
-              child: IdleDimmer(child: GlobalHotkeys(child: child)));
+          return ExcludeSemantics(child: child);
         },
-        home: const MyHomePage(title: title),
+        home: ValueListenableBuilder<AppStartupState>(
+          valueListenable: _startup,
+          builder: (context, startup, _) {
+            if (startup.phase == AppStartupPhase.ready) {
+              return const IdleDimmer(
+                child: GlobalHotkeys(child: MyHomePage(title: title)),
+              );
+            }
+            if (startup.phase == AppStartupPhase.recoverableError) {
+              return StartupRecoveryScreen(
+                state: startup,
+                onRetry: () async {
+                  await _startup.retry();
+                  if (_startup.value.phase == AppStartupPhase.ready) {
+                    loading.value = false;
+                  }
+                },
+                onReset: () async {
+                  await _startup.resetAndRetry();
+                  if (_startup.value.phase == AppStartupPhase.ready) {
+                    loading.value = false;
+                  }
+                },
+              );
+            }
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          },
+        ),
       ),
     );
   }

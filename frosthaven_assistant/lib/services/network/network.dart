@@ -15,10 +15,16 @@ class Network {
   final networkMessage = ValueNotifier<String>("");
   final networkMessageIsError = ValueNotifier<bool>(false);
 
+  /// Serializes a pending host/client start across every UI entry point.
+  final roleChangePending = ValueNotifier<bool>(false);
+
   bool appInBackground = false;
   bool clientDisconnectedWhileInBackground = false;
 
   Network({Server? server}) : server = server ?? Server();
 
-  Future<void> dispose() => networkInfo.dispose();
+  Future<void> dispose() async {
+    roleChangePending.dispose();
+    await networkInfo.dispose();
+  }
 }

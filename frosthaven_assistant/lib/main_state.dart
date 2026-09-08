@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -15,6 +15,7 @@ import 'package:frosthaven_assistant/services/android_foreground_service.dart';
 import 'package:frosthaven_assistant/services/network/client.dart';
 import 'package:frosthaven_assistant/services/network/network.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
+import 'package:frosthaven_assistant/services/desktop_close_controller.dart';
 import 'package:override_text_scale_factor/override_text_scale_factor.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -35,9 +36,12 @@ class MainState extends State<MyHomePage>
   late final Settings _settings;
   late final Client _client;
   late final GameState _gameState;
+  late final DesktopCloseController _desktopClose;
+  bool _closeDialogOpen = false;
 
   @override
   void dispose() {
+    _desktopClose.dispose();
     _settings.powerMode.removeListener(_applyWakelock);
     if (Platform.isAndroid) {
       _settings.server.removeListener(_onServerChanged);
@@ -118,7 +122,7 @@ class MainState extends State<MyHomePage>
         break;
       case AppLifecycleState.paused:
         log("app in paused");
-        unawaited(_flushPersistence());
+        _requestBackgroundFlush();
         // Belt and braces: the brightness plugin resets on resign-active, but a
         // jetsam kill can skip that and UIScreen.brightness is the real system
         // slider — a leaked dim value would outlive the app.
@@ -141,10 +145,10 @@ class MainState extends State<MyHomePage>
           _settings.connectClientOnStartup = true;
           _network.appInBackground = true;
         }
-        unawaited(_flushPersistence());
+        _requestBackgroundFlush();
         break;
       case AppLifecycleState.hidden:
-        unawaited(_flushPersistence());
+        _requestBackgroundFlush();
         break;
     }
   }
@@ -164,6 +168,11 @@ class MainState extends State<MyHomePage>
     _settings = getIt<Settings>();
     _client = getIt<Client>();
     _gameState = getIt<GameState>();
+    _desktopClose = DesktopCloseController(
+      flush: _saveAndFlushForClose,
+      retryPersistence: _retryAllPersistence,
+      destroy: windowManager.destroy,
+    );
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
@@ -194,11 +203,69 @@ class MainState extends State<MyHomePage>
 
   @override
   Widget build(BuildContext context) {
-    return const OverrideTextScaleFactor(child: MainScaffold());
+    return AnimatedBuilder(
+      animation: Listenable.merge([
+        _gameState.persistenceStatus,
+        _settings.persistenceStatus,
+      ]),
+      builder: (context, _) {
+        final gameStatus = _gameState.persistenceStatus.value;
+        final settingsStatus = _settings.persistenceStatus.value;
+        final persistenceError = gameStatus.hasError || settingsStatus.hasError;
+        return SafeArea(
+          child: Material(
+            child: Column(
+              children: [
+                if (persistenceError)
+                  MaterialBanner(
+                    content: const Text('Changes could not be saved.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => unawaited(_retryPersistence()),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                const Expanded(
+                  child: OverrideTextScaleFactor(child: MainScaffold()),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _flushPersistence() async {
-    await Future.wait([_gameState.flushPersistence(), _settings.saveToDisk()]);
+    await Future.wait([
+      _gameState.flushPersistence(),
+      _settings.flushPersistence(),
+    ]);
+  }
+
+  Future<void> _saveAndFlushForClose() =>
+      Future.wait([_gameState.saveAndFlush(), _settings.saveToDisk()]);
+
+  Future<void> _retryPersistence() async {
+    try {
+      await _retryAllPersistence();
+    } catch (error, stackTrace) {
+      debugPrint('Persistence retry failed: $error\n$stackTrace');
+    }
+  }
+
+  Future<void> _retryAllPersistence() => Future.wait([
+    _gameState.retryPersistence(),
+    _settings.retryPersistence(),
+  ]);
+
+  void _requestBackgroundFlush() {
+    unawaited(
+      _flushPersistence().catchError((Object error, StackTrace stackTrace) {
+        debugPrint('Background persistence failed: $error\n$stackTrace');
+      }),
+    );
   }
 
   Future<void> _preventUnflushedWindowClose() async {
@@ -213,8 +280,45 @@ class MainState extends State<MyHomePage>
 
   @override
   void onWindowClose() async {
-    await _flushPersistence();
-    await windowManager.destroy();
+    if (_closeDialogOpen) return;
+    final closed = await _desktopClose.requestClose();
+    if (closed || !mounted || _desktopClose.value != DesktopCloseState.failed) {
+      return;
+    }
+    _closeDialogOpen = true;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Changes could not be saved'),
+        content: const Text(
+          'Retry saving before closing, or close anyway. Closing anyway may lose recent changes.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final saved = await _desktopClose.retryAndClose();
+              if (saved && dialogContext.mounted) {
+                Navigator.pop(dialogContext);
+              }
+            },
+            child: const Text('Retry'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await _desktopClose.closeAnyway();
+              if (dialogContext.mounted) Navigator.pop(dialogContext);
+            },
+            child: const Text('Close anyway'),
+          ),
+        ],
+      ),
+    );
+    _closeDialogOpen = false;
   }
 
   @override
