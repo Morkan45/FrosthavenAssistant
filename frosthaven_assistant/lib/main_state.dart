@@ -16,7 +16,6 @@ import 'package:frosthaven_assistant/services/network/client.dart';
 import 'package:frosthaven_assistant/services/network/network.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
 import 'package:frosthaven_assistant/services/desktop_close_controller.dart';
-import 'package:override_text_scale_factor/override_text_scale_factor.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'Layout/main_scaffold.dart';
@@ -226,9 +225,7 @@ class MainState extends State<MyHomePage>
                       ),
                     ],
                   ),
-                const Expanded(
-                  child: OverrideTextScaleFactor(child: MainScaffold()),
-                ),
+                const Expanded(child: MainScaffold()),
               ],
             ),
           ),

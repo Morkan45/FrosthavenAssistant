@@ -57,6 +57,14 @@ void main() {
   }
 
   group('DrawButton sync lockout', () {
+    testWidgets('exposes its action and round value to accessibility services',
+        (WidgetTester tester) async {
+      await pumpDrawButton(tester);
+
+      expect(find.bySemanticsLabel('Draw'), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('1')), findsWidgets);
+    });
+
     testWidgets('initial onPressed is non-null in chooseInitiative state',
         (WidgetTester tester) async {
       await pumpDrawButton(tester);

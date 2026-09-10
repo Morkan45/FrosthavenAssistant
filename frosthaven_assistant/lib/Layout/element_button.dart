@@ -77,6 +77,12 @@ class AnimatedContainerButtonState extends State<ElementButton> {
     };
   }
 
+  String _elementStateValue(ElementState state) => switch (state) {
+    ElementState.inert => 'Inert',
+    ElementState.half => 'Waning',
+    ElementState.full => 'Strong',
+  };
+
   void _setHalf() {
     final scale = _userScalingBars;
     _color = widget.color;
@@ -111,6 +117,8 @@ class AnimatedContainerButtonState extends State<ElementButton> {
       child: Semantics(
         button: true,
         label: label,
+        value: _elementStateValue(_vm.elementStateNotifier.value),
+        hint: 'Double tap to infuse. Long press to make waning.',
         child: Container(
           margin: EdgeInsets.only(right: kSmallMargin * scale),
           child: InkWell(

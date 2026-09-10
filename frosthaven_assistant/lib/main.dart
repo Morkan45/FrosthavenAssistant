@@ -230,7 +230,7 @@ class _MyAppState extends State<MyApp> {
           if (child == null) {
             return const SizedBox.shrink();
           }
-          return ExcludeSemantics(child: child);
+          return child;
         },
         home: ValueListenableBuilder<AppStartupState>(
           valueListenable: _startup,

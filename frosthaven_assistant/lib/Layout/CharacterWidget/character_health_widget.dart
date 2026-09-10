@@ -20,13 +20,14 @@ class CharacterHealthWidget extends StatelessWidget {
   static const double _kConditionIconSize = 16.0;
   static const double _kBloodHeightRatio = 0.2;
 
-  const CharacterHealthWidget(
-      {super.key,
-      required this.character,
-      required this.scale,
-      required this.shadow,
-      required this.scaledHeight,
-      this.settings});
+  const CharacterHealthWidget({
+    super.key,
+    required this.character,
+    required this.scale,
+    required this.shadow,
+    required this.scaledHeight,
+    this.settings,
+  });
   final Character character;
   final double scale;
   final double scaledHeight;
@@ -38,62 +39,73 @@ class CharacterHealthWidget extends StatelessWidget {
     final vm = CharacterHealthWidgetViewModel(settings: settings);
 
     return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        //align children to the left
-        children: [
-          Container(
-            margin: EdgeInsets.only(
-                top: CharacterHealthWidget._kMarginTop * scale,
-                left: CharacterHealthWidget._kMarginLeft * scale),
-            child: ValueListenableBuilder<String>(
-                valueListenable: character.characterState.display,
-                builder: (context, value, child) {
-                  return Text(
-                    getIt<TranslationService>().t(value),
-                    key: const Key('character-name'),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: getCardTitleStyle(
-                        vm.frosthavenStyle
-                            ? CharacterHealthWidget._kFontSizeFH * scale
-                            : CharacterHealthWidget._kFontSizeOrig * scale,
-                        shadow,
-                        vm.frosthavenStyle),
-                  );
-                }),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      //align children to the left
+      children: [
+        Container(
+          margin: EdgeInsets.only(
+            top: CharacterHealthWidget._kMarginTop * scale,
+            left: CharacterHealthWidget._kMarginLeft * scale,
           ),
-          ValueListenableBuilder<bool>(
-              valueListenable: vm.enableHealthWheel,
-              builder: (context, value, child) {
-                return Container(
-                    margin: EdgeInsets.only(
-                        left: CharacterHealthWidget._kMarginLeft * scale),
-                    child: value
-                        ? HealthWheelController(
-                            figureId: character.id,
-                            ownerId: character.id,
-                            child: CharacterHealthInnerWidget(
-                                character: character,
-                                scale: scale,
-                                shadow: shadow,
-                                scaledHeight: scaledHeight))
-                        : CharacterHealthInnerWidget(
-                            character: character,
-                            scale: scale,
-                            shadow: shadow,
-                            scaledHeight: scaledHeight));
-              })
-        ]);
+          child: ValueListenableBuilder<String>(
+            valueListenable: character.characterState.display,
+            builder: (context, value, child) {
+              return Text(
+                getIt<TranslationService>().t(value),
+                key: const Key('character-name'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: getCardTitleStyle(
+                  vm.frosthavenStyle
+                      ? CharacterHealthWidget._kFontSizeFH * scale
+                      : CharacterHealthWidget._kFontSizeOrig * scale,
+                  shadow,
+                  vm.frosthavenStyle,
+                ),
+              );
+            },
+          ),
+        ),
+        ValueListenableBuilder<bool>(
+          valueListenable: vm.enableHealthWheel,
+          builder: (context, value, child) {
+            return Container(
+              margin: EdgeInsets.only(
+                left: CharacterHealthWidget._kMarginLeft * scale,
+              ),
+              child: value
+                  ? HealthWheelController(
+                      figureId: character.id,
+                      ownerId: character.id,
+                      child: CharacterHealthInnerWidget(
+                        character: character,
+                        scale: scale,
+                        shadow: shadow,
+                        scaledHeight: scaledHeight,
+                      ),
+                    )
+                  : CharacterHealthInnerWidget(
+                      character: character,
+                      scale: scale,
+                      shadow: shadow,
+                      scaledHeight: scaledHeight,
+                    ),
+            );
+          },
+        ),
+      ],
+    );
   }
 }
 
 class CharacterHealthInnerWidget extends StatelessWidget {
-  const CharacterHealthInnerWidget(
-      {super.key,
-      required this.character,
-      required this.scale,
-      required this.shadow,
-      required this.scaledHeight});
+  const CharacterHealthInnerWidget({
+    super.key,
+    required this.character,
+    required this.scale,
+    required this.shadow,
+    required this.scaledHeight,
+  });
   final Character character;
   final double scale;
   final double scaledHeight;
@@ -103,61 +115,74 @@ class CharacterHealthInnerWidget extends StatelessWidget {
     List<Widget> conditions = [];
     final characterConditions = character.characterState.conditions.value;
     for (int i = conditions.length; i < characterConditions.length; i++) {
-      conditions.add(ConditionIcon(
-        characterConditions[i],
-        CharacterHealthWidget._kConditionIconSize,
-        character,
-        character.characterState,
-        scale: scale,
-      ));
+      conditions.add(
+        ConditionIcon(
+          characterConditions[i],
+          CharacterHealthWidget._kConditionIconSize,
+          character,
+          character.characterState,
+          scale: scale,
+        ),
+      );
     }
     return conditions;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: [
-      Image(
-        fit: BoxFit.contain,
-        height: scaledHeight * CharacterHealthWidget._kBloodHeightRatio,
-        image: const AssetImage("assets/images/blood.png"),
-      ),
-      ValueListenableBuilder<int>(
-        valueListenable: character.characterState.health,
-        builder: (context, healthValue, child) {
-          return ValueListenableBuilder<int>(
-            valueListenable: character.characterState.maxHealth,
-            builder: (context, maxHealthValue, child) {
-              final frosthavenStyle = GameMethods.isFrosthavenStyle(null);
-              return Text(
-                frosthavenStyle
-                    ? '$healthValue/$maxHealthValue'
-                    : '$healthValue / $maxHealthValue',
-                style: getCardTitleStyle(
-                    kFontSizeBody * scale, shadow, frosthavenStyle),
+    return Semantics(
+      label: 'Health',
+      value:
+          '${character.characterState.health.value} of ${character.characterState.maxHealth.value}',
+      child: Row(
+        children: [
+          Image(
+            fit: BoxFit.contain,
+            height: scaledHeight * CharacterHealthWidget._kBloodHeightRatio,
+            image: const AssetImage("assets/images/blood.png"),
+          ),
+          ValueListenableBuilder<int>(
+            valueListenable: character.characterState.health,
+            builder: (context, healthValue, child) {
+              return ValueListenableBuilder<int>(
+                valueListenable: character.characterState.maxHealth,
+                builder: (context, maxHealthValue, child) {
+                  final frosthavenStyle = GameMethods.isFrosthavenStyle(null);
+                  return Text(
+                    frosthavenStyle
+                        ? '$healthValue/$maxHealthValue'
+                        : '$healthValue / $maxHealthValue',
+                    style: getCardTitleStyle(
+                      kFontSizeBody * scale,
+                      shadow,
+                      frosthavenStyle,
+                    ),
+                  );
+                },
               );
             },
-          );
-        },
-      ),
-      //add conditions here
-      ValueListenableBuilder<List<Condition>>(
-          valueListenable: character.characterState.conditions,
-          builder: (context, value, child) {
-            return Expanded(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: FittedBox(
+          ),
+          //add conditions here
+          ValueListenableBuilder<List<Condition>>(
+            valueListenable: character.characterState.conditions,
+            builder: (context, value, child) {
+              return Expanded(
+                child: Align(
                   alignment: Alignment.centerLeft,
-                  fit: BoxFit.scaleDown,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: createConditionList(scale),
+                  child: FittedBox(
+                    alignment: Alignment.centerLeft,
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: createConditionList(scale),
+                    ),
                   ),
                 ),
-              ),
-            );
-          }),
-    ]);
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

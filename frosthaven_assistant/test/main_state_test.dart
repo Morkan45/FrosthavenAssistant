@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Resource/game_data.dart';
+import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/main.dart';
 import 'package:frosthaven_assistant/main_state.dart';
@@ -40,16 +41,37 @@ void main() {
   }
 
   group('MainState build', () {
-    testWidgets('MyHomePage renders without crashing',
-        (WidgetTester tester) async {
+    testWidgets('MyHomePage renders without crashing', (
+      WidgetTester tester,
+    ) async {
       await pumpHomePage(tester);
       expect(find.byType(MyHomePage), findsOneWidget);
     });
 
-    testWidgets('build renders OverrideTextScaleFactor as root widget',
-        (WidgetTester tester) async {
+    testWidgets('build preserves the system text scale at the app root', (
+      WidgetTester tester,
+    ) async {
       await pumpHomePage(tester);
       expect(find.byType(ValueListenableBuilder<int>), findsAtLeast(1));
+    });
+
+    testWidgets('operational shell remains usable at system text scales', (
+      WidgetTester tester,
+    ) async {
+      // The test host is Windows, whose desktop preference starts at 1.6.
+      // A phone viewport uses the mobile default of 1.0 in production.
+      getIt<Settings>().userScalingBars.value = 1.0;
+      tester.view.physicalSize = const Size(360, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      for (final scale in [1.0, 1.5, 2.0]) {
+        tester.platformDispatcher.textScaleFactorTestValue = scale;
+        await pumpHomePage(tester);
+        expect(find.byType(MyHomePage), findsOneWidget);
+        expect(tester.takeException(), isNull, reason: 'text scale $scale');
+      }
+      tester.platformDispatcher.clearAllTestValues();
     });
   });
 
@@ -58,54 +80,52 @@ void main() {
     // MainState registers itself as a WidgetsBindingObserver in initState,
     // so pumping MyHomePage ensures the observer is active.
 
-    testWidgets('resumed sets appInBackground to false',
-        (WidgetTester tester) async {
+    testWidgets('resumed sets appInBackground to false', (
+      WidgetTester tester,
+    ) async {
       await pumpHomePage(tester);
       getIt<Network>().appInBackground = true;
 
-      tester.binding
-          .handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      tester.binding
-          .handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
       expect(getIt<Network>().appInBackground, false);
     });
 
-    testWidgets('inactive sets appInBackground to true',
-        (WidgetTester tester) async {
+    testWidgets('inactive sets appInBackground to true', (
+      WidgetTester tester,
+    ) async {
       await pumpHomePage(tester);
       getIt<Network>().appInBackground = false;
 
-      tester.binding
-          .handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
       await tester.pump();
 
       expect(getIt<Network>().appInBackground, true);
     });
 
-    testWidgets('paused does not change appInBackground',
-        (WidgetTester tester) async {
+    testWidgets('paused does not change appInBackground', (
+      WidgetTester tester,
+    ) async {
       await pumpHomePage(tester);
       getIt<Network>().appInBackground = false;
 
-      tester.binding
-          .handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
       await tester.pump();
 
       expect(getIt<Network>().appInBackground, false);
     });
 
-    testWidgets(
-        'detached does not crash when client is not connected',
-        (WidgetTester tester) async {
+    testWidgets('detached does not crash when client is not connected', (
+      WidgetTester tester,
+    ) async {
       await pumpHomePage(tester);
       // detached with disconnected client — just verify no exception
-      tester.binding
-          .handleAppLifecycleStateChanged(AppLifecycleState.detached);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.detached);
       await tester.pump();
     });
   });

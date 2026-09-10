@@ -56,6 +56,15 @@ void main() {
       tester.widget<AnimatedContainer>(find.byType(AnimatedContainer).first);
 
   group('ElementButton', () {
+    testWidgets('exposes element name, state, and button action', (
+      WidgetTester tester,
+    ) async {
+      await pumpButton(tester);
+
+      expect(find.bySemanticsLabel('Fire'), findsOneWidget);
+      expect(tester.getSemantics(find.bySemanticsLabel('Fire')).value, 'Inert');
+    });
+
     testWidgets('fill container is transparent when element is inert', (
       WidgetTester tester,
     ) async {

@@ -82,55 +82,85 @@ class DrawButtonState extends State<DrawButton> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<double>(
-        valueListenable: _vm.userScalingBars,
-        builder: (context, value, child) {
-          final scaling = _vm.userScalingBars.value;
-          final shadow = textShadow(scaling);
-          final locked = _isLockedOut;
+      valueListenable: _vm.userScalingBars,
+      builder: (context, value, child) {
+        final scaling = _vm.userScalingBars.value;
+        final shadow = textShadow(scaling);
+        final locked = _isLockedOut;
 
-          return RepaintBoundary(
-              child: Stack(alignment: Alignment.centerLeft, children: [
-            ValueListenableBuilder<int>(
-              valueListenable: _vm.round,
-              builder: (context, value, child) {
-                return Positioned(
+        return RepaintBoundary(
+          child: Stack(
+            alignment: Alignment.centerLeft,
+            children: [
+              ValueListenableBuilder<int>(
+                valueListenable: _vm.round,
+                builder: (context, value, child) {
+                  return Positioned(
                     bottom: _kRoundTextBottom * scaling,
                     left: _kRoundTextLeft * scaling,
-                    child: Text(_vm.roundText,
-                        style: getWhiteShadowStyle(
-                            kFontSizeSmall * scaling, shadow)));
-              },
-            ),
-            ListenableBuilder(
-              listenable: Listenable.merge([_vm.roundState, _vm.totalRounds]),
-              builder: (context, child) {
-                return AnimatedOpacity(
+                    child: Text(
+                      _vm.roundText,
+                      style: getWhiteShadowStyle(
+                        kFontSizeSmall * scaling,
+                        shadow,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              ListenableBuilder(
+                listenable: Listenable.merge([_vm.roundState, _vm.totalRounds]),
+                builder: (context, child) {
+                  return AnimatedOpacity(
                     opacity: locked ? 0.5 : 1.0,
                     duration: _kSyncFadeDuration,
-                    child: Container(
+                    child: Semantics(
+                      button: true,
+                      enabled: !locked,
+                      label: _vm.isDrawPhase
+                          ? AppLocalizations.of(context)!.draw
+                          : AppLocalizations.of(
+                              context,
+                            )!.nextRound.replaceAll('\n', ' ').trim(),
+                      value: _vm.roundText,
+                      excludeSemantics: true,
+                      onTap: locked ? null : _onPressed,
+                      child: Container(
                         margin: EdgeInsets.zero,
                         height: kBarHeight * scaling,
                         width: _vm.buttonWidth * scaling,
                         child: TextButton(
-                            style: TextButton.styleFrom(
-                                padding: EdgeInsets.only(
-                                    left: _kButtonPadding * scaling,
-                                    right: _kButtonPadding * scaling),
-                                alignment: Alignment.center),
-                            onPressed: locked ? null : _onPressed,
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                _vm.isDrawPhase
-                                    ? AppLocalizations.of(context)!.draw
-                                    : AppLocalizations.of(context)!.nextRound,
-                                style: getWhiteShadowStyle(
-                                    kFontSizeBody * scaling, shadow,
-                                    height: _kTextHeight),
-                              )))));
-              },
-            )
-          ]));
-        });
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.only(
+                              left: _kButtonPadding * scaling,
+                              right: _kButtonPadding * scaling,
+                            ),
+                            alignment: Alignment.center,
+                          ),
+                          onPressed: locked ? null : _onPressed,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              _vm.isDrawPhase
+                                  ? AppLocalizations.of(context)!.draw
+                                  : AppLocalizations.of(context)!.nextRound,
+                              style: getWhiteShadowStyle(
+                                kFontSizeBody * scaling,
+                                shadow,
+                                height: _kTextHeight,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

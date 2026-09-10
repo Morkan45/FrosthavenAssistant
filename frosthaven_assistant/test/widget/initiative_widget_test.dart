@@ -50,6 +50,12 @@ void main() {
   }
 
   group('InitiativeWidget', () {
+    testWidgets('labels the editable initiative value', (WidgetTester tester) async {
+      await pumpWidget(tester, getBlinkblade());
+
+      expect(find.bySemanticsLabel('Initiative'), findsWidgets);
+    });
+
     testWidgets('renders init image', (WidgetTester tester) async {
       final character = getBlinkblade();
       await pumpWidget(tester, character);

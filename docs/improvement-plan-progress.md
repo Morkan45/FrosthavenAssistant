@@ -10,7 +10,8 @@ The user authorized the full [2026-09-05 improvement plan](codebase-improvement-
 | F02 | Complete (2026-09-06) | Shared synchronous received transitions, detached validation, immediate per-index snapshots, completed-transition UI revision, and mismatch branch invalidation. Analysis passes; full suite: 1,704 passed, 1 existing connection test skipped. |
 | F03 | Complete (2026-09-08) | Validated settings codec, latest-value persistence with observable/retryable failure, protected corrupt-save recovery, staged startup, desktop close recovery, and guarded role changes. Analysis passes; full suite: 1,746 passed, 1 existing connection test skipped. |
 | F04 | Complete (2026-09-08) | Standalone server retains a bounded, byte-capped absolute-index history; evicted rollback receives an authoritative correction. Socket/health cleanup is idempotent and safe during broadcast. Server analysis passes; 14 server tests pass. |
-| F05–F15 | Pending | Follow the dependencies and acceptance criteria in the plan. |
+| F05 | Complete (2026-09-10) | The app no longer excludes its accessibility tree or overrides system text scale. Core Draw/Next round, scenario level, initiative, health, and element controls provide accessible labels, values, and actions. Phone shell passes 100/150/200% system text tests; analysis passes; full suite: 1,750 passed, 1 existing connection test skipped. |
+| F06–F15 | Pending | Follow the dependencies and acceptance criteria in the plan. |
 
 ## Decisions pending
 

@@ -19,17 +19,18 @@ class InitiativeWidget extends StatelessWidget {
   static const int _kInitMaxLength = 2;
   static const double _kDisplayHeight = 33.0;
 
-  const InitiativeWidget(
-      {super.key,
-      required this.scale,
-      required this.scaledHeight,
-      required this.shadow,
-      required this.character,
-      required this.isCharacter,
-      required this.initTextFieldController,
-      required this.focusNode,
-      this.gameState,
-      this.settings});
+  const InitiativeWidget({
+    super.key,
+    required this.scale,
+    required this.scaledHeight,
+    required this.shadow,
+    required this.character,
+    required this.isCharacter,
+    required this.initTextFieldController,
+    required this.focusNode,
+    this.gameState,
+    this.settings,
+  });
 
   final Character character;
   final double scale;
@@ -43,24 +44,32 @@ class InitiativeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final vm = InitiativeWidgetViewModel(character,
-        gameState: gameState, settings: settings);
-    return Column(children: [
-      Container(
-        margin: EdgeInsets.only(top: scaledHeight / InitiativeWidget._kMarginTopDivisor, left: InitiativeWidget._kMarginLeft * scale),
-        child: Image(
-          height: scaledHeight * InitiativeWidget._kInitImageHeightRatio,
-          image: const AssetImage("assets/images/init.png"),
+    final vm = InitiativeWidgetViewModel(
+      character,
+      gameState: gameState,
+      settings: settings,
+    );
+    return Column(
+      children: [
+        Container(
+          margin: EdgeInsets.only(
+            top: scaledHeight / InitiativeWidget._kMarginTopDivisor,
+            left: InitiativeWidget._kMarginLeft * scale,
+          ),
+          child: Image(
+            height: scaledHeight * InitiativeWidget._kInitImageHeightRatio,
+            image: const AssetImage("assets/images/init.png"),
+          ),
         ),
-      ),
-      ValueListenableBuilder<int>(
+        ValueListenableBuilder<int>(
           valueListenable: vm.initiative,
           builder: (context, value, child) {
             final initTextStyle = TextStyle(
-                fontFamily: vm.fontFamily,
-                color: Colors.white,
-                fontSize: kFontSizeHeading * scale,
-                shadows: [shadow]);
+              fontFamily: vm.fontFamily,
+              color: Colors.white,
+              fontSize: kFontSizeHeading * scale,
+              shadows: [shadow],
+            );
             final initiative = vm.initiative.value;
             final roundState = vm.roundState;
             final secret = vm.isSecret;
@@ -76,23 +85,30 @@ class InitiativeWidget extends StatelessWidget {
             }
             if (vm.isChooseInitiative && vm.isAlive) {
               return Container(
-                margin:
-                    EdgeInsets.only(left: InitiativeWidget._kTextFieldMarginLeft * scale, top: scaledHeight * InitiativeWidget._kTextFieldTopRatio),
+                margin: EdgeInsets.only(
+                  left: InitiativeWidget._kTextFieldMarginLeft * scale,
+                  top: scaledHeight * InitiativeWidget._kTextFieldTopRatio,
+                ),
                 height: scaledHeight * InitiativeWidget._kTextFieldHeightRatio,
                 width: InitiativeWidget._kTextFieldWidth * scale,
                 padding: EdgeInsets.zero,
                 alignment: Alignment.topCenter,
-                child: TextField(
+                child: Semantics(
+                  textField: true,
+                  label: 'Initiative',
+                  value: secret ? 'Hidden' : initiative.toString(),
+                  child: TextField(
                     focusNode: focusNode,
                     onTap: () {
                       initTextFieldController.clear();
                       if (vm.softNumpadInput) {
                         openDialog(
-                            context,
-                            NumpadMenu(
-                              controller: initTextFieldController,
-                              maxLength: InitiativeWidget._kInitMaxLength,
-                            ));
+                          context,
+                          NumpadMenu(
+                            controller: initTextFieldController,
+                            maxLength: InitiativeWidget._kInitMaxLength,
+                          ),
+                        );
                       }
                     },
                     onChanged: (String str) {
@@ -110,17 +126,23 @@ class InitiativeWidget extends StatelessWidget {
                       contentPadding: EdgeInsets.zero,
                       enabledBorder: UnderlineInputBorder(
                         borderRadius: BorderRadius.zero,
-                        borderSide:
-                            BorderSide(width: 0, color: Colors.transparent),
+                        borderSide: BorderSide(
+                          width: 0,
+                          color: Colors.transparent,
+                        ),
                       ),
                       focusedBorder: UnderlineInputBorder(
                         borderRadius: BorderRadius.zero,
-                        borderSide:
-                            BorderSide(width: 0, color: Colors.transparent),
+                        borderSide: BorderSide(
+                          width: 0,
+                          color: Colors.transparent,
+                        ),
                       ),
                     ),
                     controller: initTextFieldController,
-                    keyboardType: vm.keyboardInputType),
+                    keyboardType: vm.keyboardInputType,
+                  ),
+                ),
               );
             } else {
               if (isCharacter) {
@@ -130,10 +152,15 @@ class InitiativeWidget extends StatelessWidget {
               // position on iOS/Impeller when the widget is inside a
               // RepaintBoundary (each list item has one), so we replicate the
               // shadow with an offset dark text layer instead.
-              return Container(
+              return Semantics(
+                label: 'Initiative',
+                value: vm.initiativeDisplayText(initiative),
+                child: Container(
                   height: InitiativeWidget._kDisplayHeight * scale,
                   width: InitiativeWidget._kTextFieldWidth * scale,
-                  margin: EdgeInsets.only(left: InitiativeWidget._kMarginLeft * scale),
+                  margin: EdgeInsets.only(
+                    left: InitiativeWidget._kMarginLeft * scale,
+                  ),
                   alignment: Alignment.center,
                   child: Stack(
                     children: [
@@ -153,9 +180,13 @@ class InitiativeWidget extends StatelessWidget {
                         style: initTextStyle.copyWith(shadows: const []),
                       ),
                     ],
-                  ));
+                  ),
+                ),
+              );
             }
-          }),
-    ]);
+          },
+        ),
+      ],
+    );
   }
 }
