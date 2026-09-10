@@ -346,27 +346,6 @@ class _GameListState extends State<GameList> {
     return widgetPositions.length;
   }
 
-  /// A linked note is glued directly beneath its target row, so the two must
-  /// never land in different columns. The wrap breaks the list into columns
-  /// after [breakIndex] items; if that boundary falls on a linked note — whose
-  /// target would then sit at the bottom of the previous column — nudge the
-  /// break down past it (and any sibling notes on the same target) so the note
-  /// stays with its target. Only widening the first column is safe here: it
-  /// keeps capacity for two columns intact, whereas shrinking it could force a
-  /// third. If no clean break remains before the list end, keep the original
-  /// split rather than collapse to a single column.
-  int _keepLinkedNotesWithTarget(int breakIndex) {
-    final vm = widget.vm;
-    final int length = vm.currentListLength;
-    int index = breakIndex;
-    while (index > 0 && index < length && _isLinkedNote(vm.itemAt(index))) {
-      index++;
-    }
-    return index < length ? index : breakIndex;
-  }
-
-  bool _isLinkedNote(ListItemData item) => item is NoteRow && item.isLinked;
-
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -386,7 +365,14 @@ class _GameListState extends State<GameList> {
       final itemsColumn2 = itemHeights.length - itemsPerColumn;
       itemsPerColumn = max(itemsPerColumn, itemsColumn2);
     }
-    itemsPerColumn = _keepLinkedNotesWithTarget(itemsPerColumn);
+    itemsPerColumn = ColumnPlan.forItems(
+      List<ListItemData>.generate(
+        widget.vm.currentListLength,
+        widget.vm.itemAt,
+      ),
+      columnCount: layout.columnCount,
+      preferredItemsPerColumn: itemsPerColumn,
+    ).itemsPerColumn;
     double paddingBottom = _kHalfHeightFactor * screenSize.height;
 
     return ReorderableWrap(

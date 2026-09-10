@@ -12,6 +12,70 @@ import 'package:frosthaven_assistant/services/service_locator.dart';
 import '../MonsterBox/monster_box.dart';
 import 'main_list_item_view_model.dart';
 
+/// A fixed-capacity column plan whose boundaries never split a target row from
+/// its immediately following linked notes. `ReorderableWrap` accepts one
+/// capacity for every column, so this intentionally picks the smallest safe
+/// capacity rather than pretending it supports independent breakpoints.
+class ColumnPlan {
+  const ColumnPlan._(this.itemsPerColumn);
+
+  final int itemsPerColumn;
+
+  factory ColumnPlan.forItems(
+    List<ListItemData> items, {
+    required int columnCount,
+    int? preferredItemsPerColumn,
+  }) {
+    if (items.isEmpty) return const ColumnPlan._(1);
+    var capacity =
+        preferredItemsPerColumn ??
+        (items.length / columnCount.clamp(1, items.length)).ceil();
+    capacity = capacity.clamp(1, items.length).toInt();
+    final groups = _groups(items);
+    while (_splitsGroup(groups, capacity) && capacity < items.length) {
+      capacity++;
+    }
+    return ColumnPlan._(capacity);
+  }
+
+  static List<_ColumnGroup> _groups(List<ListItemData> items) {
+    final groups = <_ColumnGroup>[];
+    for (var index = 0; index < items.length; index++) {
+      final item = items[index];
+      if (item is NoteRow && item.isLinked && groups.isNotEmpty) {
+        groups.last = groups.last.extendTo(index + 1);
+      } else {
+        groups.add(_ColumnGroup(index, index + 1));
+      }
+    }
+    return groups;
+  }
+
+  static bool _splitsGroup(List<_ColumnGroup> groups, int capacity) {
+    for (
+      var boundary = capacity;
+      boundary < groups.last.end;
+      boundary += capacity
+    ) {
+      if (groups.any((group) => group.contains(boundary))) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+
+class _ColumnGroup {
+  const _ColumnGroup(this.start, this.end);
+
+  final int start;
+  final int end;
+
+  _ColumnGroup extendTo(int newEnd) => _ColumnGroup(start, newEnd);
+
+  bool contains(int index) => start < index && index < end;
+}
+
 class MainListViewModel {
   static const double _kCharacterHeight = 60.0;
   static const double _kMonsterHeaderHeight = 96.0;
@@ -124,8 +188,11 @@ class MainListViewModel {
   bool _itemsFitInColumns(MainListLayout layout, double usableHeight) {
     if (_gameState.currentList.isEmpty) return true;
 
-    final itemsPerColumn = (_gameState.currentList.length / layout.columnCount)
-        .ceil();
+    final plan = ColumnPlan.forItems(
+      _gameState.currentList.toList(),
+      columnCount: layout.columnCount,
+    );
+    final itemsPerColumn = plan.itemsPerColumn;
     for (
       var start = 0;
       start < _gameState.currentList.length;
