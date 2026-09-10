@@ -7,15 +7,19 @@ class UnlockSpecialCommand extends Command {
   bool _unlock = true;
 
   UnlockSpecialCommand(this._id, {required GameState gameState})
-      : _gameState = gameState;
+    : _gameState = gameState;
 
   @override
   void execute() {
     if (_gameState.unlockedClasses.contains(_id)) {
       _unlock = false;
-      ScenarioMethods.clearUnlockedClass(stateAccess, _id);
+      ScenarioMethods.clearUnlockedClass(
+        stateAccess,
+        _id,
+        gameState: _gameState,
+      );
     } else {
-      ScenarioMethods.unlockClass(stateAccess, _id);
+      ScenarioMethods.unlockClass(stateAccess, _id, gameState: _gameState);
     }
   }
 
