@@ -12,7 +12,7 @@ The user authorized the full [2026-09-05 improvement plan](codebase-improvement-
 | F04 | Complete (2026-09-08) | Standalone server retains a bounded, byte-capped absolute-index history; evicted rollback receives an authoritative correction. Socket/health cleanup is idempotent and safe during broadcast. Server analysis passes; 14 server tests pass. |
 | F05 | Complete (2026-09-10) | The app no longer excludes its accessibility tree or overrides system text scale. Core Draw/Next round, scenario level, initiative, health, and element controls provide accessible labels, values, and actions. Phone shell passes 100/150/200% system text tests; analysis passes; full suite: 1,750 passed, 1 existing connection test skipped. |
 | F06 | Complete (2026-09-10) | A shared, group-aware `ColumnPlan` now keeps each target and its linked notes in the same `ReorderableWrap` column, and the automatic layout fit check uses the identical plan. Focused layout tests: 29 passed; analysis passes; full suite: 1,752 passed, 1 existing connection test skipped. |
-| F07 | In progress | The first concrete injection defect is fixed: `UnlockSpecialCommand` now mutates its injected game state, with a two-state isolation regression test. The scenario/round pilot remains. |
+| F07 | Complete (2026-09-10) | Scenario, round, draw eligibility, standee setup, and toast paths now use supplied state/data/settings when provided; legacy callers retain their compatibility fallbacks. Two-state regressions prove unlock and scenario commands only mutate their injected game. Analysis passes; focused suite passes; full suite: 1,753 passed, 1 existing connection test skipped. |
 | F08–F15 | Pending | Follow the dependencies and acceptance criteria in the plan. |
 
 ## Decisions pending

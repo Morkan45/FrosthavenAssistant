@@ -20,8 +20,13 @@ class MonsterMethods {
   }
 
   static Monster? createMonster(
-      _StateModifier _, String name, int? level, bool isAlly,
-      {GameState? gameState, GameData? gameData}) {
+    _StateModifier _,
+    String name,
+    int? level,
+    bool isAlly, {
+    GameState? gameState,
+    GameData? gameData,
+  }) {
     final gd = gameData ?? getIt<GameData>();
     Map<String, MonsterModel> monsters = {};
     final modelData = gd.modelData.value;
@@ -32,8 +37,11 @@ class MonsterMethods {
     return Monster(name, level, isAlly);
   }
 
-  static void removeMonsters(_StateModifier _, List<Monster> items,
-      {GameState? gameState}) {
+  static void removeMonsters(
+    _StateModifier _,
+    List<Monster> items, {
+    GameState? gameState,
+  }) {
     List<String> deckIds = [];
     List<ListItemData> newList = [];
     final gs = gameState ?? getIt<GameState>();
@@ -80,13 +88,14 @@ class MonsterMethods {
   }
 
   static void executeAddStandee(
-      _StateModifier s,
-      final int nr,
-      final SummonData? summon,
-      final MonsterType type,
-      final String ownerId,
-      final bool addAsSummon,
-      {GameState? gameState}) {
+    _StateModifier s,
+    final int nr,
+    final SummonData? summon,
+    final MonsterType type,
+    final String ownerId,
+    final bool addAsSummon, {
+    GameState? gameState,
+  }) {
     final gs = gameState ?? getIt<GameState>();
     MonsterInstance instance;
     Monster? monster;
@@ -102,15 +111,16 @@ class MonsterMethods {
       instance = MonsterInstance(nr, type, addAsSummon, monster);
     } else {
       instance = MonsterInstance.summon(
-          summon.standeeNr,
-          type,
-          summon.name,
-          summon.health,
-          summon.move,
-          summon.attack,
-          summon.range,
-          summon.gfx,
-          gs.round.value);
+        summon.standeeNr,
+        type,
+        summon.name,
+        summon.health,
+        summon.move,
+        summon.attack,
+        summon.range,
+        summon.gfx,
+        gs.round.value,
+      );
     }
 
     List<MonsterInstance> monsterList = [];
@@ -138,15 +148,16 @@ class MonsterMethods {
             if (item.gfx == instance.gfx) {
               //can not have same gfx and nr
               instance = MonsterInstance.summon(
-                  instance.standeeNr + 1,
-                  type,
-                  summon.name,
-                  summon.health,
-                  summon.move,
-                  summon.attack,
-                  summon.range,
-                  summon.gfx,
-                  gs.round.value);
+                instance.standeeNr + 1,
+                type,
+                summon.name,
+                summon.health,
+                summon.move,
+                summon.attack,
+                summon.range,
+                summon.gfx,
+                gs.round.value,
+              );
               ok = false;
             }
           }
@@ -169,21 +180,26 @@ class MonsterMethods {
       } else if (roundState == RoundState.playTurns) {
         DeckMethods.drawAbilityCardFromInactiveDeck(s);
         RoundMethods.sortItemToPlace(
-            s,
-            monster.id,
-            GameMethods.getInitiative(
-                monster)); //need to only sort this one item to place
+          s,
+          monster.id,
+          GameMethods.getInitiative(monster),
+        ); //need to only sort this one item to place
       }
     }
   }
 
   static void addStandee(
-      int? nr, Monster data, MonsterType type, bool addAsSummon,
-      {GameState? gameState}) {
+    int? nr,
+    Monster data,
+    MonsterType type,
+    bool addAsSummon, {
+    GameState? gameState,
+  }) {
     final gs = gameState ?? getIt<GameState>();
     if (nr != null) {
-      gs.action(AddStandeeCommand(nr, null, data.id, type, addAsSummon,
-          gameState: gs));
+      gs.action(
+        AddStandeeCommand(nr, null, data.id, type, addAsSummon, gameState: gs),
+      );
     } else {
       //add first un added nr
       for (int i = 1; i <= data.type.count; i++) {
@@ -195,8 +211,16 @@ class MonsterMethods {
           }
         }
         if (!added) {
-          gs.action(AddStandeeCommand(i, null, data.id, type, addAsSummon,
-              gameState: gs));
+          gs.action(
+            AddStandeeCommand(
+              i,
+              null,
+              data.id,
+              type,
+              addAsSummon,
+              gameState: gs,
+            ),
+          );
           return;
         }
       }
@@ -204,8 +228,11 @@ class MonsterMethods {
   }
 
   static void addMonster(
-      _StateModifier s, String monster, List<SpecialRule> specialRules,
-      {GameState? gameState}) {
+    _StateModifier s,
+    String monster,
+    List<SpecialRule> specialRules, {
+    GameState? gameState,
+  }) {
     int levelAdjust = 0;
     Set<String> alliedMonsters = {};
     for (final rule in specialRules) {
@@ -236,25 +263,40 @@ class MonsterMethods {
         isAlly = true;
       }
 
-      final munster = createMonster(s, monster,
-          (gs.level.value + levelAdjust).clamp(_kMinLevel, _kMaxLevel), isAlly);
+      final munster = createMonster(
+        s,
+        monster,
+        (gs.level.value + levelAdjust).clamp(_kMinLevel, _kMaxLevel),
+        isAlly,
+      );
       if (munster != null) {
         gs._currentList.add(munster);
       }
     }
   }
 
-  static String autoAddStandees(_StateModifier stateModifier,
-      List<RoomMonsterData> roomMonsterData, String initMessage,
-      {GameState? gameState, Settings? settings}) {
+  static String autoAddStandees(
+    _StateModifier stateModifier,
+    List<RoomMonsterData> roomMonsterData,
+    String initMessage, {
+    GameState? gameState,
+    Settings? settings,
+  }) {
     final gs = gameState ?? getIt<GameState>();
     //handle room data
-    int characterIndex = GameMethods.getCurrentCharacterAmount()
-            .clamp(_kMinCharacters, _kMaxCharacters) -
+    int characterIndex =
+        GameMethods.getCurrentCharacterAmount(
+          gameState: gs,
+        ).clamp(_kMinCharacters, _kMaxCharacters) -
         _kCharIndexOffset;
     for (int i = 0; i < roomMonsterData.length; i++) {
       final roomMonsters = roomMonsterData[i];
-      addMonster(stateModifier, roomMonsters.name, gs._scenarioSpecialRules);
+      addMonster(
+        stateModifier,
+        roomMonsters.name,
+        gs._scenarioSpecialRules,
+        gameState: gs,
+      );
     }
     bool addSorted = gs.currentCampaign.value == "Buttons and Bugs";
     final s = settings ?? getIt<Settings>();
@@ -267,8 +309,11 @@ class MonsterMethods {
           List<int> normals = [];
           List<int> elites = [];
           final roomMonsters = roomMonsterData[i];
-          Monster data = gs.currentList.firstWhereOrNull(
-              (element) => element.id == roomMonsters.name) as Monster;
+          Monster data =
+              gs.currentList.firstWhereOrNull(
+                    (element) => element.id == roomMonsters.name,
+                  )
+                  as Monster;
 
           int eliteAmount = roomMonsters.elite[characterIndex];
           int normalAmount = roomMonsters.normal[characterIndex];
@@ -282,8 +327,14 @@ class MonsterMethods {
             int randomNr = GameMethods.getRandomStandee(data);
             if (randomNr != 0) {
               elites.add(randomNr);
-              executeAddStandee(stateModifier, randomNr, null,
-                  MonsterType.elite, data.id, false);
+              executeAddStandee(
+                stateModifier,
+                randomNr,
+                null,
+                MonsterType.elite,
+                data.id,
+                false,
+              );
             }
           }
 
@@ -295,12 +346,13 @@ class MonsterMethods {
             if (randomNr != 0) {
               normals.add(randomNr);
               executeAddStandee(
-                  stateModifier,
-                  randomNr,
-                  null,
-                  isBoss ? MonsterType.boss : MonsterType.normal,
-                  data.id,
-                  false);
+                stateModifier,
+                randomNr,
+                null,
+                isBoss ? MonsterType.boss : MonsterType.normal,
+                data.id,
+                false,
+              );
             }
           }
 
@@ -318,7 +370,9 @@ class MonsterMethods {
                 initMessage += "${elites[i]}, ";
                 if (i == elites.length - 1) {
                   initMessage = initMessage.substring(
-                      0, initMessage.length - _kTrailingCommaLength);
+                    0,
+                    initMessage.length - _kTrailingCommaLength,
+                  );
                 }
               }
             }
@@ -333,7 +387,9 @@ class MonsterMethods {
                 initMessage += "${normals[i]}, ";
                 if (i == normals.length - 1) {
                   initMessage = initMessage.substring(
-                      0, initMessage.length - _kTrailingCommaLength);
+                    0,
+                    initMessage.length - _kTrailingCommaLength,
+                  );
                 }
               }
             }

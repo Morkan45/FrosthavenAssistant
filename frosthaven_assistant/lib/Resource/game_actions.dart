@@ -7,7 +7,8 @@ import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
 
-class DrawOrNextRoundResult { // ignore: prefer-match-file-name, file contains multiple game action types
+class DrawOrNextRoundResult {
+  // ignore: prefer-match-file-name, file contains multiple game action types
   const DrawOrNextRoundResult._({this.blockedMessage});
 
   final String? blockedMessage;
@@ -21,10 +22,13 @@ class DrawOrNextRoundResult { // ignore: prefer-match-file-name, file contains m
   }
 }
 
-DrawOrNextRoundResult runDrawOrNextRoundAction(GameState gameState,
-    {GameData? gameData, Settings? settings}) {
+DrawOrNextRoundResult runDrawOrNextRoundAction(
+  GameState gameState, {
+  GameData? gameData,
+  Settings? settings,
+}) {
   if (gameState.roundState.value == RoundState.chooseInitiative) {
-    if (GameMethods.canDraw()) {
+    if (GameMethods.canDraw(gameState: gameState, settings: settings)) {
       gameState.action(DrawCommand(gameState: gameState));
       return DrawOrNextRoundResult.success;
     }
@@ -40,9 +44,12 @@ DrawOrNextRoundResult runDrawOrNextRoundAction(GameState gameState,
     );
   }
 
-  gameState.action(NextRoundCommand(
+  gameState.action(
+    NextRoundCommand(
       gameState: gameState,
       gameData: gameData ?? getIt<GameData>(),
-      settings: settings ?? getIt<Settings>()));
+      settings: settings ?? getIt<Settings>(),
+    ),
+  );
   return DrawOrNextRoundResult.success;
 }

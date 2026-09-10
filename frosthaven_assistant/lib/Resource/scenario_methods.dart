@@ -8,8 +8,11 @@ class ScenarioMethods {
   static const int _kTimerAlways = -1;
   static const int _kRandomSectionCount = 3;
 
-  static void setCampaign(_StateModifier _, String campaign,
-      {GameState? gameState}) {
+  static void setCampaign(
+    _StateModifier _,
+    String campaign, {
+    GameState? gameState,
+  }) {
     final gs = gameState ?? getIt<GameState>();
     gs._currentCampaign.value = campaign;
   }
@@ -19,8 +22,11 @@ class ScenarioMethods {
     gs._solo.value = solo;
   }
 
-  static void unlockClass(_StateModifier _, String name,
-      {GameState? gameState}) {
+  static void unlockClass(
+    _StateModifier _,
+    String name, {
+    GameState? gameState,
+  }) {
     final gs = gameState ?? getIt<GameState>();
     gs._unlockedClasses.add(name);
     gs._unlockedClassesVersion.value++;
@@ -32,15 +38,22 @@ class ScenarioMethods {
     gs._unlockedClassesVersion.value++;
   }
 
-  static void clearUnlockedClass(_StateModifier _, String id,
-      {GameState? gameState}) {
+  static void clearUnlockedClass(
+    _StateModifier _,
+    String id, {
+    GameState? gameState,
+  }) {
     final gs = gameState ?? getIt<GameState>();
     gs._unlockedClasses.remove(id);
     gs._unlockedClassesVersion.value++;
   }
 
-  static void setLevel(_StateModifier s, int level, String? monsterId,
-      {GameState? gameState}) {
+  static void setLevel(
+    _StateModifier s,
+    int level,
+    String? monsterId, {
+    GameState? gameState,
+  }) {
     assert(level >= _kMinLevel && level <= _kMaxLevel);
     final gs = gameState ?? getIt<GameState>();
     if (monsterId == null) {
@@ -50,7 +63,7 @@ class ScenarioMethods {
           item.setLevel(s, level);
         }
       }
-      RoundMethods.updateForSpecialRules(s);
+      RoundMethods.updateForSpecialRules(s, gameState: gs);
     } else {
       Monster? monster;
       for (final item in gs.currentList) {
@@ -65,27 +78,32 @@ class ScenarioMethods {
   static void applyDifficulty(_StateModifier s, {GameState? gameState}) {
     final gs = gameState ?? getIt<GameState>();
     if (gs.autoScenarioLevel.value) {
-      int newLevel = GameMethods.getRecommendedLevel() + gs.difficulty.value;
+      int newLevel =
+          GameMethods.getRecommendedLevel(gameState: gs) + gs.difficulty.value;
       if (newLevel > _kMaxLevel) {
         newLevel = _kMaxLevel;
       }
-      setLevel(s, newLevel, null);
+      setLevel(s, newLevel, null, gameState: gs);
     }
   }
 
   static void _resetForNewScenario(
-      _StateModifier s, String scenario, GameState gs, GameData gd) {
-    RoundMethods.resetRound(s, 1, true);
+    _StateModifier s,
+    String scenario,
+    GameState gs,
+    GameData gd,
+  ) {
+    RoundMethods.resetRound(s, 1, true, gameState: gs);
     gs._showAllyDeck.value = false;
     gs._currentAbilityDecks.clear();
     gs._scenarioSpecialRules.clear();
-    applyDifficulty(s);
+    applyDifficulty(s, gameState: gs);
 
     gs.modifierDeck._initDeck();
     gs.modifierDeckAllies._initDeck();
     gs._sanctuaryDeck._initDeck();
 
-    RoundMethods.setRoundState(s, RoundState.chooseInitiative);
+    RoundMethods.setRoundState(s, RoundState.chooseInitiative, gameState: gs);
     gs._scenario.value = scenario;
     gs._scenarioSectionsAdded = [];
 
@@ -102,7 +120,7 @@ class ScenarioMethods {
 
     _initLootDeck(scenario, gs, gd);
 
-    RoundMethods.clearTurnState(s, true);
+    RoundMethods.clearTurnState(s, true, gameState: gs);
     gs._toastMessage.value = "";
   }
 
@@ -116,8 +134,19 @@ class ScenarioMethods {
           : gs._lootDeck = LootDeck.from(gs.lootDeck);
     } else {
       if (gs.currentCampaign.value == "Frosthaven") {
-        LootDeckModel? lootDeckModel =
-            const LootDeckModel(2, 2, 2, 12, 1, 1, 1, 1, 1, 1, 0);
+        LootDeckModel? lootDeckModel = const LootDeckModel(
+          2,
+          2,
+          2,
+          12,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0,
+        );
         gs._lootDeck = LootDeck(lootDeckModel, gs.lootDeck);
       } else {
         gs._lootDeck = LootDeck.from(gs.lootDeck);
@@ -131,8 +160,14 @@ class ScenarioMethods {
     List<RoomMonsterData> roomMonsterData,
     List<String> subSections,
     String initMessage,
-  }) _loadData(bool section, String scenario, GameState gs, GameData gd,
-      Settings? settings) {
+  })
+  _loadData(
+    bool section,
+    String scenario,
+    GameState gs,
+    GameData gd,
+    Settings? settings,
+  ) {
     List<String> monsters = [];
     List<SpecialRule> specialRules = [];
     List<RoomMonsterData> roomMonsterData = [];
@@ -140,16 +175,20 @@ class ScenarioMethods {
     String initMessage = "";
 
     if (section) {
-      final sectionData = gd.modelData.value[gs.currentCampaign.value]
-          ?.scenarios[gs.scenario.value]?.sections
+      final sectionData = gd
+          .modelData
+          .value[gs.currentCampaign.value]
+          ?.scenarios[gs.scenario.value]
+          ?.sections
           .firstWhereOrNull((element) => element.name == scenario);
       if (sectionData != null) {
         monsters = sectionData.monsters;
         specialRules = sectionData.specialRules.toList();
         initMessage = sectionData.initMessage;
         final monsterStandees = sectionData.monsterStandees;
-        roomMonsterData =
-            monsterStandees != null ? monsterStandees.toList() : [];
+        roomMonsterData = monsterStandees != null
+            ? monsterStandees.toList()
+            : [];
       }
     } else {
       if ((settings ?? getIt<Settings>()).showBattleGoalReminder.value &&
@@ -164,11 +203,12 @@ class ScenarioMethods {
           specialRules = scenarioData.specialRules.toList();
           initMessage +=
               initMessage.isNotEmpty && scenarioData.initMessage.isNotEmpty
-                  ? "\n\n${scenarioData.initMessage}"
-                  : scenarioData.initMessage;
+              ? "\n\n${scenarioData.initMessage}"
+              : scenarioData.initMessage;
           final monsterStandees = scenarioData.monsterStandees;
-          roomMonsterData =
-              monsterStandees != null ? monsterStandees.toList() : [];
+          roomMonsterData = monsterStandees != null
+              ? monsterStandees.toList()
+              : [];
           for (final item in scenarioData.sections) {
             subSections.add(item.name);
           }
@@ -188,8 +228,9 @@ class ScenarioMethods {
   // Returns false if setScenario should abort early (banner spear solo edge case).
   static bool _applyBannerSpearHack(String scenario, GameState gs) {
     if (!scenario.contains("Scouting Ambush")) return true;
-    final deck = gs.currentAbilityDecks
-        .firstWhereOrNull((element) => element.name.contains("Scout"));
+    final deck = gs.currentAbilityDecks.firstWhereOrNull(
+      (element) => element.name.contains("Scout"),
+    );
     if (deck == null) return false;
     final drawPileList = deck._drawPile.getList();
     for (int i = 0; i < drawPileList.length; i++) {
@@ -202,12 +243,13 @@ class ScenarioMethods {
   }
 
   static String _processSpecialRules(
-      _StateModifier s,
-      List<SpecialRule> specialRules,
-      bool section,
-      GameState gs,
-      String initMessage,
-      Settings? settings) {
+    _StateModifier s,
+    List<SpecialRule> specialRules,
+    bool section,
+    GameState gs,
+    String initMessage,
+    Settings? settings,
+  ) {
     for (final item in specialRules) {
       if (item.type == "AllyDeck") {
         gs._showAllyDeck.value = true;
@@ -216,9 +258,15 @@ class ScenarioMethods {
         if (item.condition == "" ||
             StatCalculator.evaluateCondition(item.condition as Object)) {
           Character? objective = CharacterMethods.createCharacter(
-              s, "Objective", null, item.name, gs.level.value + 1);
-          final health =
-              StatCalculator.calculateFormula(item.health.toString());
+            s,
+            "Objective",
+            null,
+            item.name,
+            gs.level.value + 1,
+          );
+          final health = StatCalculator.calculateFormula(
+            item.health.toString(),
+          );
           if (health != null) {
             objective?.characterState._maxHealth.value = health;
           }
@@ -242,10 +290,16 @@ class ScenarioMethods {
         if (item.condition == "" ||
             StatCalculator.evaluateCondition(item.condition as Object)) {
           final objective = CharacterMethods.createCharacter(
-              s, "Escort", null, item.name, gs.level.value + 1);
+            s,
+            "Escort",
+            null,
+            item.name,
+            gs.level.value + 1,
+          );
           if (objective != null) {
-            final maxHealth =
-                StatCalculator.calculateFormula(item.health.toString());
+            final maxHealth = StatCalculator.calculateFormula(
+              item.health.toString(),
+            );
             if (maxHealth != null) {
               objective.characterState._maxHealth.value = maxHealth;
             }
@@ -269,16 +323,17 @@ class ScenarioMethods {
       if (!section && item.type == "Timer" && item.startOfRound) {
         for (int round in item.list.cast<int>()) {
           if (round == _kRound1 || round == _kTimerAlways) {
-            initMessage +=
-                initMessage.isNotEmpty ? "\n\n${item.note}" : item.note;
+            initMessage += initMessage.isNotEmpty
+                ? "\n\n${item.note}"
+                : item.note;
           }
         }
       }
       if (item.type == "ResetRound") {
-        RoundMethods.resetRound(s, 1, false);
+        RoundMethods.resetRound(s, 1, false, gameState: gs);
       }
       if (item.type == "Unlock") {
-        unlockClass(s, item.name);
+        unlockClass(s, item.name, gameState: gs);
         initMessage += item.note;
       }
     }
@@ -305,13 +360,15 @@ class ScenarioMethods {
         if (scenarioModel == null) continue;
 
         final spawnSection = scenarioModel.sections.firstWhereOrNull(
-            (element) => element.name.substring(1) == rule.name);
+          (element) => element.name.substring(1) == rule.name,
+        );
         final spawnStandees = spawnSection?.monsterStandees;
         if (spawnStandees == null) continue;
 
         for (final spawnItem in spawnStandees) {
-          final existing = roomMonsterData
-              .firstWhereOrNull((element) => element.name == spawnItem.name);
+          final existing = roomMonsterData.firstWhereOrNull(
+            (element) => element.name == spawnItem.name,
+          );
           if (existing != null) {
             final merged = RoomMonsterData(
               existing.name,
@@ -342,22 +399,25 @@ class ScenarioMethods {
   }
 
   static void _updateScenarioRules(
-      _StateModifier s,
-      bool section,
-      String scenario,
-      List<SpecialRule> specialRules,
-      List<String> subSections,
-      GameState gs) {
+    _StateModifier s,
+    bool section,
+    String scenario,
+    List<SpecialRule> specialRules,
+    List<String> subSections,
+    GameState gs,
+  ) {
     if (!section) {
       gs._scenarioSpecialRules = specialRules;
-      ElementMethods.resetElements(s);
-      RoundMethods.sortCharactersFirst(s);
+      ElementMethods.resetElements(s, gameState: gs);
+      RoundMethods.sortCharactersFirst(s, gameState: gs);
     } else {
-      if (specialRules
-              .firstWhereOrNull((element) => element.type == "ResetRound") !=
+      if (specialRules.firstWhereOrNull(
+            (element) => element.type == "ResetRound",
+          ) !=
           null) {
-        gs._scenarioSpecialRules
-            .removeWhere((oldItem) => oldItem.type == "Timer");
+        gs._scenarioSpecialRules.removeWhere(
+          (oldItem) => oldItem.type == "Timer",
+        );
       }
       for (final item in specialRules) {
         if (item.type == "Timer") {
@@ -379,19 +439,35 @@ class ScenarioMethods {
     }
     gs._scenarioSectionsVersion.value++;
 
-    final randomRule = specialRules
-        .firstWhereOrNull((element) => element.type == "RandomSections");
+    final randomRule = specialRules.firstWhereOrNull(
+      (element) => element.type == "RandomSections",
+    );
     if (randomRule != null) {
       subSections.shuffle();
-      final newRule = SpecialRule("RandomSections", "", 0, 0, 0, "",
-          subSections.sublist(0, _kRandomSectionCount), false, "");
+      final newRule = SpecialRule(
+        "RandomSections",
+        "",
+        0,
+        0,
+        0,
+        "",
+        subSections.sublist(0, _kRandomSectionCount),
+        false,
+        "",
+      );
       specialRules.remove(randomRule);
       specialRules.add(newRule);
     }
   }
 
-  static void setScenario(_StateModifier s, String scenario, bool section,
-      {GameState? gameState, GameData? gameData, Settings? settings}) {
+  static void setScenario(
+    _StateModifier s,
+    String scenario,
+    bool section, {
+    GameState? gameState,
+    GameData? gameData,
+    Settings? settings,
+  }) {
     final gs = gameState ?? getIt<GameState>();
     final gd = gameData ?? getIt<GameData>();
 
@@ -402,25 +478,48 @@ class ScenarioMethods {
     final data = _loadData(section, scenario, gs, gd, settings);
 
     for (final monster in data.monsters) {
-      MonsterMethods.addMonster(s, monster, data.specialRules);
+      MonsterMethods.addMonster(s, monster, data.specialRules, gameState: gs);
     }
     if (!section) {
-      DeckMethods.shuffleDecks(s);
+      DeckMethods.shuffleDecks(s, gameState: gs);
     }
 
     if (!_applyBannerSpearHack(scenario, gs)) return;
 
     final initMessage = _processSpecialRules(
-        s, data.specialRules, section, gs, data.initMessage, settings);
+      s,
+      data.specialRules,
+      section,
+      gs,
+      data.initMessage,
+      settings,
+    );
 
     final roomMonsterData = _applyRound1Spawns(
-        data.roomMonsterData, data.specialRules, scenario, gs, gd, settings);
+      data.roomMonsterData,
+      data.specialRules,
+      scenario,
+      gs,
+      gd,
+      settings,
+    );
 
-    final finalInitMessage =
-        MonsterMethods.autoAddStandees(s, roomMonsterData, initMessage);
+    final finalInitMessage = MonsterMethods.autoAddStandees(
+      s,
+      roomMonsterData,
+      initMessage,
+      gameState: gs,
+      settings: settings,
+    );
 
     _updateScenarioRules(
-        s, section, scenario, data.specialRules, data.subSections, gs);
+      s,
+      section,
+      scenario,
+      data.specialRules,
+      data.subSections,
+      gs,
+    );
 
     gs._notifyCurrentList();
     if (!section) {

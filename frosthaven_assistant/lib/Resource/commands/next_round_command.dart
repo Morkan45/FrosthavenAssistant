@@ -62,7 +62,7 @@ class NextRoundCommand extends Command {
     RoundMethods.clearTurnState(stateAccess, false, gameState: _gameState);
     RoundMethods.sortCharactersFirst(stateAccess, gameState: _gameState);
 
-    GameUtilMethods.setToastMessage("");
+    GameUtilMethods.setToastMessage("", gameState: _gameState);
 
     for (final rule in _gameState.scenarioSpecialRules) {
       if (rule.type == "Timer" && !rule.startOfRound) {
@@ -70,7 +70,7 @@ class NextRoundCommand extends Command {
           //minus 1 means always
           if (round == _gameState.round.value || round == -1) {
             if (_settings.showReminders.value) {
-              GameUtilMethods.setToastMessage(rule.note);
+              GameUtilMethods.setToastMessage(rule.note, gameState: _gameState);
             }
 
             _handleTimedSpawns(rule);
@@ -87,10 +87,16 @@ class NextRoundCommand extends Command {
           final toastMessage = _gameState.toastMessage.value;
           if (round - 1 == _gameState.round.value || round == -1) {
             if (toastMessage.isNotEmpty) {
-              GameUtilMethods.setToastMessage("$toastMessage\n\n${rule.note}");
+              GameUtilMethods.setToastMessage(
+                "$toastMessage\n\n${rule.note}",
+                gameState: _gameState,
+              );
             } else {
               if (_settings.showReminders.value) {
-                GameUtilMethods.setToastMessage("$toastMessage${rule.note}");
+                GameUtilMethods.setToastMessage(
+                  "$toastMessage${rule.note}",
+                  gameState: _gameState,
+                );
               }
             }
             _handleTimedSpawns(rule);
@@ -149,6 +155,8 @@ class NextRoundCommand extends Command {
                 stateAccess,
                 monsterStandees,
                 rule.note,
+                gameState: _gameState,
+                settings: _settings,
               );
             }
           }
