@@ -18,7 +18,8 @@ The user authorized the full [2026-09-05 improvement plan](codebase-improvement-
 | F10 | Complete (2026-09-11) | All supported ARB files now match the English key/placeholder contract, with intentional English fallback for missing translations. Generated localizations were refreshed, the action log says “Action History,” and XP exposes accessible increment/decrement actions while retaining fast gestures. Analysis passes; focused suite passes; full suite: 1,757 passed, 1 existing connection test skipped. |
 | F11 | Complete (2026-09-11) | Recorded the Windows deterministic performance baseline for small/medium/stress state operations and 2560×1440 main-list rebuilds. Medium/stress rebuild p95 exceed a 16.7 ms discussion target, providing a reproducible threshold for future optimization experiments. Android profiling is skipped because no device is available. |
 | F12 | Complete (2026-09-11) | Documented the supported rule-text layout markers and added a packaged-JSON corpus validator with source diagnostics. Hardened malformed leading/trailing marker handling in the Frosthaven converter so widget construction does not index outside input. Analysis passes; converter suite: 74 passed; corpus validator passes; full suite: 1,760 passed, 1 existing connection test skipped. |
-| F13–F15 | Pending | Follow the dependencies and acceptance criteria in the plan. |
+| F13 | Complete (2026-09-11) | Commands that throw after mutation now restore the pre-transition snapshot and do not append history or send/save a transition. New saves include top-level `schemaVersion: 1`; legacy snapshots without it remain readable. Focused recovery/compatibility suite passes; full suite: 1,762 passed, 1 existing connection test skipped. |
+| F14–F15 | Pending | Follow the dependencies and acceptance criteria in the plan. |
 
 ## Decisions pending
 

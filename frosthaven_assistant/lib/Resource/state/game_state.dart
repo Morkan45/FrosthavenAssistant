@@ -63,6 +63,7 @@ enum ReceivedTransitionKind {
 }
 
 class GameState {
+  static const int saveSchemaVersion = 1;
   late final ActionHandler _actionHandler;
   late final LatestValueQueue<String> _persistenceQueue;
   bool _diskLoadFailed = false;
@@ -253,6 +254,7 @@ class GameState {
       }
     }
     return {
+      'schemaVersion': saveSchemaVersion,
       'level': _level.value,
       'solo': _solo.value,
       'autoScenarioLevel': _autoScenarioLevel.value,

@@ -236,7 +236,24 @@ class ActionHandler {
     bool isServer = _settings.server.value;
     bool isClient = _settings.client.value == ClientState.connected;
 
-    command.execute();
+    final before = GameSaveState()..save(_gameState);
+    try {
+      command.execute();
+    } catch (error, stackTrace) {
+      log(
+        'Command failed; restoring prior state: $error',
+        stackTrace: stackTrace,
+      );
+      if (!before.load(_gameState, rollbackOnFailure: false)) {
+        throw StateError(
+          'Command failed and the prior state could not be restored: $error',
+        );
+      }
+      lastEvent.value = const NoEvent();
+      updateAllUI();
+      transitionRevision.value++;
+      return;
+    }
     final description = command.describe();
     final event = command.event;
     final nextIndex = commandIndex.value + 1;

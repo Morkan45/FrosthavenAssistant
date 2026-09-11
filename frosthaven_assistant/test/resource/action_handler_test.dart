@@ -15,6 +15,21 @@ import 'package:frosthaven_assistant/services/service_locator.dart';
 import '../command/test_helpers.dart';
 import '../unit_helpers.dart';
 
+class _MutatingThrowCommand extends Command {
+  _MutatingThrowCommand(this.gameState);
+
+  final GameState gameState;
+
+  @override
+  void execute() {
+    SetLevelCommand(7, null).execute();
+    throw StateError('intentional transition failure');
+  }
+
+  @override
+  String describe() => 'fails';
+}
+
 void main() {
   setUpAll(() async {
     await setUpGame();
@@ -28,6 +43,18 @@ void main() {
   });
 
   group('ActionHandler', () {
+    test('failed command restores state without adding history', () {
+      final gs = getIt<GameState>();
+      gs.action(AddMonsterCommand('Zealot', 1, false, gameState: gs));
+      final stateBefore = gs.toString();
+      final indexBefore = gs.commandIndex.value;
+
+      gs.action(_MutatingThrowCommand(gs));
+
+      expect(gs.toString(), stateBefore);
+      expect(gs.commandIndex.value, indexBefore);
+    });
+
     group('getCurrent', () {
       test('getCurrent returns the last executed command', () {
         final gs = getIt<GameState>();

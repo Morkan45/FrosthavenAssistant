@@ -13,6 +13,15 @@ void main() {
 
   setUp(() => getIt<GameState>().clearList());
 
+  test('new saves include a schema version and legacy saves still load', () {
+    final gameState = getIt<GameState>();
+    final current = jsonDecode(gameState.toString()) as Map<String, dynamic>;
+    expect(current['schemaVersion'], GameState.saveSchemaVersion);
+
+    current.remove('schemaVersion');
+    expect(gameState.loadFromData(jsonEncode(current)), isTrue);
+  });
+
   test('malformed state rolls back all mutations', () {
     final gameState = getIt<GameState>();
     gameState.action(SetLevelCommand(3, null));
