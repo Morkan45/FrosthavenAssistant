@@ -5,6 +5,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Resource/line_builder/frosthaven_converter.dart';
 
 void main() {
+  group('FrosthavenConverter malformed input', () {
+    test('leading new-line marker does not throw', () {
+      expect(
+        () => FrosthavenConverter.convertLinesToFH(['[newLine]'], false),
+        returnsNormally,
+      );
+    });
+
+    test('trailing conditional marker does not read past the last line', () {
+      expect(
+        () => FrosthavenConverter.convertLinesToFH(['[r]'], false),
+        returnsNormally,
+      );
+    });
+  });
+
   // ── convertLinesToFH – keyword replacements ───────────────────────────────
 
   group('FrosthavenConverter.convertLinesToFH – keyword replacements', () {
@@ -14,15 +30,17 @@ void main() {
     });
 
     test('"damage" is replaced by "%damage%"', () {
-      final result =
-          FrosthavenConverter.convertLinesToFH(['Deal damage here'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'Deal damage here',
+      ], false);
       expect(result.first, contains('%damage%'));
     });
 
     test('"damaged" does not become "%%damage%%d"', () {
       // "damage" → "%damage%", then "%damage%d" → "damaged", net no change
-      final result =
-          FrosthavenConverter.convertLinesToFH(['damaged item'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'damaged item',
+      ], false);
       expect(result.first, 'damaged item');
     });
 
@@ -32,18 +50,24 @@ void main() {
     });
 
     test('"Affect" → "Target" → "%target%" pipeline', () {
-      final result =
-          FrosthavenConverter.convertLinesToFH(['Affect all', 'Affect'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'Affect all',
+        'Affect',
+      ], false);
       for (final line in result) {
-        expect(line.contains('Affect'), isFalse,
-            reason: '"Affect" should have been converted');
+        expect(
+          line.contains('Affect'),
+          isFalse,
+          reason: '"Affect" should have been converted',
+        );
       }
       expect(result.first, contains('%target%'));
     });
 
     test('"% " (percent-space) is collapsed to "%"', () {
-      final result =
-          FrosthavenConverter.convertLinesToFH(['50% health'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        '50% health',
+      ], false);
       expect(result.first, '50%health');
     });
 
@@ -81,8 +105,10 @@ void main() {
 
   group('FrosthavenConverter.convertLinesToFH – [newLine]', () {
     test('[newLine] is converted to an empty string', () {
-      final result =
-          FrosthavenConverter.convertLinesToFH(['text', '[newLine]'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'text',
+        '[newLine]',
+      ], false);
       expect(result, contains(''));
     });
   });
@@ -91,15 +117,20 @@ void main() {
 
   group('FrosthavenConverter.convertLinesToFH – * lines', () {
     test('* line is passed through', () {
-      final result =
-          FrosthavenConverter.convertLinesToFH(['*Move 3', '^%poison%'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        '*Move 3',
+        '^%poison%',
+      ], false);
       expect(result.any((l) => l.startsWith('*')), isTrue);
     });
 
     test('* line after a real subline adds [subLineEnd]', () {
       // Establish a subline then reset with a * line
-      final result = FrosthavenConverter.convertLinesToFH(
-          ['Move 3', '^%poison%', '*Attack'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'Move 3',
+        '^%poison%',
+        '*Attack',
+      ], false);
       expect(result, contains('[subLineEnd]'));
     });
 
@@ -115,50 +146,68 @@ void main() {
   group('FrosthavenConverter.convertLinesToFH – subline markers', () {
     test('^%token% after a normal line inserts ![subLineStart]', () {
       // "Move 3" sets isSubLine=true; "^%poison%" triggers subLineStart
-      final result =
-          FrosthavenConverter.convertLinesToFH(['Move 3', '^%poison%'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'Move 3',
+        '^%poison%',
+      ], false);
       expect(result, contains('![subLineStart]'));
     });
 
     test('trailing [subLineEnd] is added when subline is open at end', () {
-      final result =
-          FrosthavenConverter.convertLinesToFH(['Move 3', '^%poison%'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'Move 3',
+        '^%poison%',
+      ], false);
       expect(result.last, '[subLineEnd]');
     });
 
     test('^ line matching subline pattern gets "!" prefix', () {
-      final result =
-          FrosthavenConverter.convertLinesToFH(['Move 3', '^%poison%'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'Move 3',
+        '^%poison%',
+      ], false);
       expect(result.any((l) => l.startsWith('!^')), isTrue);
     });
 
     test('^Target after a normal line triggers subline', () {
-      final result = FrosthavenConverter.convertLinesToFH(
-          ['Attack 3', '^%target% 2'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'Attack 3',
+        '^%target% 2',
+      ], false);
       expect(result, contains('![subLineStart]'));
     });
 
     test('^Self after a normal line triggers subline', () {
-      final result =
-          FrosthavenConverter.convertLinesToFH(['Heal 2', '^Self'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'Heal 2',
+        '^Self',
+      ], false);
       // "^Self" starts a subline and gets "!" prefix
       expect(result, contains('![subLineStart]'));
     });
 
-    test('^ line that does NOT match subline pattern keeps isSubLine false',
-        () {
-      // "^Target all attacks" explicitly excluded from subline trigger
-      final result = FrosthavenConverter.convertLinesToFH(
-          ['Move 3', '^All attacks on you'], false);
-      expect(result.contains('![subLineStart]'), isFalse);
-    });
+    test(
+      '^ line that does NOT match subline pattern keeps isSubLine false',
+      () {
+        // "^Target all attacks" explicitly excluded from subline trigger
+        final result = FrosthavenConverter.convertLinesToFH([
+          'Move 3',
+          '^All attacks on you',
+        ], false);
+        expect(result.contains('![subLineStart]'), isFalse);
+      },
+    );
 
     test('second ^ line inside a subline is also prefixed with "!"', () {
       // Both ^ lines get the "!" prefix inside the subline block
-      final result = FrosthavenConverter.convertLinesToFH(
-          ['Move 3', '^%poison%', '^%wound%'], false);
-      final exclamLines =
-          result.where((l) => l.startsWith('!') && l.contains('%')).toList();
+      final result = FrosthavenConverter.convertLinesToFH([
+        'Move 3',
+        '^%poison%',
+        '^%wound%',
+      ], false);
+      final exclamLines = result
+          .where((l) => l.startsWith('!') && l.contains('%'))
+          .toList();
       expect(exclamLines.length, greaterThanOrEqualTo(2));
     });
 
@@ -181,16 +230,27 @@ void main() {
     test('[r] before a %use line marks the block as conditional', () {
       // The next line contains %use: isConditional=true, startOfConditional=true
       // The ^ subline immediately after should NOT get [subLineStart] due to startOfConditional
-      final result = FrosthavenConverter.convertLinesToFH(
-          ['Attack 2', '[r]', '%use%', '^%poison%', '[/r]'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'Attack 2',
+        '[r]',
+        '%use%',
+        '^%poison%',
+        '[/r]',
+      ], false);
       // isConditional suppresses [subLineStart] on the first ^ line
       // verify no crash and the block is in the result
       expect(result, isNotEmpty);
     });
 
     test('[/r] resets the conditional flag', () {
-      final result = FrosthavenConverter.convertLinesToFH(
-          ['[r]', '%use%', '%fire%', '[/r]', 'Move 3', '^%poison%'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        '[r]',
+        '%use%',
+        '%fire%',
+        '[/r]',
+        'Move 3',
+        '^%poison%',
+      ], false);
       // After [/r] the block is normal; subsequent ^ should still add subLineStart
       expect(result, contains('![subLineStart]'));
     });
@@ -253,8 +313,9 @@ void main() {
 
   group('FrosthavenConverter.getAllTextInWidget', () {
     test('Text widget returns its data', () {
-      final result =
-          FrosthavenConverter.getAllTextInWidget(const Text('hello'));
+      final result = FrosthavenConverter.getAllTextInWidget(
+        const Text('hello'),
+      );
       expect(result, 'hello');
     });
 
@@ -303,8 +364,9 @@ void main() {
 
   group('FrosthavenConverter.getAllImagesInWidget', () {
     test('non-image leaf widget returns empty list', () {
-      final result =
-          FrosthavenConverter.getAllImagesInWidget(const Text('no images'));
+      final result = FrosthavenConverter.getAllImagesInWidget(
+        const Text('no images'),
+      );
       expect(result, isEmpty);
     });
 
@@ -365,50 +427,68 @@ void main() {
 
   group('FrosthavenConverter.convertLinesToFH – advanced subline patterns', () {
     test('^Normal line starts a subline', () {
-      final result = FrosthavenConverter.convertLinesToFH(
-          ['Attack 3', '^Normal attack'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'Attack 3',
+        '^Normal attack',
+      ], false);
       expect(result, contains('![subLineStart]'));
     });
 
     test('^all line starts a subline', () {
-      final result = FrosthavenConverter.convertLinesToFH(
-          ['Attack 3', '^all enemies'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'Attack 3',
+        '^all enemies',
+      ], false);
       expect(result, contains('![subLineStart]'));
     });
 
     test('^All (not "^All attacks" or "^All targets") starts a subline', () {
-      final result = FrosthavenConverter.convertLinesToFH(
-          ['Attack 3', '^All adjacent enemies'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'Attack 3',
+        '^All adjacent enemies',
+      ], false);
       expect(result, contains('![subLineStart]'));
     });
 
     test('^All attacks does not start a subline', () {
-      final result = FrosthavenConverter.convertLinesToFH(
-          ['Move 3', '^All attacks on you'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'Move 3',
+        '^All attacks on you',
+      ], false);
       expect(result.contains('![subLineStart]'), isFalse);
     });
 
     test('^All targets does not start a subline', () {
-      final result = FrosthavenConverter.convertLinesToFH(
-          ['Move 3', '^All targets suffer'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'Move 3',
+        '^All targets suffer',
+      ], false);
       expect(result.contains('![subLineStart]'), isFalse);
     });
 
     test('isSubLine set to false after non-subline ^ line', () {
       // A ^ line that does not trigger subline should collapse isSubLine
-      final result = FrosthavenConverter.convertLinesToFH(
-          ['Move 3', '^All attacks on you', 'Attack 2'], false);
+      final result = FrosthavenConverter.convertLinesToFH([
+        'Move 3',
+        '^All attacks on you',
+        'Attack 2',
+      ], false);
       // No subline markers expected
       expect(result.contains('![subLineStart]'), isFalse);
       expect(result.contains('[subLineEnd]'), isFalse);
     });
 
-    test('second non-special line while isReallySubLine=true adds [subLineEnd]',
-        () {
-      // After a subline block, starting a new main line closes the subline
-      final result = FrosthavenConverter.convertLinesToFH(
-          ['Move 3', '^%poison%', 'Attack 2'], false);
-      expect(result, contains('[subLineEnd]'));
-    });
+    test(
+      'second non-special line while isReallySubLine=true adds [subLineEnd]',
+      () {
+        // After a subline block, starting a new main line closes the subline
+        final result = FrosthavenConverter.convertLinesToFH([
+          'Move 3',
+          '^%poison%',
+          'Attack 2',
+        ], false);
+        expect(result, contains('[subLineEnd]'));
+      },
+    );
   });
 }

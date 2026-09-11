@@ -62,11 +62,15 @@ class FrosthavenConverter {
 
       if (line == "[newLine]") {
         //to force newline when right align does not fit
-        lines[i - 1] == lines[i - 1].substring(1);
+        if (i > 0 && lines[i - 1].isNotEmpty) {
+          lines[i - 1] = lines[i - 1].substring(1);
+        }
         line = "";
       }
 
-      if ((line == "[r]" || line == "[s]") && lines[i + 1].contains('%use')) {
+      if ((line == "[r]" || line == "[s]") &&
+          i + 1 < lines.length &&
+          lines[i + 1].contains('%use')) {
         isElementUse = true;
         isConditional = true;
         startOfConditional = true;
