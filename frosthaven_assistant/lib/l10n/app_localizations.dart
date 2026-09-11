@@ -260,7 +260,7 @@ abstract class AppLocalizations {
   /// No description provided for @actionLogTitle.
   ///
   /// In en, this message translates to:
-  /// **'Last 20 Actions'**
+  /// **'Action History'**
   String get actionLogTitle;
 
   /// No description provided for @actionLogEmpty.

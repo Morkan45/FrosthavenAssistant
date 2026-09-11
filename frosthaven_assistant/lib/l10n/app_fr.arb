@@ -5,7 +5,7 @@
   "actionLogRollbackBody": "Revenir à \"{action}\" ? Cela annule {count} action(s) ultérieure(s). Vous pouvez les rétablir jusqu'à ce que vous fassiez une modification.",
   "actionLogRollbackConfirm": "Revenir",
   "menuActionLog": "Voir le journal des actions",
-  "actionLogTitle": "20 dernières actions",
+  "actionLogTitle": "Action History",
   "actionLogEmpty": "Aucune action pour l'instant",
   "noteRowAll": "Tous",
   "menuAddNoteRow": "Ajouter une ligne de note",
@@ -321,5 +321,593 @@
   "cmdUseFhPerks": "{character} utiliser avantages Frosthaven",
   "cmdDontUseFhPerks": "{character} ne pas utiliser avantages Frosthaven",
   "cmdRemoveNoCharacters": "Aucun personnage retiré",
-  "cmdRemoveNoMonsters": "Aucun monstre retiré"
+  "cmdRemoveNoMonsters": "Aucun monstre retiré",
+  "topBarOpenMainMenu": "Open main menu",
+  "topBarMoreActions": "More actions",
+  "elementFire": "Fire",
+  "elementIce": "Ice",
+  "elementAir": "Air",
+  "elementEarth": "Earth",
+  "elementLight": "Light",
+  "elementDark": "Dark",
+  "@actionLogRollbackBody": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@noteRowStandeeNr": {
+    "placeholders": {
+      "nr": {
+        "type": "int"
+      }
+    }
+  },
+  "@undoWithDescription": {
+    "placeholders": {
+      "description": {
+        "type": "String"
+      }
+    }
+  },
+  "@redoWithDescription": {
+    "placeholders": {
+      "description": {
+        "type": "String"
+      }
+    }
+  },
+  "@versionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelConnect": "Cancel",
+  "connectionCancelled": "Connection cancelled",
+  "@connectAsClientWithIp": {
+    "placeholders": {
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "@stopServerWithIp": {
+    "placeholders": {
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "@startHostServerWithIp": {
+    "placeholders": {
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsCategoryDisplay": "Display",
+  "settingsCategoryGameplay": "Gameplay",
+  "settingsCategoryContent": "Content",
+  "settingsCategoryNetwork": "Network",
+  "settingsCategoryAdvanced": "Advanced",
+  "settingsPowerModeLabel": "Power saving",
+  "powerModeNormal": "Normal",
+  "powerModeDimWhenIdle": "Dim when idle",
+  "settingsPowerModeInfoTitle": "Power saving",
+  "settingsPowerModeInfo": "Three levels of battery saving, from none to most.\n\nNormal — the screen is held awake at full brightness for as long as the app is open. Nothing is dimmed and nothing sleeps. Best while you are actively playing.\n\nDim when idle — the screen is still held awake and the app never locks, but after 30 seconds without input the board dims. The board stays readable from across the table, and a single tap brings it straight back with nothing lost. Good for a game in progress that you glance at between turns.\n\nReduce power use — hands the screen back to your device, so it dims and turns off on its own schedule and you unlock to return. Also lowers drawing quality to save more: card and monster box shadows become hard-edged instead of softly blurred, icons are filtered more cheaply, and shimmering text effects are turned off. Best for infrequent use and low battery capacity devices.\n\nNothing about how the game works changes at any level — no tracking, syncing or rules behaviour is affected.",
+  "settingsReducePower": "Reduce power use",
+  "settingsReducePowerInfoTitle": "Reduce power use",
+  "settingsReducePowerInfo": "Saves battery by doing less drawing work, at the cost of some visual polish.\n\nWhat changes:\n\n• The screen is allowed to dim and turn off on its own. Normally this app keeps it awake the whole time it is open, which is by far the biggest drain on a phone or tablet.\n\n• Card and monster box shadows become hard-edged instead of softly blurred.\n\n• Icons are filtered more cheaply. You may notice slightly rougher edges on small images.\n\n• Shimmering text effects are turned off.\n\nNothing about how the game works changes — no tracking, syncing or rules behaviour is affected. You can turn this off again at any time.",
+  "settingsLayoutScalePreset": "Scale preset:",
+  "settingsScalePresetCompact": "Compact",
+  "settingsScalePresetDefault": "Default",
+  "settingsScalePresetLarge": "Large",
+  "settingsMenuScaling": "Menu Scaling:",
+  "@removeCardWithDetails": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "nr": {
+        "type": "int"
+      }
+    }
+  },
+  "@setMonsterLevel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@setSummonHealth": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@enhancedLevel": {
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "@currentCampaign": {
+    "placeholders": {
+      "campaign": {
+        "type": "String"
+      }
+    }
+  },
+  "@clientConnectedTo": {
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "@clientError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@clientListenError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@networkConnection": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "@badOmensLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@addMinusOneCard": {
+    "placeholders": {
+      "direction": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@removedCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@addEliteStandees": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@addNormalStandees": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@addSpecialCard": {
+    "placeholders": {
+      "nr": {
+        "type": "int"
+      }
+    }
+  },
+  "@removeSpecialCard": {
+    "placeholders": {
+      "nr": {
+        "type": "int"
+      }
+    }
+  },
+  "@characterLootTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdActivateMonster": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdDeactivateMonster": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdAddCharacter": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdAddCondition": {
+    "placeholders": {
+      "condition": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdRemoveCondition": {
+    "placeholders": {
+      "condition": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdAddPartyCard": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      },
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdRemovePartyCard": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdAddFactionCard": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdRemoveFactionCard": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdAddLootCard": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdAddMonster": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdAddSpecialLootCard": {
+    "placeholders": {
+      "nr": {
+        "type": "int"
+      }
+    }
+  },
+  "@cmdRemoveSpecialLootCard": {
+    "placeholders": {
+      "nr": {
+        "type": "int"
+      }
+    }
+  },
+  "@cmdRevealModifierCards": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@cmdCassandraLeaveRevealed": {
+    "placeholders": {
+      "deck": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdCassandraSpecialOff": {
+    "placeholders": {
+      "deck": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdIncreaseMaxHealth": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdDecreaseMaxHealth": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdIncreaseXp": {
+    "placeholders": {
+      "figure": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "@cmdDecreaseXp": {
+    "placeholders": {
+      "figure": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "@cmdDonateSanctuary": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdRemoveSanctuaryDonation": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdDrawModifierCard": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdImbueElement": {
+    "placeholders": {
+      "element": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdUseElement": {
+    "placeholders": {
+      "element": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdLoadCharacter": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdLoadGame": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdRemoveCard": {
+    "placeholders": {
+      "deck": {
+        "type": "String"
+      },
+      "nr": {
+        "type": "int"
+      }
+    }
+  },
+  "@cmdRemoveCharacter": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdRemoveMonster": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdMarkAsSummon": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdRemoveSummonMark": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdSetCampaign": {
+    "placeholders": {
+      "campaign": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdSetCharacterLevel": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdSetDifficulty": {
+    "placeholders": {
+      "difficulty": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdSetInitiative": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdSetCharacterNote": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdSetMonsterLevel": {
+    "placeholders": {
+      "monster": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdTurnDone": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdAddPerk": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      },
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "@cmdRemovePerk": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      },
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "@cmdUnlock": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdLock": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdAddStandee": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "nr": {
+        "type": "int"
+      }
+    }
+  },
+  "@cmdIncreaseHealth": {
+    "placeholders": {
+      "figure": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "@cmdKill": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdDecreaseHealth": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "@cmdUseFhPerks": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
+  "@cmdDontUseFhPerks": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  }
 }

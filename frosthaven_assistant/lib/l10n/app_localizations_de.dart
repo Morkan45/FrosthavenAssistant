@@ -83,7 +83,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get elementDark => 'Dark';
 
   @override
-  String get actionLogTitle => 'Letzte 20 Aktionen';
+  String get actionLogTitle => 'Action History';
 
   @override
   String get actionLogEmpty => 'Noch keine Aktionen';

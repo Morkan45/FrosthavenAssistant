@@ -5,7 +5,7 @@
   "actionLogRollbackBody": "Zurück zu \"{action}\"? Dies macht {count} spätere Aktion(en) rückgängig. Du kannst sie wiederherstellen, bis du etwas änderst.",
   "actionLogRollbackConfirm": "Zurücksetzen",
   "menuActionLog": "Aktionsprotokoll anzeigen",
-  "actionLogTitle": "Letzte 20 Aktionen",
+  "actionLogTitle": "Action History",
   "actionLogEmpty": "Noch keine Aktionen",
   "noteRowAll": "Alle",
   "menuAddNoteRow": "Notizzeile hinzufügen",
@@ -29,7 +29,6 @@
   "characterNoteTitle": "Notiz",
   "characterNoteHint": "Notiz hinzufügen…",
   "characterNoteQuickAdd": "Kurznotiz",
-
   "menuSetScenario": "Szenario festlegen",
   "menuAddCharacter": "Charakter hinzufügen",
   "menuRemoveCharacters": "Charaktere entfernen",
@@ -45,48 +44,57 @@
   "menuExit": "Beenden",
   "menuAddSection": "Abschnitt hinzufügen",
   "menuAddRandomDungeonCard": "Zufällige Verließkarte hinzufügen",
-
   "undo": "Rückgängig",
   "undoWithDescription": "Rückgängig: {description}",
   "@undoWithDescription": {
     "placeholders": {
-      "description": { "type": "String" }
+      "description": {
+        "type": "String"
+      }
     }
   },
   "redo": "Wiederholen",
   "redoWithDescription": "Wiederholen: {description}",
   "@redoWithDescription": {
     "placeholders": {
-      "description": { "type": "String" }
+      "description": {
+        "type": "String"
+      }
     }
   },
-
   "versionLabel": "Version {version}",
   "@versionLabel": {
     "placeholders": {
-      "version": { "type": "String" }
+      "version": {
+        "type": "String"
+      }
     }
   },
-
   "connectedAsClient": "Als Client verbunden",
   "connecting": "Verbinde...",
   "connectAsClientWithIp": "Als Client verbinden ({ip})",
   "@connectAsClientWithIp": {
     "placeholders": {
-      "ip": { "type": "String" }
+      "ip": {
+        "type": "String"
+      }
     }
   },
   "connectAsClientLabel": "Als Client verbinden",
   "stopServerWithIp": "Server stoppen {ip}",
   "@stopServerWithIp": {
     "placeholders": {
-      "ip": { "type": "String" }
+      "ip": {
+        "type": "String"
+      }
     }
   },
   "startHostServerWithIp": "Host-Server starten {ip}",
   "@startHostServerWithIp": {
     "placeholders": {
-      "ip": { "type": "String" }
+      "ip": {
+        "type": "String"
+      }
     }
   },
   "stopServerButton": "Server stoppen",
@@ -94,7 +102,6 @@
   "networkConnectLocal": "Geräte im lokalen WLAN verbinden:",
   "networkServerIpHint": "Server-IP-Adresse",
   "networkPortHint": "Port",
-
   "settingsLanguage": "Sprache:",
   "settingsDarkMode": "Dunkelmodus",
   "settingsSoftNumpad": "Soft-Nummernblock für Eingabe",
@@ -129,7 +136,6 @@
   "settingsClearUnlocked": "Freigeschaltete Charaktere und Inhalte zurücksetzen",
   "settingsUnlockSpecials": "Speziales freischalten",
   "settingsLoadSaveState": "Spielstand laden/speichern",
-
   "noResultsFound": "Keine Ergebnisse gefunden",
   "close": "Schließen",
   "retry": "WIEDERHOLEN",
@@ -161,8 +167,12 @@
   "removeCardWithDetails": "{title} entfernen\n(Karten-Nr.: {nr})",
   "@removeCardWithDetails": {
     "placeholders": {
-      "title": { "type": "String" },
-      "nr": { "type": "int" }
+      "title": {
+        "type": "String"
+      },
+      "nr": {
+        "type": "int"
+      }
     }
   },
   "tapCardToAddToDeck": "Karte antippen, um sie zum Stapel hinzuzufügen",
@@ -175,25 +185,29 @@
   "addMonsterLabel": "Monster hinzufügen",
   "allCampaigns": "Alle Kampagnen",
   "showMonstersFrom": "      Monster anzeigen von:   ",
-
   "setMonsterLevel": "Stufe von {name} festlegen",
   "@setMonsterLevel": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "setSummonHealth": "Maximale Lebenspunkte von {name} festlegen",
   "@setSummonHealth": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "setScenarioLevel": "Szenariostufe festlegen",
-
   "enhancedLevel": "Verbessert: {level}",
   "@enhancedLevel": {
     "placeholders": {
-      "level": { "type": "String" }
+      "level": {
+        "type": "String"
+      }
     }
   },
   "soloLabel": "Solo:",
@@ -202,11 +216,12 @@
   "lootCardEnhancements": "Plünderungskarten-Verbesserungen",
   "addPerks": "Vorteile hinzufügen",
   "useFrosthavenPerks": "Frosthaven-Vorteile verwenden",
-
   "currentCampaign": "Aktuelle Kampagne: {campaign}",
   "@currentCampaign": {
     "placeholders": {
-      "campaign": { "type": "String" }
+      "campaign": {
+        "type": "String"
+      }
     }
   },
   "addCharacterHint": "Charakter hinzufügen (Namen eingeben für versteckte Charakterklassen)",
@@ -216,23 +231,28 @@
   "goldCoinValue": "Goldmünzwert",
   "levelLegendLabel": "Stufe",
   "saveStateNote": "Bitte beachten: Die App speichert deinen Fortschritt automatisch nach jeder Aktion. Diese Spielstände sind für Sicherheitskopien oder mehrere Kampagnen.",
-
   "clientConnectedTo": "Client verbunden mit: {address}",
   "@clientConnectedTo": {
     "placeholders": {
-      "address": { "type": "String" }
+      "address": {
+        "type": "String"
+      }
     }
   },
   "clientError": "Client-Fehler: {error}",
   "@clientError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "clientListenError": "Client-Empfangsfehler: {error}",
   "@clientListenError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "lostConnectionToServer": "Verbindung zum Server verloren",
@@ -245,16 +265,19 @@
   "networkConnection": "Netzwerkverbindung: {status}",
   "@networkConnection": {
     "placeholders": {
-      "status": { "type": "String" }
+      "status": {
+        "type": "String"
+      }
     }
   },
   "failedToGetWifiIp": "IP-Adresse konnte nicht ermittelt werden",
-
   "badOmen": "Böses Omen",
   "badOmensLeft": "Böse Omen übrig: {count}",
   "@badOmensLeft": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "corrosiveSpew": "Ätzender Ausstoß",
@@ -262,8 +285,12 @@
   "addMinusOneCard": "{direction, select, added{-1-Karte hinzufügen (hinzugefügt: {count})} removed{-1-Karte hinzufügen (entfernt: {count})} other{-1-Karte ({count})}}",
   "@addMinusOneCard": {
     "placeholders": {
-      "direction": { "type": "String" },
-      "count": { "type": "int" }
+      "direction": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "removeMinusOneCard": "-1-Karte entfernen",
@@ -283,7 +310,9 @@
   "removedCountLabel": "Entfernt: {count}",
   "@removedCountLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "removeDonation": "Spende\nentfernen",
@@ -300,28 +329,40 @@
   "addEliteStandees": "{count} Elite {name} hinzufügen",
   "@addEliteStandees": {
     "placeholders": {
-      "count": { "type": "int" },
-      "name": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
     }
   },
   "addNormalStandees": "{count} Normale {name} hinzufügen",
   "@addNormalStandees": {
     "placeholders": {
-      "count": { "type": "int" },
-      "name": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
     }
   },
   "characterLoot": "Charakterausbeute",
   "addSpecialCard": "Karte {nr} hinzufügen",
   "@addSpecialCard": {
     "placeholders": {
-      "nr": { "type": "int" }
+      "nr": {
+        "type": "int"
+      }
     }
   },
   "removeSpecialCard": "Karte {nr} entfernen",
   "@removeSpecialCard": {
     "placeholders": {
-      "nr": { "type": "int" }
+      "nr": {
+        "type": "int"
+      }
     }
   },
   "enhanceCards": "Karten verbessern",
@@ -331,7 +372,9 @@
   "characterLootTitle": "Ausbeute von {name}:",
   "@characterLootTitle": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "setLootOwner": "Besitzer festlegen:",
@@ -347,33 +390,113 @@
   "lootNameSnowthistle": "Schneendistel",
   "lootAmount2For2": "2 für 2 Spieler",
   "lootAmount2For23": "2 für 2-3 Spieler",
-
   "cmdActivateMonster": "{name} aktivieren",
-  "@cmdActivateMonster": { "placeholders": { "name": { "type": "String" } } },
+  "@cmdActivateMonster": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "cmdDeactivateMonster": "{name} deaktivieren",
-  "@cmdDeactivateMonster": { "placeholders": { "name": { "type": "String" } } },
+  "@cmdDeactivateMonster": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "cmdAddCharacter": "{id} hinzufügen",
-  "@cmdAddCharacter": { "placeholders": { "id": { "type": "String" } } },
+  "@cmdAddCharacter": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
   "cmdAddCondition": "Zustand hinzufügen: {condition}",
-  "@cmdAddCondition": { "placeholders": { "condition": { "type": "String" } } },
+  "@cmdAddCondition": {
+    "placeholders": {
+      "condition": {
+        "type": "String"
+      }
+    }
+  },
   "cmdRemoveCondition": "Zustand entfernen: {condition}",
-  "@cmdRemoveCondition": { "placeholders": { "condition": { "type": "String" } } },
+  "@cmdRemoveCondition": {
+    "placeholders": {
+      "condition": {
+        "type": "String"
+      }
+    }
+  },
   "cmdAddPartyCard": "{character} Gruppenk. {type} hinzufügen",
-  "@cmdAddPartyCard": { "placeholders": { "character": { "type": "String" }, "type": { "type": "String" } } },
+  "@cmdAddPartyCard": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      },
+      "type": {
+        "type": "String"
+      }
+    }
+  },
   "cmdRemovePartyCard": "{character} Gruppenkarte entfernen",
-  "@cmdRemovePartyCard": { "placeholders": { "character": { "type": "String" } } },
+  "@cmdRemovePartyCard": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
   "cmdAddFactionCard": "{character} Fraktionskarte hinzufügen",
-  "@cmdAddFactionCard": { "placeholders": { "character": { "type": "String" } } },
+  "@cmdAddFactionCard": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
   "cmdRemoveFactionCard": "{character} Fraktionskarte entfernen",
-  "@cmdRemoveFactionCard": { "placeholders": { "character": { "type": "String" } } },
+  "@cmdRemoveFactionCard": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
   "cmdAddLootCard": "{type}-Plünderungskarte hinzufügen",
-  "@cmdAddLootCard": { "placeholders": { "type": { "type": "String" } } },
+  "@cmdAddLootCard": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
   "cmdAddMonster": "{name} hinzufügen",
-  "@cmdAddMonster": { "placeholders": { "name": { "type": "String" } } },
+  "@cmdAddMonster": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "cmdAddSpecialLootCard": "Sonderplünderungskarte {nr} hinzufügen",
-  "@cmdAddSpecialLootCard": { "placeholders": { "nr": { "type": "int" } } },
+  "@cmdAddSpecialLootCard": {
+    "placeholders": {
+      "nr": {
+        "type": "int"
+      }
+    }
+  },
   "cmdRemoveSpecialLootCard": "Sonderplünderungskarte {nr} entfernen",
-  "@cmdRemoveSpecialLootCard": { "placeholders": { "nr": { "type": "int" } } },
+  "@cmdRemoveSpecialLootCard": {
+    "placeholders": {
+      "nr": {
+        "type": "int"
+      }
+    }
+  },
   "cmdAddMinusOne": "-1 hinzufügen",
   "cmdRemoveMinusOne": "-1 entfernen",
   "cmdRemoveMinusTwo": "-2 entfernen",
@@ -381,11 +504,29 @@
   "cmdRemovePlusZero": "+0 entfernen",
   "cmdAddBackPlusZero": "+0 zurücklegen",
   "cmdRevealModifierCards": "{count} Modifikatorkarten aufdecken",
-  "@cmdRevealModifierCards": { "placeholders": { "count": { "type": "int" } } },
+  "@cmdRevealModifierCards": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "cmdCassandraLeaveRevealed": "Aufgedeckte Karten oben auf Stapel {deck} lassen",
-  "@cmdCassandraLeaveRevealed": { "placeholders": { "deck": { "type": "String" } } },
+  "@cmdCassandraLeaveRevealed": {
+    "placeholders": {
+      "deck": {
+        "type": "String"
+      }
+    }
+  },
   "cmdCassandraSpecialOff": "Kassandra-Spezial für Stapel {deck} deaktiviert",
-  "@cmdCassandraSpecialOff": { "placeholders": { "deck": { "type": "String" } } },
+  "@cmdCassandraSpecialOff": {
+    "placeholders": {
+      "deck": {
+        "type": "String"
+      }
+    }
+  },
   "cmdImbueMonsterDeck": "Monsterstapel einbetten",
   "cmdAdvancedImbueMonsterDeck": "Monsterstapel erweitert einbetten",
   "cmdRemoveImbueMonsterDeck": "Einbettung entfernen",
@@ -399,24 +540,72 @@
   "cmdAddEnfeeble": "Schwächung hinzufügen",
   "cmdRemoveEnfeeble": "Schwächung entfernen",
   "cmdIncreaseMaxHealth": "Maximale Lebenspunkte von {owner} erhöhen",
-  "@cmdIncreaseMaxHealth": { "placeholders": { "owner": { "type": "String" } } },
+  "@cmdIncreaseMaxHealth": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
   "cmdDecreaseMaxHealth": "Maximale Lebenspunkte von {owner} verringern",
-  "@cmdDecreaseMaxHealth": { "placeholders": { "owner": { "type": "String" } } },
+  "@cmdDecreaseMaxHealth": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
   "cmdChangeStat": "Statuswert ändern",
   "cmdIncreaseXp": "EP von {figure} um {amount} erhöhen",
-  "@cmdIncreaseXp": { "placeholders": { "figure": { "type": "String" }, "amount": { "type": "int" } } },
+  "@cmdIncreaseXp": {
+    "placeholders": {
+      "figure": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "cmdDecreaseXp": "EP von {figure} um {amount} verringern",
-  "@cmdDecreaseXp": { "placeholders": { "figure": { "type": "String" }, "amount": { "type": "int" } } },
+  "@cmdDecreaseXp": {
+    "placeholders": {
+      "figure": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "cmdClearUnlockedClasses": "Freigeschaltete Klassen zurücksetzen",
   "cmdDonateSanctuary": "{character} spendet an Heiligtum",
-  "@cmdDonateSanctuary": { "placeholders": { "character": { "type": "String" } } },
+  "@cmdDonateSanctuary": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
   "cmdRemoveSanctuaryDonation": "Spende von {character} entfernen",
-  "@cmdRemoveSanctuaryDonation": { "placeholders": { "character": { "type": "String" } } },
+  "@cmdRemoveSanctuaryDonation": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
   "cmdDrawExtraAbilityCard": "Zusätzliche Fähigkeitskarte ziehen",
   "cmdDraw": "Ziehen",
   "cmdDrawLootCard": "Plünderungskarte ziehen",
   "cmdDrawModifierCard": "{name}-Modifikatorkarte ziehen",
-  "@cmdDrawModifierCard": { "placeholders": { "name": { "type": "String" } } },
+  "@cmdDrawModifierCard": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "cmdRemoveLootEnhancement": "Plünderungsverbesserung entfernen",
   "cmdAddLootEnhancement": "Plünderungsverbesserung hinzufügen",
   "cmdHideAllyDeck": "Verbündeten-Stapel ausblenden",
@@ -424,23 +613,68 @@
   "cmdIceWraithTurnNormal": "Eisgeist wird normal",
   "cmdIceWraithTurnElite": "Eisgeist wird Elite",
   "cmdImbueElement": "Element {element} einbetten",
-  "@cmdImbueElement": { "placeholders": { "element": { "type": "String" } } },
+  "@cmdImbueElement": {
+    "placeholders": {
+      "element": {
+        "type": "String"
+      }
+    }
+  },
   "cmdUseElement": "Element {element} verbrauchen",
-  "@cmdUseElement": { "placeholders": { "element": { "type": "String" } } },
+  "@cmdUseElement": {
+    "placeholders": {
+      "element": {
+        "type": "String"
+      }
+    }
+  },
   "cmdLoadCharacter": "Gespeicherten Charakter laden: {name}",
-  "@cmdLoadCharacter": { "placeholders": { "name": { "type": "String" } } },
+  "@cmdLoadCharacter": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "cmdLoadGame": "Gespeichertes Spiel laden: {name}",
-  "@cmdLoadGame": { "placeholders": { "name": { "type": "String" } } },
+  "@cmdLoadGame": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "cmdNextRound": "Nächste Runde",
   "cmdRemoveAmdCard": "AMD-Karte entfernen",
   "cmdRemoveCard": "{deck}-Karte Nr. {nr} entfernen",
-  "@cmdRemoveCard": { "placeholders": { "deck": { "type": "String" }, "nr": { "type": "int" } } },
+  "@cmdRemoveCard": {
+    "placeholders": {
+      "deck": {
+        "type": "String"
+      },
+      "nr": {
+        "type": "int"
+      }
+    }
+  },
   "cmdRemoveAllCharacters": "Alle Charaktere entfernen",
   "cmdRemoveCharacter": "{id} entfernen",
-  "@cmdRemoveCharacter": { "placeholders": { "id": { "type": "String" } } },
+  "@cmdRemoveCharacter": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
   "cmdRemoveAllMonsters": "Alle Monster entfernen",
   "cmdRemoveMonster": "{name} entfernen",
-  "@cmdRemoveMonster": { "placeholders": { "name": { "type": "String" } } },
+  "@cmdRemoveMonster": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "cmdReorderAbilityCards": "Fähigkeitskarten neu anordnen",
   "cmdReorderList": "Liste neu anordnen",
   "cmdReorderModifierCards": "Modifikatorkarten neu anordnen",
@@ -450,21 +684,63 @@
   "cmdNoAllyDeckInOgGloom": "Kein Verbündeten-Stapel in 1. Edition Gloomhaven",
   "cmdUseAllyDeckInOgGloom": "Verbündeten-Stapel in 1. Edition Gloomhaven verwenden",
   "cmdMarkAsSummon": "{owner} als Beschworenen markieren",
-  "@cmdMarkAsSummon": { "placeholders": { "owner": { "type": "String" } } },
+  "@cmdMarkAsSummon": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
   "cmdRemoveSummonMark": "{owner}'s Beschwörungsmarkierung entfernen",
-  "@cmdRemoveSummonMark": { "placeholders": { "owner": { "type": "String" } } },
+  "@cmdRemoveSummonMark": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
   "cmdAutoLevelOn": "Automatische Stufenaktualisierung ein",
   "cmdAutoLevelOff": "Automatische Stufenaktualisierung aus",
   "cmdSetCampaign": "Kampagne {campaign} festlegen",
-  "@cmdSetCampaign": { "placeholders": { "campaign": { "type": "String" } } },
+  "@cmdSetCampaign": {
+    "placeholders": {
+      "campaign": {
+        "type": "String"
+      }
+    }
+  },
   "cmdSetCharacterLevel": "Stufe von {character} festlegen",
-  "@cmdSetCharacterLevel": { "placeholders": { "character": { "type": "String" } } },
+  "@cmdSetCharacterLevel": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
   "cmdSetDifficulty": "Schwierigkeitsgrad auf {difficulty} festlegen",
-  "@cmdSetDifficulty": { "placeholders": { "difficulty": { "type": "String" } } },
+  "@cmdSetDifficulty": {
+    "placeholders": {
+      "difficulty": {
+        "type": "String"
+      }
+    }
+  },
   "cmdSetInitiative": "Initiative von {character} festlegen",
-  "@cmdSetInitiative": { "placeholders": { "character": { "type": "String" } } },
+  "@cmdSetInitiative": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
   "cmdSetMonsterLevel": "Stufe von {monster} festlegen",
-  "@cmdSetMonsterLevel": { "placeholders": { "monster": { "type": "String" } } },
+  "@cmdSetMonsterLevel": {
+    "placeholders": {
+      "monster": {
+        "type": "String"
+      }
+    }
+  },
   "cmdSetLootOwner": "Besitzer der Plünderungskarte festlegen",
   "cmdSetScenario": "Szenario festlegen",
   "cmdSetSoloOn": "Solo-Stufenempfehlung ein",
@@ -475,30 +751,163 @@
   "cmdDontTrackStandees": "Figuren nicht verfolgen",
   "cmdTrackStandees": "Figuren verfolgen",
   "cmdTurnDone": "Zug von {id} beendet",
-  "@cmdTurnDone": { "placeholders": { "id": { "type": "String" } } },
+  "@cmdTurnDone": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
   "cmdAddPerk": "Vorteil {index} für '{character}' hinzufügen",
-  "@cmdAddPerk": { "placeholders": { "character": { "type": "String" }, "index": { "type": "int" } } },
+  "@cmdAddPerk": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      },
+      "index": {
+        "type": "int"
+      }
+    }
+  },
   "cmdRemovePerk": "Vorteil {index} für '{character}' entfernen",
-  "@cmdRemovePerk": { "placeholders": { "character": { "type": "String" }, "index": { "type": "int" } } },
+  "@cmdRemovePerk": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      },
+      "index": {
+        "type": "int"
+      }
+    }
+  },
   "cmdUnlock": "{id} freischalten",
-  "@cmdUnlock": { "placeholders": { "id": { "type": "String" } } },
+  "@cmdUnlock": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
   "cmdLock": "{id} sperren",
-  "@cmdLock": { "placeholders": { "id": { "type": "String" } } },
+  "@cmdLock": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
   "cmdSetLevel": "Stufe festlegen",
   "cmdAddSection": "Abschnitt hinzufügen",
   "cmdAddStandee": "{name} {nr} hinzufügen",
-  "@cmdAddStandee": { "placeholders": { "name": { "type": "String" }, "nr": { "type": "int" } } },
+  "@cmdAddStandee": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "nr": {
+        "type": "int"
+      }
+    }
+  },
   "cmdDrawMonsterModifierCard": "Monstertmodifikatorkarte ziehen",
   "cmdIncreaseHealth": "Lebenspunkte von {figure} um {amount} erhöhen",
-  "@cmdIncreaseHealth": { "placeholders": { "figure": { "type": "String" }, "amount": { "type": "int" } } },
+  "@cmdIncreaseHealth": {
+    "placeholders": {
+      "figure": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "cmdKill": "{owner} besiegen",
-  "@cmdKill": { "placeholders": { "owner": { "type": "String" } } },
+  "@cmdKill": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
   "cmdDecreaseHealth": "Lebenspunkte von {owner} um {amount} verringern",
-  "@cmdDecreaseHealth": { "placeholders": { "owner": { "type": "String" }, "amount": { "type": "int" } } },
+  "@cmdDecreaseHealth": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "cmdUseFhPerks": "{character} verwendet Frosthaven-Vorteile",
-  "@cmdUseFhPerks": { "placeholders": { "character": { "type": "String" } } },
+  "@cmdUseFhPerks": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
   "cmdDontUseFhPerks": "{character} verwendet keine Frosthaven-Vorteile",
-  "@cmdDontUseFhPerks": { "placeholders": { "character": { "type": "String" } } },
+  "@cmdDontUseFhPerks": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
   "cmdRemoveNoCharacters": "Keine Charaktere entfernt",
-  "cmdRemoveNoMonsters": "Keine Monster entfernt"
+  "cmdRemoveNoMonsters": "Keine Monster entfernt",
+  "topBarOpenMainMenu": "Open main menu",
+  "topBarMoreActions": "More actions",
+  "elementFire": "Fire",
+  "elementIce": "Ice",
+  "elementAir": "Air",
+  "elementEarth": "Earth",
+  "elementLight": "Light",
+  "elementDark": "Dark",
+  "@actionLogRollbackBody": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@noteRowStandeeNr": {
+    "placeholders": {
+      "nr": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelConnect": "Cancel",
+  "connectionCancelled": "Connection cancelled",
+  "settingsCategoryDisplay": "Display",
+  "settingsCategoryGameplay": "Gameplay",
+  "settingsCategoryContent": "Content",
+  "settingsCategoryNetwork": "Network",
+  "settingsCategoryAdvanced": "Advanced",
+  "settingsPowerModeLabel": "Power saving",
+  "powerModeNormal": "Normal",
+  "powerModeDimWhenIdle": "Dim when idle",
+  "settingsPowerModeInfoTitle": "Power saving",
+  "settingsPowerModeInfo": "Three levels of battery saving, from none to most.\n\nNormal — the screen is held awake at full brightness for as long as the app is open. Nothing is dimmed and nothing sleeps. Best while you are actively playing.\n\nDim when idle — the screen is still held awake and the app never locks, but after 30 seconds without input the board dims. The board stays readable from across the table, and a single tap brings it straight back with nothing lost. Good for a game in progress that you glance at between turns.\n\nReduce power use — hands the screen back to your device, so it dims and turns off on its own schedule and you unlock to return. Also lowers drawing quality to save more: card and monster box shadows become hard-edged instead of softly blurred, icons are filtered more cheaply, and shimmering text effects are turned off. Best for infrequent use and low battery capacity devices.\n\nNothing about how the game works changes at any level — no tracking, syncing or rules behaviour is affected.",
+  "settingsReducePower": "Reduce power use",
+  "settingsReducePowerInfoTitle": "Reduce power use",
+  "settingsReducePowerInfo": "Saves battery by doing less drawing work, at the cost of some visual polish.\n\nWhat changes:\n\n• The screen is allowed to dim and turn off on its own. Normally this app keeps it awake the whole time it is open, which is by far the biggest drain on a phone or tablet.\n\n• Card and monster box shadows become hard-edged instead of softly blurred.\n\n• Icons are filtered more cheaply. You may notice slightly rougher edges on small images.\n\n• Shimmering text effects are turned off.\n\nNothing about how the game works changes — no tracking, syncing or rules behaviour is affected. You can turn this off again at any time.",
+  "settingsLayoutScalePreset": "Scale preset:",
+  "settingsScalePresetCompact": "Compact",
+  "settingsScalePresetDefault": "Default",
+  "settingsScalePresetLarge": "Large",
+  "settingsMenuScaling": "Menu Scaling:",
+  "@cmdSetCharacterNote": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  }
 }

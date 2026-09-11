@@ -81,7 +81,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get elementDark => 'Dark';
 
   @override
-  String get actionLogTitle => 'Последние 20 действий';
+  String get actionLogTitle => 'Action History';
 
   @override
   String get actionLogEmpty => 'Пока нет действий';

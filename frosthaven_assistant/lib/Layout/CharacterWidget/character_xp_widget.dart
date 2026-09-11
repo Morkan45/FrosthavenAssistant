@@ -10,12 +10,13 @@ import '../../services/service_locator.dart';
 class CharacterXPWidget extends StatelessWidget {
   static const double _kImageHeight = 16.0;
 
-  const CharacterXPWidget(
-      {super.key,
-      required this.character,
-      required this.scale,
-      required this.shadow,
-      this.gameState});
+  const CharacterXPWidget({
+    super.key,
+    required this.character,
+    required this.scale,
+    required this.shadow,
+    this.gameState,
+  });
   final Character character;
   final double scale;
   final Shadow shadow;
@@ -23,16 +24,33 @@ class CharacterXPWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gameState = this.gameState ?? getIt<GameState>();
-    return GestureDetector(
+    void changeXp(int amount) {
+      if (amount < 0 && character.characterState.xp.value == 0) return;
+      gameState.action(
+        ChangeXPCommand(
+          amount,
+          character.id,
+          character.id,
+          gameState: gameState,
+        ),
+      );
+    }
+
+    return Semantics(
+      label: 'Experience',
+      value: '${character.characterState.xp.value}',
+      increasedValue: '${character.characterState.xp.value + 1}',
+      decreasedValue:
+          '${(character.characterState.xp.value - 1).clamp(0, character.characterState.xp.value)}',
+      hint: 'Tap to add one. Double tap to subtract one.',
+      onIncrease: () => changeXp(1),
+      onDecrease: () => changeXp(-1),
+      child: GestureDetector(
         onTap: () {
-          gameState.action(ChangeXPCommand(1, character.id, character.id,
-              gameState: gameState));
+          changeXp(1);
         },
         onDoubleTap: () {
-          if (character.characterState.xp.value > 0) {
-            gameState.action(ChangeXPCommand(-1, character.id, character.id,
-                gameState: gameState));
-          }
+          changeXp(-1);
         },
         child: Row(
           children: [
@@ -43,14 +61,22 @@ class CharacterXPWidget extends StatelessWidget {
               image: const AssetImage("assets/images/psd/xp.png"),
             ),
             ValueListenableBuilder<int>(
-                valueListenable: character.characterState.xp,
-                builder: (context, value, child) {
-                  return Text(
-                    character.characterState.xp.value.toString(),
-                    style: getCardTitleStyle(kFontSizeSmall * scale, shadow, GameMethods.isFrosthavenStyle(null), color: Colors.blue),
-                  );
-                }),
+              valueListenable: character.characterState.xp,
+              builder: (context, value, child) {
+                return Text(
+                  character.characterState.xp.value.toString(),
+                  style: getCardTitleStyle(
+                    kFontSizeSmall * scale,
+                    shadow,
+                    GameMethods.isFrosthavenStyle(null),
+                    color: Colors.blue,
+                  ),
+                );
+              },
+            ),
           ],
-        ));
+        ),
+      ),
+    );
   }
 }

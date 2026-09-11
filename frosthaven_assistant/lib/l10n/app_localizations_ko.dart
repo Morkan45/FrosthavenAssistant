@@ -81,7 +81,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get elementDark => 'Dark';
 
   @override
-  String get actionLogTitle => '최근 20개 작업';
+  String get actionLogTitle => 'Action History';
 
   @override
   String get actionLogEmpty => '아직 작업이 없습니다';
