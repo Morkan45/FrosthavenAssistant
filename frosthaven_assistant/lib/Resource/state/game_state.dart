@@ -11,7 +11,6 @@ import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/stat_calculator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../Layout/MainList/main_list.dart';
 import '../../Model/character_class.dart';
 import '../../Model/monster.dart';
 import '../../Model/monster_ability.dart';

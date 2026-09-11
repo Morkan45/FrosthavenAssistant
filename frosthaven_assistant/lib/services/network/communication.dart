@@ -1,58 +1,12 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:frosthaven_assistant_server/message_framer.dart';
+export 'package:frosthaven_assistant_server/state_envelope.dart';
 
 import '../service_locator.dart';
 import 'connection.dart';
-
-/// Typed envelope for state-sync messages sent between server and clients.
-///
-/// The framed content is a JSON object:
-/// `{"i": index, "d": "description", "e": {event_object}, "s": "gamestate"}`
-class StateEnvelope {
-  // ignore: prefer-match-file-name, file contains multiple communication types
-  final int index;
-  final String description;
-
-  /// The event serialised as a JSON string (e.g. `'{"type":"none"}'`).
-  final String eventJson;
-  final String state;
-
-  const StateEnvelope({
-    required this.index,
-    required this.description,
-    required this.eventJson,
-    required this.state,
-  });
-
-  /// Encodes this envelope as JSON ready for byte-length framing.
-  String encode() => jsonEncode({
-    'i': index,
-    'd': description,
-    'e': jsonDecode(eventJson),
-    's': state,
-  });
-
-  /// Attempts to decode [content] as a [StateEnvelope].
-  /// Returns `null` if [content] is not in the new JSON format.
-  static StateEnvelope? tryDecode(String content) {
-    if (!content.startsWith('{')) return null;
-    try {
-      final map = jsonDecode(content) as Map<String, dynamic>;
-      return StateEnvelope(
-        index: map['i'] as int,
-        description: map['d'] as String,
-        eventJson: jsonEncode(map['e'] as Object),
-        state: map['s'] as String,
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-}
 
 class Communication {
   final Connection _connection;

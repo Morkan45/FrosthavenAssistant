@@ -14,7 +14,8 @@ The user authorized the full [2026-09-05 improvement plan](codebase-improvement-
 | F06 | Complete (2026-09-10) | A shared, group-aware `ColumnPlan` now keeps each target and its linked notes in the same `ReorderableWrap` column, and the automatic layout fit check uses the identical plan. Focused layout tests: 29 passed; analysis passes; full suite: 1,752 passed, 1 existing connection test skipped. |
 | F07 | Complete (2026-09-10) | Scenario, round, draw eligibility, standee setup, and toast paths now use supplied state/data/settings when provided; legacy callers retain their compatibility fallbacks. Two-state regressions prove unlock and scenario commands only mutate their injected game. Analysis passes; focused suite passes; full suite: 1,753 passed, 1 existing connection test skipped. |
 | F08 | Complete (2026-09-11) | Network messages use a mounted, lifecycle-owned latest-message timer that is cancelled on replacement and disposal. Keyboard visibility owns and cancels its subscription. Scenario, draw, and round commands no longer scroll the concrete main-list widget. Analysis passes; focused suite passes; full suite: 1,756 passed, 1 existing connection test skipped. |
-| F09–F15 | Pending | Follow the dependencies and acceptance criteria in the plan. |
+| F09 | Complete (2026-09-11) | The canonical state envelope codec now lives in the shared server package and is re-exported from the app compatibility module; app and standalone server preserve the `i/d/e/s` wire format. Network refresh coalesces concurrent work, atomically replaces current LAN IPv4 addresses, resolves LAN before bounded public-IP lookup, and ignores post-disposal updates. App analysis, focused tests, server tests, and full suite pass: 1,756 passed, 1 existing connection test skipped. |
+| F10–F15 | Pending | Follow the dependencies and acceptance criteria in the plan. |
 
 ## Decisions pending
 

@@ -24,9 +24,11 @@ class NetworkInformation {
     Connectivity? connectivity,
     NetworkInfo? networkInfo,
     Future<List<NetworkInterface>> Function()? interfaces,
+    Future<String> Function()? publicIp,
   }) : _connectivity = connectivity ?? Connectivity(),
        networkInfo = networkInfo ?? NetworkInfo(),
-       _interfaces = interfaces ?? NetworkInterface.list {
+       _interfaces = interfaces ?? NetworkInterface.list,
+       _publicIp = publicIp ?? Ipify.ipv64 {
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
       result,
     ) {
@@ -48,15 +50,40 @@ class NetworkInformation {
   final NetworkInfo networkInfo;
   final Connectivity _connectivity;
   final Future<List<NetworkInterface>> Function() _interfaces;
+  final Future<String> Function() _publicIp;
   ConnectivityResult? _connectionStatus;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
+  Future<void>? _refresh;
+  bool _disposed = false;
 
   final Set<String> wifiIPv6List = {};
   final wifiIPv6 = ValueNotifier<String>('');
   final outgoingIPv6 = ValueNotifier<String>('');
 
   static String? selectLocalIPv4(Iterable<LocalAddressCandidate> candidates) {
-    final usable = candidates.where((candidate) {
+    final usable = usableLocalIPv4(candidates).toList();
+
+    int priority(LocalAddressCandidate candidate) {
+      final name = candidate.interfaceName.toLowerCase();
+      if (name.contains('wi-fi') ||
+          name.contains('wifi') ||
+          name.contains('wlan')) {
+        return 0;
+      }
+      if (name.contains('ethernet') || name.startsWith('eth')) {
+        return 1;
+      }
+      return 2;
+    }
+
+    usable.sort((a, b) => priority(a).compareTo(priority(b)));
+    return usable.isEmpty ? null : usable.first.address.address;
+  }
+
+  static Iterable<LocalAddressCandidate> usableLocalIPv4(
+    Iterable<LocalAddressCandidate> candidates,
+  ) {
+    return candidates.where((candidate) {
       final address = candidate.address;
       final name = candidate.interfaceName.toLowerCase();
       return address.type == InternetAddressType.IPv4 &&
@@ -67,21 +94,7 @@ class NetworkInformation {
           !name.contains('veth') &&
           !name.contains('docker') &&
           !name.contains('switch');
-    }).toList();
-
-    int priority(LocalAddressCandidate candidate) {
-      final name = candidate.interfaceName.toLowerCase();
-      if (name.contains('wi-fi') ||
-          name.contains('wifi') ||
-          name.contains('wlan')) {
-        return 0;
-      }
-      if (name.contains('ethernet') || name.startsWith('eth')) return 1;
-      return 2;
-    }
-
-    usable.sort((a, b) => priority(a).compareTo(priority(b)));
-    return usable.isEmpty ? null : usable.first.address.address;
+    });
   }
 
   Future<void> initNonWifiIPs() async {
@@ -99,24 +112,48 @@ class NetworkInformation {
   }
 
   Future<void> initNetworkInfo() async {
-    try {
-      outgoingIPv6.value = await Ipify.ipv64();
-    } catch (_) {
-      outgoingIPv6.value = '';
-    }
+    return _refresh ??= _refreshNetworkInfo().whenComplete(
+      () => _refresh = null,
+    );
+  }
+
+  Future<void> _refreshNetworkInfo() async {
+    final localAddresses = <String>{};
+    String? wifiAddress;
 
     try {
       final wifiAddress = await networkInfo.getWifiIP();
       if (wifiAddress != null &&
           InternetAddress.tryParse(wifiAddress)?.type ==
               InternetAddressType.IPv4) {
-        wifiIPv6.value = wifiAddress;
-        wifiIPv6List.add(wifiAddress);
+        localAddresses.add(wifiAddress);
       }
     } on PlatformException catch (error) {
       developer.log('Failed to get Wi-Fi IP', error: error);
     }
-    await initNonWifiIPs();
+    final candidates = <LocalAddressCandidate>[];
+    for (final interface in await _interfaces()) {
+      for (final address in interface.addresses) {
+        candidates.add(LocalAddressCandidate(interface.name, address));
+      }
+    }
+    localAddresses.addAll(
+      usableLocalIPv4(candidates).map((item) => item.address.address),
+    );
+    if (_disposed) return;
+    wifiIPv6List
+      ..clear()
+      ..addAll(localAddresses);
+    wifiIPv6.value = wifiAddress ?? selectLocalIPv4(candidates) ?? '';
+
+    try {
+      final publicAddress = await _publicIp().timeout(
+        const Duration(seconds: 3),
+      );
+      if (!_disposed) outgoingIPv6.value = publicAddress;
+    } catch (_) {
+      if (!_disposed) outgoingIPv6.value = '';
+    }
 
     developer.log(
       'Local IPv4: ${wifiIPv6.value}\n'
@@ -125,6 +162,7 @@ class NetworkInformation {
   }
 
   Future<void> dispose() async {
+    _disposed = true;
     await _connectivitySubscription?.cancel();
     wifiIPv6.dispose();
     outgoingIPv6.dispose();

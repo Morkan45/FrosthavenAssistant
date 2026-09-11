@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:frosthaven_assistant_server/message_framer.dart';
+import 'package:frosthaven_assistant_server/state_envelope.dart';
 
 class StateUpdateMessage {
   String indexString = "";
@@ -72,26 +73,26 @@ abstract class GameServer {
     required String eventJson,
     required String state,
   }) {
-    return jsonEncode({
-      'i': index,
-      'd': description,
-      'e': jsonDecode(eventJson),
-      's': state,
-    });
+    return StateEnvelope(
+      index: index,
+      description: description,
+      eventJson: eventJson,
+      state: state,
+    ).encode();
   }
 
   /// Tries to decode [content] as a JSON envelope.
   /// Returns `null` if it is not in the new format.
   static StateUpdateMessage? tryDecodeStateEnvelope(String content) {
-    if (!content.startsWith('{')) return null;
+    final envelope = StateEnvelope.tryDecode(content);
+    if (envelope == null) return null;
     try {
-      final map = jsonDecode(content) as Map<String, dynamic>;
       final result = StateUpdateMessage();
-      result.index = map['i'] as int;
+      result.index = envelope.index;
       result.indexString = result.index.toString();
-      result.description = map['d'] as String;
-      result.eventJson = jsonEncode(map['e'] as Object);
-      result.data = map['s'] as String;
+      result.description = envelope.description;
+      result.eventJson = envelope.eventJson;
+      result.data = envelope.state;
       return result;
     } catch (_) {
       return null;
@@ -203,8 +204,8 @@ abstract class GameServer {
           final int? errno = error is SocketException
               ? error.osError?.errorCode
               : error is OSError
-              ? error.errorCode
-              : null;
+                  ? error.errorCode
+                  : null;
           if (errno == 103) {
             log(
               'Client aborted connection (errno 103): ${safeGetClientAddress(client)}',
