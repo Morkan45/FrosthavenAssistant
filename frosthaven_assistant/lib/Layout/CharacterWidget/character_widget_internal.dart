@@ -22,12 +22,15 @@ class CharacterWidgetInternal extends StatefulWidget {
   static const double _kXPLeft = 260.0;
   static const double _kLevelTop = 28.0;
   static const double _kLevelLeft = 262.0;
-  static const double _kHealthControlsRightInset = 6.0;
+  // Center the buttons in the two right-hand bays of character-bar.png,
+  // between its border notches and clear of the decorative end cap.
+  static const double _kHealthControlsRightInset = 22.0;
   static const double _kHealthControlsLeft =
       referenceWidth -
       _kHealthControlsRightInset -
       CharacterHealthControls.buttonSize * 2;
-  static const double _kHealthControlsTop = 5.0;
+  static const double _kHealthControlsTop =
+      (_kScaledHeight - CharacterHealthControls.buttonSize) / 2;
   static const double _kInkwellWidth = 70.0;
   static const double _kIconColumnWidth = 62.0;
   static const double _kInitiativeColumnWidth = 45.0;

@@ -37,15 +37,15 @@ void main() {
   }
 
   group('CharacterHealthControls', () {
-    testWidgets('uses two equal 50 logical-pixel targets', (
+    testWidgets('uses two equal 44 logical-pixel targets', (
       WidgetTester tester,
     ) async {
       await pumpControls(tester);
 
       final decrease = find.byKey(const Key('character-health-decrease'));
       final increase = find.byKey(const Key('character-health-increase'));
-      expect(tester.getSize(decrease), const Size(50, 50));
-      expect(tester.getSize(increase), const Size(50, 50));
+      expect(tester.getSize(decrease), const Size(44, 44));
+      expect(tester.getSize(increase), const Size(44, 44));
     });
 
     testWidgets('decreases and increases health by one', (
@@ -70,12 +70,7 @@ void main() {
       final character = getCharacter();
       final state = getIt<GameState>();
       state.action(
-        ChangeHealthCommand(
-          -3,
-          character.id,
-          character.id,
-          gameState: state,
-        ),
+        ChangeHealthCommand(-3, character.id, character.id, gameState: state),
       );
       await pumpControls(tester);
 
@@ -134,9 +129,7 @@ void main() {
       expect(
         tester
             .widget<AnimatedOpacity>(
-              find.byKey(
-                const Key('character-health-negative-feedback'),
-              ),
+              find.byKey(const Key('character-health-negative-feedback')),
             )
             .opacity,
         1,
@@ -146,9 +139,7 @@ void main() {
       expect(
         tester
             .widget<AnimatedOpacity>(
-              find.byKey(
-                const Key('character-health-negative-feedback'),
-              ),
+              find.byKey(const Key('character-health-negative-feedback')),
             )
             .opacity,
         0,
@@ -175,9 +166,7 @@ void main() {
       expect(
         tester
             .widget<AnimatedOpacity>(
-              find.byKey(
-                const Key('character-health-negative-feedback'),
-              ),
+              find.byKey(const Key('character-health-negative-feedback')),
             )
             .opacity,
         0,

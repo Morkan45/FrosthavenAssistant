@@ -99,6 +99,10 @@ void main() {
       );
       expect(xpRect.right, lessThanOrEqualTo(decreaseRect.left));
       expect(levelRect.right, lessThanOrEqualTo(decreaseRect.left));
+      expect(decreaseRect.center.dy, closeTo(rowRect.center.dy, 0.01));
+      expect(increaseRect.center.dy, closeTo(rowRect.center.dy, 0.01));
+      expect(decreaseRect.center.dx, closeTo(rowRect.left + 324 * scale, 0.01));
+      expect(increaseRect.center.dx, closeTo(rowRect.left + 368 * scale, 0.01));
 
       await tester.tap(decrease);
       await tester.pump();
@@ -140,6 +144,8 @@ void main() {
 
       expect(rowRect.right, closeTo(barRight, 0.01));
       expect(increaseRect.right, lessThanOrEqualTo(barRight));
+      expect(increaseRect.center.dy, closeTo(rowRect.center.dy, 0.01));
+      expect(increaseRect.center.dx, closeTo(rowRect.left + 368 * scale, 0.01));
     });
 
     testWidgets('tapping character widget opens StatusMenu', (

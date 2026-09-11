@@ -8,7 +8,7 @@ import '../../Resource/state/game_state.dart';
 import '../../services/service_locator.dart';
 
 class CharacterHealthControls extends StatefulWidget {
-  static const double buttonSize = 50;
+  static const double buttonSize = 44;
   static const double _iconSize = 30;
   static const Duration _feedbackDuration = Duration(seconds: 4);
   static const Duration _feedbackFadeDuration = Duration(milliseconds: 300);
@@ -213,10 +213,7 @@ class _HealthFeedbackBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final accentColor = delta < 0 ? Colors.redAccent : Colors.lightGreenAccent;
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 4 * scale,
-        vertical: 1 * scale,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 4 * scale, vertical: 1 * scale),
       decoration: BoxDecoration(
         color: Colors.black87,
         border: Border.all(color: accentColor),
