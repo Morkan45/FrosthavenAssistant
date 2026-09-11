@@ -16,7 +16,8 @@ The user authorized the full [2026-09-05 improvement plan](codebase-improvement-
 | F08 | Complete (2026-09-11) | Network messages use a mounted, lifecycle-owned latest-message timer that is cancelled on replacement and disposal. Keyboard visibility owns and cancels its subscription. Scenario, draw, and round commands no longer scroll the concrete main-list widget. Analysis passes; focused suite passes; full suite: 1,756 passed, 1 existing connection test skipped. |
 | F09 | Complete (2026-09-11) | The canonical state envelope codec now lives in the shared server package and is re-exported from the app compatibility module; app and standalone server preserve the `i/d/e/s` wire format. Network refresh coalesces concurrent work, atomically replaces current LAN IPv4 addresses, resolves LAN before bounded public-IP lookup, and ignores post-disposal updates. App analysis, focused tests, server tests, and full suite pass: 1,756 passed, 1 existing connection test skipped. |
 | F10 | Complete (2026-09-11) | All supported ARB files now match the English key/placeholder contract, with intentional English fallback for missing translations. Generated localizations were refreshed, the action log says “Action History,” and XP exposes accessible increment/decrement actions while retaining fast gestures. Analysis passes; focused suite passes; full suite: 1,757 passed, 1 existing connection test skipped. |
-| F11–F15 | Pending | Follow the dependencies and acceptance criteria in the plan. |
+| F11 | Complete (2026-09-11) | Recorded the Windows deterministic performance baseline for small/medium/stress state operations and 2560×1440 main-list rebuilds. Medium/stress rebuild p95 exceed a 16.7 ms discussion target, providing a reproducible threshold for future optimization experiments. Android profiling is skipped because no device is available. |
+| F12–F15 | Pending | Follow the dependencies and acceptance criteria in the plan. |
 
 ## Decisions pending
 
