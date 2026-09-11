@@ -269,6 +269,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           PRERELEASE: ${{ github.event_name == 'workflow_dispatch' && inputs.prerelease || false }}
           RELEASE_TAG: ${{ needs.prepare.outputs.release_tag }}
           VERSION_NAME: ${{ needs.prepare.outputs.version_name }}
