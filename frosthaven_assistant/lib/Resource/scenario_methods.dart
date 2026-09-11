@@ -522,10 +522,6 @@ class ScenarioMethods {
     );
 
     gs._notifyCurrentList();
-    if (!section) {
-      MainList.scrollToTop();
-    }
-
     if (finalInitMessage.isNotEmpty &&
         (settings ?? getIt<Settings>()).showReminders.value) {
       gs._toastMessage.value += finalInitMessage;

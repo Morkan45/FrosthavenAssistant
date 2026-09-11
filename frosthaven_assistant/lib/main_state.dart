@@ -36,10 +36,12 @@ class MainState extends State<MyHomePage>
   late final Client _client;
   late final GameState _gameState;
   late final DesktopCloseController _desktopClose;
+  StreamSubscription<bool>? _keyboardVisibilitySubscription;
   bool _closeDialogOpen = false;
 
   @override
   void dispose() {
+    _keyboardVisibilitySubscription?.cancel();
     _desktopClose.dispose();
     _settings.powerMode.removeListener(_applyWakelock);
     if (Platform.isAndroid) {
@@ -189,14 +191,15 @@ class MainState extends State<MyHomePage>
     _settings.powerMode.addListener(_applyWakelock);
 
     if (Platform.isAndroid || Platform.isIOS) {
-      KeyboardVisibilityController().onChange.listen((bool visible) {
-        if (kDebugMode) {
-          print("keyboard visible $visible");
-        }
-        if (!visible && _settings.fullScreen.value) {
-          _settings.setFullscreen(true);
-        }
-      });
+      _keyboardVisibilitySubscription = KeyboardVisibilityController().onChange
+          .listen((bool visible) {
+            if (kDebugMode) {
+              print("keyboard visible $visible");
+            }
+            if (!visible && _settings.fullScreen.value) {
+              _settings.setFullscreen(true);
+            }
+          });
     }
   }
 

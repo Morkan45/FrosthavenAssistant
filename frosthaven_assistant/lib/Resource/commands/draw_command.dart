@@ -1,4 +1,3 @@
-import '../../Layout/MainList/main_list.dart';
 import '../enums.dart';
 import '../state/game_state.dart';
 import 'command_l10n.dart';
@@ -14,13 +13,14 @@ class DrawCommand extends Command {
     RoundMethods.sortByInitiative(stateAccess);
     RoundMethods.setRoundState(stateAccess, RoundState.playTurns);
     if (_gameState.currentList.isNotEmpty) {
-      _gameState.currentList.first
-          .setTurnState(stateAccess, TurnsState.current);
+      _gameState.currentList.first.setTurnState(
+        stateAccess,
+        TurnsState.current,
+      );
     }
 
     Future.delayed(const Duration(milliseconds: 600), () {
       _gameState.updateList.notify();
-      MainList.scrollToTop();
     });
   }
 

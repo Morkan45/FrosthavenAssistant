@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:frosthaven_assistant/Model/scenario.dart';
 
-import '../../Layout/MainList/main_list.dart';
 import '../enums.dart';
 import '../game_data.dart';
 import '../game_methods.dart';
@@ -113,7 +112,6 @@ class NextRoundCommand extends Command {
 
     Future.delayed(const Duration(milliseconds: 600), () {
       _gameState.updateList.notify();
-      MainList.scrollToTop();
     });
 
     if (_gameState.modifierDeck.needsShuffle) {
