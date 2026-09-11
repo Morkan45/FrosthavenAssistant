@@ -1,4 +1,4 @@
-name: Windows and Android release
+name: Windows, Android, and iOS release
 run-name: Release ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
 
 on:
@@ -206,6 +206,47 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  ios:
+    name: Build unsigned iOS app ZIP
+    needs:
+      - prepare
+      - validate
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: frosthaven_assistant
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Build iOS release without code signing
+        run: flutter build ios --release --no-codesign
+      - name: Package iOS app bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          app_path="build/ios/iphoneos/Runner.app"
+          if [[ ! -d "$app_path" ]]; then
+            echo "::error::iOS app bundle was not found: $app_path"
+            exit 1
+          fi
+
+          mkdir -p dist
+          ditto -c -k --sequesterRsrc --keepParent "$app_path" \
+            "dist/x-haven-assistant-ios-unsigned-${{ needs.prepare.outputs.asset_version }}.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-ios
+          path: frosthaven_assistant/dist/*.zip
+          if-no-files-found: error
+          retention-days: 7
+
   publish:
     name: Publish GitHub Release
     needs:
@@ -213,6 +254,7 @@ jobs:
       - validate
       - android
       - windows
+      - ios
     runs-on: ubuntu-latest
     permissions:
       contents: write

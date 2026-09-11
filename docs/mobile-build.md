@@ -17,13 +17,17 @@ flutter build apk --debug
 The APK is written to
 `build/app/outputs/flutter-apk/app-debug.apk`.
 
-## Windows and Android releases
+## Windows, Android, and iOS releases
 
-The `Windows and Android release` GitHub Actions workflow builds a signed,
-release-mode Android APK and a ZIP containing the complete Windows release
-directory. It publishes both files as assets on a GitHub Release in this fork.
+The `Windows, Android, and iOS release` GitHub Actions workflow builds a signed,
+release-mode Android APK, a ZIP containing the complete Windows release
+directory, and an unsigned iOS release app bundle. It publishes all three files
+as assets on a GitHub Release in this fork.
 The Windows executable is not Authenticode-signed, so Windows SmartScreen can
 warn users until a trusted Windows code-signing certificate is configured.
+The iOS ZIP is intended for development and downstream signing; Apple devices
+cannot install it until it is signed with an Apple Developer certificate and a
+matching provisioning profile.
 
 ### Configure Android signing once
 
@@ -69,14 +73,14 @@ git push origin v1.15.1
 ```
 
 Or, after the workflow is present on the default branch, open **Actions >
-Windows and Android release > Run workflow**, select `main`, and enter
+Windows, Android, and iOS release > Run workflow**, select `main`, and enter
 `v1.15.1`. A manual run creates the tag at the selected commit if it does not
 already exist.
 
 The workflow generates Mockito files before analysis, runs the test suite,
-builds both platforms, and only then publishes the release. Rerunning the same
-tag replaces its APK and ZIP assets. Short-lived Actions artifacts are retained
-for seven days as a recovery copy.
+builds all three platforms, and only then publishes the release. Rerunning the
+same tag replaces its APK and ZIP assets. Short-lived Actions artifacts are
+retained for seven days as a recovery copy.
 
 ## iPhone
 
