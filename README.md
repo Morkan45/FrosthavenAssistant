@@ -1,5 +1,12 @@
 # X-haven Assistant
 
+## Documentation and releases
+
+The maintained user manual starts at [docs/manual/index.html](docs/manual/index.html).
+For local validation and release preparation, see [docs/testing.md](docs/testing.md)
+and [docs/release-guide.md](docs/release-guide.md). GitHub Actions is the
+supported CI and release surface.
+
 <img width="776" alt="image" src="https://github.com/alexzhaohong/FrosthavenAssistant/assets/12620082/cfedba27-f69d-4c97-bda3-264973570067">
 
 > Scenario 1 of Gloomhaven with starting classes of X-haven games
