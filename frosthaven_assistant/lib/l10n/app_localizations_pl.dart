@@ -9,6 +9,25 @@ class AppLocalizationsPl extends AppLocalizations {
   AppLocalizationsPl([String locale = 'pl']) : super(locale);
 
   @override
+  String get topBarZoomIn => 'Zoom in (Ctrl++)';
+
+  @override
+  String get topBarZoomOut => 'Zoom out (Ctrl+-)';
+
+  @override
+  String get topBarShowOriginalValues => 'Show original monster ability values';
+
+  @override
+  String get topBarShowCalculatedValues =>
+      'Show calculated monster ability values';
+
+  @override
+  String get monsterAbilityDeckMenu => 'Monster ability deck';
+
+  @override
+  String get monsterStatusMenu => 'Monster menu';
+
+  @override
   String get menuSetScenario => 'Ustaw scenariusz';
 
   @override

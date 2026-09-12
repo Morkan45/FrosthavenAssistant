@@ -1,4 +1,10 @@
 {
+  "topBarZoomIn": "Zoom in (Ctrl++)",
+  "topBarZoomOut": "Zoom out (Ctrl+-)",
+  "topBarShowOriginalValues": "Show original monster ability values",
+  "topBarShowCalculatedValues": "Show calculated monster ability values",
+  "monsterAbilityDeckMenu": "Monster ability deck",
+  "monsterStatusMenu": "Monster menu",
   "@@locale": "ko",
   "actionLogRollbackHint": "작업을 탭하여 되돌리기",
   "actionLogRollbackTitle": "되돌리시겠습니까?",

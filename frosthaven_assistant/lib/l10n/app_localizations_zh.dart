@@ -9,6 +9,25 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get topBarZoomIn => 'Zoom in (Ctrl++)';
+
+  @override
+  String get topBarZoomOut => 'Zoom out (Ctrl+-)';
+
+  @override
+  String get topBarShowOriginalValues => 'Show original monster ability values';
+
+  @override
+  String get topBarShowCalculatedValues =>
+      'Show calculated monster ability values';
+
+  @override
+  String get monsterAbilityDeckMenu => 'Monster ability deck';
+
+  @override
+  String get monsterStatusMenu => 'Monster menu';
+
+  @override
   String get menuSetScenario => '设置场景';
 
   @override
@@ -1217,6 +1236,25 @@ class AppLocalizationsZh extends AppLocalizations {
 /// The translations for Chinese, using the Han script (`zh_Hant`).
 class AppLocalizationsZhHant extends AppLocalizationsZh {
   AppLocalizationsZhHant() : super('zh_Hant');
+
+  @override
+  String get topBarZoomIn => 'Zoom in (Ctrl++)';
+
+  @override
+  String get topBarZoomOut => 'Zoom out (Ctrl+-)';
+
+  @override
+  String get topBarShowOriginalValues => 'Show original monster ability values';
+
+  @override
+  String get topBarShowCalculatedValues =>
+      'Show calculated monster ability values';
+
+  @override
+  String get monsterAbilityDeckMenu => 'Monster ability deck';
+
+  @override
+  String get monsterStatusMenu => 'Monster menu';
 
   @override
   String get menuSetScenario => '設定場景';

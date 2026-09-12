@@ -113,6 +113,42 @@ abstract class AppLocalizations {
     Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
   ];
 
+  /// No description provided for @topBarZoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in (Ctrl++)'**
+  String get topBarZoomIn;
+
+  /// No description provided for @topBarZoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out (Ctrl+-)'**
+  String get topBarZoomOut;
+
+  /// No description provided for @topBarShowOriginalValues.
+  ///
+  /// In en, this message translates to:
+  /// **'Show original monster ability values'**
+  String get topBarShowOriginalValues;
+
+  /// No description provided for @topBarShowCalculatedValues.
+  ///
+  /// In en, this message translates to:
+  /// **'Show calculated monster ability values'**
+  String get topBarShowCalculatedValues;
+
+  /// No description provided for @monsterAbilityDeckMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Monster ability deck'**
+  String get monsterAbilityDeckMenu;
+
+  /// No description provided for @monsterStatusMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Monster menu'**
+  String get monsterStatusMenu;
+
   /// No description provided for @menuSetScenario.
   ///
   /// In en, this message translates to:

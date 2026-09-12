@@ -1,4 +1,10 @@
 {
+  "topBarZoomIn": "Zoom in (Ctrl++)",
+  "topBarZoomOut": "Zoom out (Ctrl+-)",
+  "topBarShowOriginalValues": "Show original monster ability values",
+  "topBarShowCalculatedValues": "Show calculated monster ability values",
+  "monsterAbilityDeckMenu": "Monster ability deck",
+  "monsterStatusMenu": "Monster menu",
   "@@locale": "zh_Hant",
   "actionLogRollbackHint": "點按某個操作以回退到此處",
   "actionLogRollbackTitle": "回退？",
