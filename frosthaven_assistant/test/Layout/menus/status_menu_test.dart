@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:frosthaven_assistant/Layout/CharacterWidget/character_summons_button.dart';
 import 'package:frosthaven_assistant/Layout/menus/AddSummonMenu/add_summon_menu.dart';
 import 'package:frosthaven_assistant/Layout/menus/StatusMenu/status_menu.dart';
+import 'package:frosthaven_assistant/Layout/menus/AbilityCardsMenu/ability_cards_menu.dart';
+import 'package:frosthaven_assistant/Resource/game_methods.dart';
 import 'package:frosthaven_assistant/Layout/menus/condition_button.dart';
 import 'package:frosthaven_assistant/Layout/menus/set_character_level_menu.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_character_command.dart';
@@ -64,6 +66,7 @@ void main() {
       await pumpMenu(tester);
 
       expect(find.text('Name'), findsOneWidget);
+      expect(find.byKey(const Key('monster-ability-deck-menu')), findsNothing);
       expect(
         find.byKey(const Key('status-character-class-name')),
         findsOneWidget,
@@ -320,6 +323,27 @@ void main() {
       await pumpMonsterMenu(tester);
       expect(find.byType(ConditionButton), findsWidgets);
       expect(find.byType(CharacterSummonsButton), findsNothing);
+    });
+
+    testWidgets('condition panel opens the owning monsters ability deck', (
+      tester,
+    ) async {
+      await pumpMonsterMenu(tester);
+      final button = find.byKey(const Key('monster-ability-deck-menu'));
+      expect(button, findsOneWidget);
+      expect(find.byTooltip('Monster ability deck'), findsOneWidget);
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+      final menu = tester.widget<AbilityCardsMenu>(
+        find.byType(AbilityCardsMenu),
+      );
+      expect(menu.monsterData, same(getZealot()));
+      expect(
+        menu.monsterAbilityState,
+        same(GameMethods.getDeck(getZealot().type.deck)),
+      );
+      expect(menu.gameState, same(getIt<GameState>()));
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('tapping stun condition adds stun to monster instance', (

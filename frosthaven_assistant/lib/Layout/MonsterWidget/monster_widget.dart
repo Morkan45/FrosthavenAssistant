@@ -67,7 +67,9 @@ class MonsterWidgetState extends State<MonsterWidget> {
       monsterInstances.length,
       (index) => RepaintBoundary(
         child: AnimatedSize(
-          key: Key(monsterInstances[index].standeeNr.toString()),
+          // Scale changes must not retain the previous, larger standee height
+          // while the initiative row has already resized around this grid.
+          key: ValueKey((monsterInstances[index].standeeNr, scale)),
           duration: const Duration(milliseconds: kAnimationDurationMs),
           child: MonsterBox(
             key: Key(monsterInstances[index].standeeNr.toString()),
@@ -110,6 +112,9 @@ class MonsterWidgetState extends State<MonsterWidget> {
                 children: [
                   _vm.showTurnTap
                       ? InkWell(
+                          key: ValueKey(
+                            'monster-portrait-turn-${widget.data.id}',
+                          ),
                           onTap: () {
                             _vm.endTurn();
                           },
@@ -127,7 +132,11 @@ class MonsterWidgetState extends State<MonsterWidget> {
                           vm: _vm,
                         ),
                   RepaintBoundary(
-                    child: MonsterAbilityCardWidget(data: widget.data),
+                    child: MonsterAbilityCardWidget(
+                      data: widget.data,
+                      gameState: widget.gameState,
+                      onTap: _vm.showTurnTap ? _vm.endTurn : null,
+                    ),
                   ),
                   RepaintBoundary(
                     child: MonsterStatCardWidget(data: widget.data),

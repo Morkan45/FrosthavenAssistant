@@ -8,8 +8,10 @@ import 'package:frosthaven_assistant/Layout/MonsterBox/monster_health_slider_con
 import 'package:frosthaven_assistant/Layout/MonsterStatCardWidget/monster_stat_card_widget.dart';
 import 'package:frosthaven_assistant/Layout/MonsterWidget/monster_widget.dart';
 import 'package:frosthaven_assistant/Layout/menus/StatusMenu/status_menu.dart';
+import 'package:frosthaven_assistant/Layout/menus/AbilityCardsMenu/ability_cards_menu.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_monster_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_standee_command.dart';
+import 'package:frosthaven_assistant/Resource/commands/draw_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/change_stat_commands/change_health_command.dart';
 import 'package:frosthaven_assistant/Resource/enums.dart';
 import 'package:frosthaven_assistant/Resource/scaling.dart';
@@ -49,6 +51,57 @@ void main() {
   }
 
   group('MonsterWidget', () {
+    testWidgets('portrait and ability card perform the same turn transition', (
+      tester,
+    ) async {
+      final state = getIt<GameState>();
+      AddStandeeCommand(
+        1,
+        null,
+        monster.id,
+        MonsterType.normal,
+        false,
+        gameState: state,
+      ).execute();
+      state.resetCommandHistory();
+      state.action(DrawCommand(gameState: state));
+      await pumpWidget(tester);
+      await tester.pumpAndSettle();
+      expect(monster.turnState.value, TurnsState.current);
+
+      await tester.tap(
+        find.byKey(ValueKey('monster-ability-turn-${monster.id}')),
+      );
+      await tester.pumpAndSettle();
+      expect(monster.turnState.value, TurnsState.done);
+      expect(find.byType(AbilityCardsMenu), findsNothing);
+      state.undo();
+      await tester.pumpAndSettle();
+      expect(monster.turnState.value, TurnsState.current);
+      await tester.tap(
+        find.byKey(ValueKey('monster-portrait-turn-${monster.id}')),
+      );
+      await tester.pumpAndSettle();
+      expect(monster.turnState.value, TurnsState.done);
+      expect(find.byType(AbilityCardsMenu), findsNothing);
+      await tester.pumpWidget(testMaterialApp(home: const SizedBox.shrink()));
+      state.undo();
+      state.undo();
+      await tester.pumpAndSettle();
+      expect(state.roundState.value, RoundState.chooseInitiative);
+    });
+
+    testWidgets('ability card has no turn action during initiative selection', (
+      tester,
+    ) async {
+      await pumpWidget(tester);
+      final target = find.byKey(ValueKey('monster-ability-turn-${monster.id}'));
+      expect(tester.widget<InkWell>(target).onTap, isNull);
+      await tester.tap(target);
+      await tester.pumpAndSettle();
+      expect(find.byType(AbilityCardsMenu), findsNothing);
+      expect(getIt<GameState>().roundState.value, RoundState.chooseInitiative);
+    });
     testWidgets('renders monster type display name', (
       WidgetTester tester,
     ) async {

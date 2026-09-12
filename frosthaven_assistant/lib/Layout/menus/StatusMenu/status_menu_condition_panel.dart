@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../../../Resource/enums.dart';
+import '../../../Resource/app_constants.dart';
 import '../../../Resource/game_methods.dart';
 import '../../../Resource/settings.dart';
 import '../../../Resource/state/game_state.dart';
+import '../../../Resource/ui_utils.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../CharacterWidget/character_summons_button.dart';
 import '../condition_button.dart';
+import '../AbilityCardsMenu/ability_cards_menu.dart';
 import 'status_menu_extra_condition_row.dart';
 import 'status_menu_summon_button.dart';
 
@@ -61,6 +65,15 @@ class StatusMenuConditionPanel extends StatelessWidget {
         !isSummon &&
         character != null &&
         !GameMethods.isObjectiveOrEscort(character!.characterClass);
+    final monster = isMonster
+        ? gameState.currentList
+              .whereType<Monster>()
+              .where((item) => item.id == ownerId)
+              .firstOrNull
+        : null;
+    final deck = monster == null
+        ? null
+        : GameMethods.getDeck(monster.type.deck, gameState: gameState);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -75,6 +88,26 @@ class StatusMenuConditionPanel extends StatelessWidget {
             _btn(Condition.wound),
             if (canAddSummon)
               CharacterSummonsButton(scale: scale, character: character!),
+            if (monster != null)
+              SizedBox.square(
+                dimension: kConditionButtonSize * scale,
+                child: IconButton(
+                  key: const Key('monster-ability-deck-menu'),
+                  tooltip: AppLocalizations.of(context)!.monsterAbilityDeckMenu,
+                  padding: EdgeInsets.zero,
+                  icon: Icon(Icons.style_outlined, size: 28 * scale),
+                  onPressed: deck == null
+                      ? null
+                      : () => openDialog(
+                          context,
+                          AbilityCardsMenu(
+                            monsterAbilityState: deck,
+                            monsterData: monster,
+                            gameState: gameState,
+                          ),
+                        ),
+                ),
+              ),
           ],
         ),
         Row(

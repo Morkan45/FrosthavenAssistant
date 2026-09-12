@@ -18,11 +18,13 @@ class MonsterAbilityCardWidget extends StatefulWidget {
     required this.data,
     this.gameState,
     this.settings,
+    this.onTap,
   });
 
   final Monster data;
   final GameState? gameState;
   final Settings? settings;
+  final VoidCallback? onTap;
 
   @override
   MonsterAbilityCardWidgetState createState() =>
@@ -64,14 +66,8 @@ class MonsterAbilityCardWidgetState extends State<MonsterAbilityCardWidget> {
         final card = _vm.currentCard;
 
         return InkWell(
-          onTap: () {
-            setState(() => _vm.openDeckMenu(context));
-          },
-          onDoubleTap: () {
-            if (showFront) {
-              setState(() => _vm.openZoom(context));
-            }
-          },
+          key: ValueKey('monster-ability-turn-${widget.data.id}'),
+          onTap: widget.onTap,
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: _kAnimationDurationMs),
             transitionBuilder: _transitionBuilder,
@@ -83,6 +79,7 @@ class MonsterAbilityCardWidgetState extends State<MonsterAbilityCardWidget> {
                     data: widget.data,
                     scale: scale,
                     calculateAll: false,
+                    settings: widget.settings,
                   )
                 : MonsterAbilityCardRear(
                     scale: scale,

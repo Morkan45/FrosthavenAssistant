@@ -31,19 +31,27 @@ class MonsterAbilityCardViewModel {
     if (_gameState.roundState.value != RoundState.playTurns) return false;
     if (!monster.isActive) return false;
     if (GameMethods.isInactiveForRule(monster.type.name)) return false;
-    final deck = GameMethods.getDeck(monster.type.deck);
+    final deck = GameMethods.getDeck(monster.type.deck, gameState: _gameState);
     return deck != null && deck.discardPileIsNotEmpty;
   }
 
   MonsterAbilityCardModel? get currentCard {
     if (!shouldShowFront) return null;
-    return GameMethods.getDeck(monster.type.deck)?.discardPileTop;
+    return GameMethods.getDeck(
+      monster.type.deck,
+      gameState: _gameState,
+    )?.discardPileTop;
   }
 
-  int get deckSize => GameMethods.getDeck(monster.type.deck)?.drawPileSize ?? 0;
+  int get deckSize =>
+      GameMethods.getDeck(
+        monster.type.deck,
+        gameState: _gameState,
+      )?.drawPileSize ??
+      0;
 
   MonsterAbilityState get deck {
-    final d = GameMethods.getDeck(monster.type.deck);
+    final d = GameMethods.getDeck(monster.type.deck, gameState: _gameState);
     if (d == null) {
       throw StateError('Ability deck not found: ${monster.type.deck}');
     }
@@ -53,7 +61,11 @@ class MonsterAbilityCardViewModel {
   void openDeckMenu(BuildContext context) {
     openDialog(
       context,
-      AbilityCardsMenu(monsterAbilityState: deck, monsterData: monster),
+      AbilityCardsMenu(
+        monsterAbilityState: deck,
+        monsterData: monster,
+        gameState: _gameState,
+      ),
     );
   }
 

@@ -8,19 +8,29 @@ import '../MonsterWidget/monster_widget.dart';
 import '../NoteWidget/note_row_widget.dart';
 import '../view_models/main_list_item_view_model.dart';
 
-class MainListItem extends StatelessWidget {
-  static const double _stateMarkerInset = 3;
-  static const double _stateMarkerSize = 18;
-  static const double _stateMarkerIconSize = 13;
-
+class MainListItem extends StatefulWidget {
   const MainListItem({super.key, required this.data});
 
   final ListItemData data;
 
   @override
+  State<MainListItem> createState() => _MainListItemState();
+}
+
+class _MainListItemState extends State<MainListItem> {
+  static const double _stateMarkerInset = 3;
+  static const double _stateMarkerSize = 18;
+  static const double _stateMarkerIconSize = 13;
+  double? _lastScale;
+
+  ListItemData get data => widget.data;
+
+  @override
   Widget build(BuildContext context) {
     final layout = getMainListLayout(context);
     final double scale = layout.scale;
+    final scaleChanged = _lastScale != scale;
+    _lastScale = scale;
     final double listWidth = layout.columnWidth;
     final vm = MainListItemViewModel(
       data: data,
@@ -50,7 +60,9 @@ class MainListItem extends StatelessWidget {
       key: child.key,
       width: listWidth,
       height: vm.height,
-      duration: layout.fitsScreenWidth
+      // Children adopt the new scale immediately. Only animate size changes
+      // within one scale (such as adding/removing a standee), never zoom.
+      duration: layout.fitsScreenWidth || scaleChanged
           ? Duration.zero
           : const Duration(milliseconds: 500),
       child: child,

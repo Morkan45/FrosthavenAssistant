@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +8,8 @@ import 'package:frosthaven_assistant/Layout/CharacterWidget/character_widget.dar
 import 'package:frosthaven_assistant/Layout/MainList/main_list.dart';
 import 'package:frosthaven_assistant/Layout/MainList/main_list_item.dart';
 import 'package:frosthaven_assistant/Layout/MonsterWidget/monster_widget.dart';
+import 'package:frosthaven_assistant/Layout/menus/StatusMenu/status_menu.dart';
+import 'package:frosthaven_assistant/Layout/view_models/display_controls_view_model.dart';
 import 'package:frosthaven_assistant/Layout/background.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_character_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/add_monster_command.dart';
@@ -75,9 +78,11 @@ void main() {
     final originalOnError = FlutterError.onError;
     addTearDown(() => FlutterError.onError = originalOnError);
     await tester.pumpWidget(
-      MaterialApp(
-        theme: ThemeData(platform: platform),
-        home: const Scaffold(body: MainList()),
+      testApp(
+        Theme(
+          data: ThemeData(platform: platform, fontFamily: 'Pirata'),
+          child: const Scaffold(body: MainList()),
+        ),
       ),
     );
     await tester.pump();
@@ -86,6 +91,48 @@ void main() {
   }
 
   group('MainList', () {
+    for (final fitWidth in [false, true]) {
+      testWidgets(
+        'zoom keeps mixed rows within their bounds with fitWidth=$fitWidth',
+        (tester) async {
+          tester.view.physicalSize = const Size(2560, 1440);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.resetPhysicalSize);
+          addTearDown(tester.view.resetDevicePixelRatio);
+          final state = getIt<GameState>();
+          final settings = getIt<Settings>();
+          settings.fitMainListToWidth.value = fitWidth;
+          settings.mainListColumns.value = 2;
+          AddCharacterCommand('Blinkblade', 'Frosthaven', null, 1).execute();
+          AddMonsterCommand('Zealot', 1, false, gameState: state).execute();
+          AddStandeeCommand(
+            1,
+            null,
+            'Zealot',
+            MonsterType.normal,
+            false,
+            gameState: state,
+          ).execute();
+          await pumpWidget(tester);
+          await tester.pumpAndSettle();
+          final controls = DisplayControlsViewModel(settings: settings);
+          for (final zoom in [
+            controls.zoomIn,
+            controls.zoomOut,
+            controls.zoomOut,
+            controls.zoomIn,
+          ]) {
+            zoom();
+            await tester.pump();
+            expect(tester.takeException(), isNull);
+            await tester.pump(const Duration(milliseconds: 20));
+            expect(tester.takeException(), isNull);
+            await tester.pumpAndSettle();
+            expect(tester.takeException(), isNull);
+          }
+        },
+      );
+    }
     testWidgets('renders BackGround widget', (WidgetTester tester) async {
       await pumpWidget(tester);
       expect(find.byType(BackGround), findsOneWidget);
@@ -295,6 +342,12 @@ void main() {
       await pumpWidget(tester);
 
       final target = find.byKey(Key('monster-health-target-$figureId'));
+      final healthGesture = tester.widget<RawGestureDetector>(target);
+      expect(
+        healthGesture.gestures.keys,
+        contains(EagerGestureRecognizer),
+        reason: 'Monster HP must claim the pointer before row reordering can.',
+      );
       final items = find.byType(MainListItem);
       final gesture = await tester.startGesture(
         tester.getCenter(target),
@@ -347,6 +400,58 @@ void main() {
       expect(state.currentList[1].id, secondId);
       expect(find.byKey(Key('monster-health-slider-$figureId')), findsNothing);
     });
+
+    for (final platform in [TargetPlatform.windows, TargetPlatform.android]) {
+      testWidgets('standee number prevents row reordering on $platform', (
+        tester,
+      ) async {
+        final state = getIt<GameState>();
+        for (final name in ['Zealot', 'Vermling Raider']) {
+          AddMonsterCommand(name, 1, false, gameState: state).execute();
+          AddStandeeCommand(
+            1,
+            null,
+            name,
+            MonsterType.normal,
+            false,
+            gameState: state,
+          ).execute();
+        }
+        final ids = state.currentList.map((item) => item.id).toList();
+        final monster = state.currentList[1] as Monster;
+        final figureId = monster.monsterInstances.single.getId();
+        await pumpWidget(tester, platform: platform);
+        final target = find.byKey(Key('monster-status-target-$figureId'));
+        final firstRowCenter = tester.getCenter(
+          find.byType(MainListItem).first,
+        );
+        final gesture = await tester.startGesture(
+          tester.getCenter(target),
+          kind: platform == TargetPlatform.windows
+              ? PointerDeviceKind.mouse
+              : PointerDeviceKind.touch,
+        );
+        if (platform == TargetPlatform.android) {
+          await tester.pump(const Duration(milliseconds: 700));
+        }
+        await gesture.moveBy(const Offset(0, -20));
+        await tester.pump();
+        await gesture.moveTo(firstRowCenter);
+        await tester.pump(const Duration(milliseconds: 100));
+        await gesture.up();
+        await tester.pumpAndSettle();
+        expect(state.currentList.map((item) => item.id), ids);
+        if (platform == TargetPlatform.windows) {
+          expect(find.byType(StatusMenu), findsNothing);
+          await tester.tap(target);
+          await tester.pumpAndSettle();
+        }
+        expect(
+          tester.widget<StatusMenu>(find.byType(StatusMenu)).figureId,
+          figureId,
+        );
+      });
+    }
 
     testWidgets('swiping from a standee number scrolls the list on mobile', (
       WidgetTester tester,

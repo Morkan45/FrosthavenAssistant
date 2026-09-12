@@ -120,6 +120,9 @@ class AnimatedContainerButtonState extends State<ElementButton> {
         value: _elementStateValue(_vm.elementStateNotifier.value),
         hint: 'Double tap to infuse. Long press to make waning.',
         child: Container(
+          // Reserve the target width immediately when toolbar scale changes;
+          // the infused background may still be animating from its old size.
+          width: (widget.width - widget.borderWidth * _kBorderSides) * scale,
           margin: EdgeInsets.only(right: kSmallMargin * scale),
           child: InkWell(
             hoverColor: Colors.white.withValues(alpha: 0.12),

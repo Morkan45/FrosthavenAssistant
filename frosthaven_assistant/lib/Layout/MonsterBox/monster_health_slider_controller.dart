@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../../Resource/commands/change_stat_commands/change_health_command.dart';
@@ -51,6 +52,7 @@ class _MonsterHealthSliderControllerState
 
   final ValueNotifier<int> _selectedDelta = ValueNotifier(0);
   OverlayEntry? _entry;
+  int? _activePointer;
   double _dragDistance = 0;
   double _panStartY = 0;
   int _initialHealth = 0;
@@ -100,10 +102,6 @@ class _MonsterHealthSliderControllerState
       -_initialHealth,
       _maximumHealth - _initialHealth,
     );
-  }
-
-  void _updatePan(DragUpdateDetails details, double scale) {
-    _updateFromDistance(details.globalPosition.dy - _panStartY, scale);
   }
 
   void _finishGesture() {
@@ -185,22 +183,39 @@ class _MonsterHealthSliderControllerState
   @override
   Widget build(BuildContext context) {
     final scale = getScaleByReference(context);
-    return GestureDetector(
+    return RawGestureDetector(
       key: Key('monster-health-target-${widget.figureId}'),
       behavior: HitTestBehavior.opaque,
-      onPanDown: (details) => _beginGesture(details.globalPosition.dy),
-      onPanStart: (details) =>
-          _updateFromDistance(details.globalPosition.dy - _panStartY, scale),
-      onPanUpdate: (details) => _updatePan(details, scale),
-      onPanEnd: (_) => _finishGesture(),
-      onPanCancel: _cancelGesture,
-      // On touch platforms this child long-press recognizer beats the
-      // ancestor LongPressDraggable if the pointer is held before moving.
-      onLongPressStart: (_) => _beginGesture(),
-      onLongPressMoveUpdate: (details) =>
-          _updateFromDistance(details.offsetFromOrigin.dy, scale),
-      onLongPressEnd: (_) => _finishGesture(),
-      child: widget.child,
+      gestures: <Type, GestureRecognizerFactory>{
+        EagerGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<EagerGestureRecognizer>(
+              EagerGestureRecognizer.new,
+              (_) {},
+            ),
+      },
+      child: Listener(
+        behavior: HitTestBehavior.opaque,
+        onPointerDown: (event) {
+          if (_activePointer != null) return;
+          _activePointer = event.pointer;
+          _beginGesture(event.position.dy);
+        },
+        onPointerMove: (event) {
+          if (event.pointer != _activePointer) return;
+          _updateFromDistance(event.position.dy - _panStartY, scale);
+        },
+        onPointerUp: (event) {
+          if (event.pointer != _activePointer) return;
+          _activePointer = null;
+          _finishGesture();
+        },
+        onPointerCancel: (event) {
+          if (event.pointer != _activePointer) return;
+          _activePointer = null;
+          _cancelGesture();
+        },
+        child: widget.child,
+      ),
     );
   }
 }

@@ -41,7 +41,9 @@ const int _kGfxIndex2 = 2;
 const int _kGfxIndex3 = 3;
 
 List<Widget> buildGraphicPositionals(
-    double scale, List<GraphicPositional> positionals) {
+  double scale,
+  List<GraphicPositional> positionals,
+) {
   List<Widget> list = [];
   double cardWidth = kAbilityCardWidth * scale;
   double cardHeight = _kCardHeight * scale;
@@ -53,16 +55,18 @@ List<Widget> buildGraphicPositionals(
     }
 
     Positioned pos = Positioned(
-        left: item.x * cardWidth,
-        top: item.y * cardHeight,
-        child: Transform.rotate(
-            alignment: Alignment.topLeft,
-            angle: item.angle * pi / _kDegreesToRadians,
-            child: Transform.scale(
-              scale: item.scale * scale * scaleConstant,
-              alignment: Alignment.topLeft,
-              child: Image.asset("assets/images/abilities/${item.gfx}.png"),
-            )));
+      left: item.x * cardWidth,
+      top: item.y * cardHeight,
+      child: Transform.rotate(
+        alignment: Alignment.topLeft,
+        angle: item.angle * pi / _kDegreesToRadians,
+        child: Transform.scale(
+          scale: item.scale * scale * scaleConstant,
+          alignment: Alignment.topLeft,
+          child: Image.asset("assets/images/abilities/${item.gfx}.png"),
+        ),
+      ),
+    );
     list.add(pos);
   }
 
@@ -101,112 +105,131 @@ class MonsterAbilityCardFront extends StatelessWidget {
       blurRadius: _kShadowTextBlur * scale,
     );
 
-    List<Widget> positionals =
-        buildGraphicPositionals(scale, card.graphicPositional);
+    List<Widget> positionals = buildGraphicPositionals(
+      scale,
+      card.graphicPositional,
+    );
 
     return RepaintBoundary(
-        child: Container(
-            decoration: BoxDecoration(
-              boxShadow: [cardBoxShadow(scale)],
-            ),
-            key: const ValueKey<int>(1),
-            margin: EdgeInsets.all(kMonsterCardMargin * scale),
-            width: kAbilityCardWidth * scale,
-            height: _kCardHeight * scale,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(kGameCardBorderRadius * scale)),
-                  child: Image(
-                    fit: BoxFit.fill,
-                    height: _kCardImageHeight * scale,
-                    width: kAbilityCardWidth * scale,
-                    image: AssetImage(frosthavenStyle
-                        ? "assets/images/psd/monsterAbility-front_fh.png"
-                        : "assets/images/psd/monsterAbility-front.png"),
-                  ),
+      child: Container(
+        decoration: BoxDecoration(boxShadow: [cardBoxShadow(scale)]),
+        key: const ValueKey<int>(1),
+        margin: EdgeInsets.all(kMonsterCardMargin * scale),
+        width: kAbilityCardWidth * scale,
+        height: _kCardHeight * scale,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.all(
+                Radius.circular(kGameCardBorderRadius * scale),
+              ),
+              child: Image(
+                fit: BoxFit.fill,
+                height: _kCardImageHeight * scale,
+                width: kAbilityCardWidth * scale,
+                image: AssetImage(
+                  frosthavenStyle
+                      ? "assets/images/psd/monsterAbility-front_fh.png"
+                      : "assets/images/psd/monsterAbility-front.png",
                 ),
-                Positioned(
-                    top: frosthavenStyle ? _kTitleTopFh * scale : 0,
-                    child: SizedBox(
-                      height: _kTitleAreaHeight * scale,
-                      width: kAbilityCardWidth * scale,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Text(
-                            getIt<TranslationService>().t(card.title),
-                            style: getCardTitleStyle(
-                                frosthavenStyle
-                                    ? _kTitleFontSizeFh * scale
-                                    : _kTitleFontSizeGh * scale,
-                                shadow,
-                                frosthavenStyle),
-                          ),
-                        ],
-                      ),
-                    )),
-                Positioned(
-                    left: _kInitLeft * scale,
-                    top: _kInitTop * scale,
-                    child: Text(
-                      textAlign: TextAlign.center,
-                      initText,
+              ),
+            ),
+            Positioned(
+              top: frosthavenStyle ? _kTitleTopFh * scale : 0,
+              child: SizedBox(
+                height: _kTitleAreaHeight * scale,
+                width: kAbilityCardWidth * scale,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Text(
+                      getIt<TranslationService>().t(card.title),
                       style: getCardTitleStyle(
-                          frosthavenStyle
-                              ? _kInitFontSizeFh * scale
-                              : _kInitFontSizeGh * scale,
-                          shadow,
-                          frosthavenStyle),
-                    )),
-                Positioned(
-                    left: _kCardNrLeft * scale,
-                    bottom: _kCardNrBottom * scale,
-                    child: Text(
-                      card.nr.toString(),
-                      style: getCardNumberStyle(
-                          _kCardNrFontSize * scale, shadow, frosthavenStyle),
-                    )),
-                card.shuffle
-                    ? Positioned(
-                        left: _kShuffleLeft * scale,
-                        bottom: _kShuffleBottom * scale,
-                        child: Image(
-                          height: _kShuffleBaseHeight *
-                              _kShuffleHeightFactor *
-                              scale,
-                          fit: BoxFit.cover,
-                          image: const AssetImage(
-                              "assets/images/abilities/shuffle.png"),
-                        ))
-                    : Container(),
-                if (positionals.isNotEmpty) positionals.first,
-                if (positionals.length > 1) positionals[1],
-                if (positionals.length > _kGfxIndex2)
-                  positionals[_kGfxIndex2],
-                if (positionals.length > _kGfxIndex3)
-                  positionals[_kGfxIndex3],
-                Positioned(
-                  top: _kLinesTop * scale,
-                  child: SizedBox(
-                    height: _kTitleAreaHeight * scale,
-                    width: kAbilityCardWidth * scale,
-                    child: LineBuilder.createLines(
-                        card.lines.map((s) => getIt<TranslationService>().t(s)).toList(),
+                        frosthavenStyle
+                            ? _kTitleFontSizeFh * scale
+                            : _kTitleFontSizeGh * scale,
+                        shadow,
+                        frosthavenStyle,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              left: _kInitLeft * scale,
+              top: _kInitTop * scale,
+              child: Text(
+                textAlign: TextAlign.center,
+                initText,
+                style: getCardTitleStyle(
+                  frosthavenStyle
+                      ? _kInitFontSizeFh * scale
+                      : _kInitFontSizeGh * scale,
+                  shadow,
+                  frosthavenStyle,
+                ),
+              ),
+            ),
+            Positioned(
+              left: _kCardNrLeft * scale,
+              bottom: _kCardNrBottom * scale,
+              child: Text(
+                card.nr.toString(),
+                style: getCardNumberStyle(
+                  _kCardNrFontSize * scale,
+                  shadow,
+                  frosthavenStyle,
+                ),
+              ),
+            ),
+            card.shuffle
+                ? Positioned(
+                    left: _kShuffleLeft * scale,
+                    bottom: _kShuffleBottom * scale,
+                    child: Image(
+                      height:
+                          _kShuffleBaseHeight * _kShuffleHeightFactor * scale,
+                      fit: BoxFit.cover,
+                      image: const AssetImage(
+                        "assets/images/abilities/shuffle.png",
+                      ),
+                    ),
+                  )
+                : Container(),
+            if (positionals.isNotEmpty) positionals.first,
+            if (positionals.length > 1) positionals[1],
+            if (positionals.length > _kGfxIndex2) positionals[_kGfxIndex2],
+            if (positionals.length > _kGfxIndex3) positionals[_kGfxIndex3],
+            Positioned(
+              top: _kLinesTop * scale,
+              child: SizedBox(
+                height: _kTitleAreaHeight * scale,
+                width: kAbilityCardWidth * scale,
+                child: ValueListenableBuilder<bool>(
+                  valueListenable: settings_.noCalculation,
+                  builder: (context, noCalculation, child) =>
+                      LineBuilder.createLines(
+                        card.lines
+                            .map((s) => getIt<TranslationService>().t(s))
+                            .toList(),
                         false,
-                        !settings_.noCalculation.value,
+                        !noCalculation,
                         calculateAll,
                         data,
                         CrossAxisAlignment.center,
                         scale,
-                        false),
-                  ),
-                )
-              ],
-            )));
+                        false,
+                      ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
