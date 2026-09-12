@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frosthaven_assistant/Resource/app_constants.dart';
@@ -13,8 +11,17 @@ import '../services/service_locator.dart';
 import 'element_button.dart';
 import 'menus/SettingsMenu/settings_menu.dart';
 import 'menus/action_log_menu.dart';
+import 'view_models/display_controls_view_model.dart';
+import 'widgets/original_ability_card_icon.dart';
 
-enum _TopBarAction { actionLog, settings, fullscreen }
+enum _TopBarAction {
+  zoomOut,
+  zoomIn,
+  originalValues,
+  actionLog,
+  settings,
+  fullscreen,
+}
 
 class TopBar extends StatelessWidget {
   static const double _kMenuIconSize = 24.0;
@@ -29,12 +36,23 @@ class TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = this.settings ?? getIt<Settings>();
-    return ValueListenableBuilder<double>(
-      valueListenable: settings.userScalingBars,
-      builder: (context, value, child) {
+    final display = DisplayControlsViewModel(settings: settings);
+    return ListenableBuilder(
+      listenable: Listenable.merge([
+        settings.userScalingBars,
+        settings.userScalingMainList,
+        settings.noCalculation,
+        settings.fullScreen,
+      ]),
+      builder: (context, child) {
         final userScaling = settings.userScalingBars.value;
         final shadow = textShadow(userScaling);
         final l10n = AppLocalizations.of(context)!;
+        final showQuickActions = _showQuickActions(context, userScaling);
+        final actionSize = kBarHeight * userScaling;
+        final originalLabel = settings.noCalculation.value
+            ? l10n.topBarShowCalculatedValues
+            : l10n.topBarShowOriginalValues;
         return AppBar(
           iconTheme: const IconThemeData(color: Colors.white),
           leading: _TopBarMenuButton(
@@ -80,18 +98,99 @@ class TopBar extends StatelessWidget {
             },
           ),
           actions: [
-            if (_showDesktopActions(context, userScaling))
-              PopupMenuButton<_TopBarAction>(
+            if (showQuickActions) ...[
+              SizedBox.square(
+                dimension: actionSize,
+                child: IconButton(
+                  key: const Key('top-bar-zoom-out'),
+                  tooltip: l10n.topBarZoomOut,
+                  padding: EdgeInsets.zero,
+                  icon: Icon(
+                    Icons.zoom_out,
+                    size: _kMenuIconSize * userScaling,
+                    shadows: [shadow],
+                  ),
+                  onPressed: display.canZoomOut ? display.zoomOut : null,
+                ),
+              ),
+              SizedBox.square(
+                dimension: actionSize,
+                child: IconButton(
+                  key: const Key('top-bar-zoom-in'),
+                  tooltip: l10n.topBarZoomIn,
+                  padding: EdgeInsets.zero,
+                  icon: Icon(
+                    Icons.zoom_in,
+                    size: _kMenuIconSize * userScaling,
+                    shadows: [shadow],
+                  ),
+                  onPressed: display.canZoomIn ? display.zoomIn : null,
+                ),
+              ),
+              Container(
+                width: actionSize,
+                height: actionSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: settings.noCalculation.value ? Colors.black45 : null,
+                ),
+                child: Semantics(
+                  toggled: settings.noCalculation.value,
+                  child: IconButton(
+                    key: const Key('top-bar-original-values'),
+                    tooltip: originalLabel,
+                    isSelected: settings.noCalculation.value,
+                    padding: EdgeInsets.zero,
+                    style: IconButton.styleFrom(foregroundColor: Colors.white),
+                    icon: OriginalAbilityCardIcon(
+                      size: _kMenuIconSize * userScaling,
+                    ),
+                    onPressed: display.toggleOriginalValues,
+                  ),
+                ),
+              ),
+            ],
+            Padding(
+              padding: EdgeInsets.only(right: 8 * userScaling),
+              child: PopupMenuButton<_TopBarAction>(
                 key: const Key('desktop-actions-menu'),
                 tooltip: l10n.topBarMoreActions,
-                icon: Icon(
-                  Icons.more_vert,
-                  shadows: [shadow],
-                  size: _kMenuIconSize * userScaling,
+                padding: EdgeInsets.zero,
+                borderRadius: BorderRadius.circular(actionSize / 2),
+                child: SizedBox.square(
+                  key: const Key('top-bar-more-actions-target'),
+                  dimension: actionSize,
+                  child: Center(
+                    child: Icon(
+                      Icons.more_vert,
+                      color: Colors.white,
+                      size: _kMenuIconSize * userScaling,
+                    ),
+                  ),
                 ),
                 onSelected: (action) =>
                     _handleAction(context, action, settings),
                 itemBuilder: (context) => [
+                  if (!showQuickActions) ...[
+                    _actionItem(
+                      _TopBarAction.zoomOut,
+                      Icons.zoom_out,
+                      l10n.topBarZoomOut,
+                      enabled: display.canZoomOut,
+                    ),
+                    _actionItem(
+                      _TopBarAction.zoomIn,
+                      Icons.zoom_in,
+                      l10n.topBarZoomIn,
+                      enabled: display.canZoomIn,
+                    ),
+                    CheckedPopupMenuItem<_TopBarAction>(
+                      value: _TopBarAction.originalValues,
+                      checked: settings.noCalculation.value,
+                      child: Text(originalLabel),
+                    ),
+                    const PopupMenuDivider(),
+                  ],
                   _actionItem(
                     _TopBarAction.actionLog,
                     Icons.history,
@@ -111,6 +210,7 @@ class TopBar extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
             ElementButton(
               key: const ValueKey('element-fire'),
               color: const Color.fromARGB(255, 226, 66, 30),
@@ -153,24 +253,27 @@ class TopBar extends StatelessWidget {
     );
   }
 
-  bool _showDesktopActions(BuildContext context, double userScaling) {
-    final desktopPlatform =
-        Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+  bool _showQuickActions(BuildContext context, double userScaling) {
     final scaledBreakpoint =
         desktopActionsBreakpoint * (userScaling / 1.6).clamp(1.0, 3.0);
-    return desktopPlatform &&
-        MediaQuery.sizeOf(context).width >= scaledBreakpoint;
+    return MediaQuery.sizeOf(context).width >= scaledBreakpoint;
   }
 
   PopupMenuItem<_TopBarAction> _actionItem(
     _TopBarAction action,
     IconData icon,
-    String label,
-  ) {
+    String label, {
+    bool enabled = true,
+  }) {
     return PopupMenuItem(
       value: action,
+      enabled: enabled,
       child: Row(
-        children: [Icon(icon), const SizedBox(width: 12), Text(label)],
+        children: [
+          Icon(icon),
+          const SizedBox(width: 12),
+          Flexible(child: Text(label)),
+        ],
       ),
     );
   }
@@ -181,6 +284,12 @@ class TopBar extends StatelessWidget {
     Settings settings,
   ) async {
     switch (action) {
+      case _TopBarAction.zoomOut:
+        DisplayControlsViewModel(settings: settings).zoomOut();
+      case _TopBarAction.zoomIn:
+        DisplayControlsViewModel(settings: settings).zoomIn();
+      case _TopBarAction.originalValues:
+        DisplayControlsViewModel(settings: settings).toggleOriginalValues();
       case _TopBarAction.actionLog:
         openDialog(context, const ActionLogMenu());
       case _TopBarAction.settings:

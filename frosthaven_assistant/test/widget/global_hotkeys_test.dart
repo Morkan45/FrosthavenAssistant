@@ -60,12 +60,56 @@ void main() {
     LogicalKeyboardKey key,
   ) async {
     await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
-    await tester.sendKeyEvent(key);
+    await tester.sendKeyEvent(
+      key,
+      physicalKey: key == LogicalKeyboardKey.add
+          ? PhysicalKeyboardKey.equal
+          : null,
+    );
     await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
     await tester.pump();
   }
 
   group('GlobalHotkeys', () {
+    testWidgets('Ctrl zoom supports shifted plus, equals and the numpad', (
+      tester,
+    ) async {
+      final settings = getIt<Settings>();
+      await pumpHotkeys(tester);
+      for (final key in [
+        LogicalKeyboardKey.equal,
+        LogicalKeyboardKey.add,
+        LogicalKeyboardKey.numpadAdd,
+      ]) {
+        settings.userScalingMainList.value = 1;
+        await sendCtrlShortcut(tester, key);
+        expect(settings.userScalingMainList.value, 1.1);
+      }
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.equal);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      expect(settings.userScalingMainList.value, 1.2);
+      for (final key in [
+        LogicalKeyboardKey.minus,
+        LogicalKeyboardKey.numpadSubtract,
+      ]) {
+        settings.userScalingMainList.value = 1;
+        await sendCtrlShortcut(tester, key);
+        expect(settings.userScalingMainList.value, 0.9);
+      }
+    });
+
+    testWidgets('Ctrl zoom leaves focused text fields alone', (tester) async {
+      await pumpHotkeys(tester, includeTextField: true);
+      await tester.tap(find.byType(TextField));
+      await tester.pump();
+      await sendCtrlShortcut(tester, LogicalKeyboardKey.numpadAdd);
+      await sendCtrlShortcut(tester, LogicalKeyboardKey.minus);
+      expect(getIt<Settings>().userScalingMainList.value, 1);
+    });
+
     testWidgets('ctrl z undoes and ctrl y redoes', (WidgetTester tester) async {
       final gameState = getIt<GameState>();
       gameState.action(

@@ -6,6 +6,7 @@ import 'package:frosthaven_assistant/Layout/element_button.dart';
 import 'package:frosthaven_assistant/Layout/menus/action_log_menu.dart';
 import 'package:frosthaven_assistant/Layout/top_bar.dart';
 import 'package:frosthaven_assistant/Resource/enums.dart';
+import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
@@ -21,6 +22,10 @@ void main() {
 
   setUp(() {
     getIt<GameState>().clearList();
+    final settings = getIt<Settings>();
+    settings.userScalingBars.value = 1.6;
+    settings.userScalingMainList.value = 1;
+    settings.noCalculation.value = false;
   });
 
   Future<void> pumpTopBar(WidgetTester tester, {Size? size}) async {
@@ -115,6 +120,113 @@ void main() {
       await tester.tap(find.text('View Action Log'));
       await tester.pumpAndSettle();
       expect(find.byType(ActionLogMenu), findsOneWidget);
+    });
+
+    testWidgets(
+      'toolbar zoom shares the scale setting and disables at bounds',
+      (tester) async {
+        final settings = getIt<Settings>();
+        await pumpTopBar(tester, size: const Size(1280, 720));
+        await tester.tap(find.byKey(const Key('top-bar-zoom-in')));
+        await tester.pump();
+        expect(settings.userScalingMainList.value, 1.1);
+        await tester.tap(find.byKey(const Key('top-bar-zoom-out')));
+        await tester.pump();
+        expect(settings.userScalingMainList.value, 1);
+        settings.userScalingMainList.value = 3;
+        await tester.pump();
+        expect(
+          tester
+              .widget<IconButton>(find.byKey(const Key('top-bar-zoom-in')))
+              .onPressed,
+          isNull,
+        );
+        settings.userScalingMainList.value = 0.2;
+        await tester.pump();
+        expect(
+          tester
+              .widget<IconButton>(find.byKey(const Key('top-bar-zoom-out')))
+              .onPressed,
+          isNull,
+        );
+      },
+    );
+
+    testWidgets(
+      'original-value toggle tracks settings and describes next action',
+      (tester) async {
+        final settings = getIt<Settings>();
+        await pumpTopBar(tester, size: const Size(1280, 720));
+        final toggle = find.byKey(const Key('top-bar-original-values'));
+        await tester.tap(toggle);
+        await tester.pump();
+        expect(settings.noCalculation.value, isTrue);
+        expect(
+          find.byTooltip('Show calculated monster ability values'),
+          findsOneWidget,
+        );
+        expect(tester.widget<IconButton>(toggle).isSelected, isTrue);
+        settings.noCalculation.value = false;
+        await tester.pump();
+        expect(
+          find.byTooltip('Show original monster ability values'),
+          findsOneWidget,
+        );
+        expect(tester.widget<IconButton>(toggle).isSelected, isFalse);
+      },
+    );
+
+    testWidgets('more actions is centered with a scaled gap before fire', (
+      tester,
+    ) async {
+      await pumpTopBar(tester, size: const Size(1920, 1080));
+      for (final scale in [1.0, 1.6, 3.0]) {
+        getIt<Settings>().userScalingBars.value = scale;
+        await tester.pump();
+        final target = tester.getRect(
+          find.byKey(const Key('top-bar-more-actions-target')),
+        );
+        final icon = tester.getRect(find.byIcon(Icons.more_vert));
+        final fire = tester.getRect(find.byKey(const ValueKey('element-fire')));
+        expect(icon.center.dx, closeTo(target.center.dx, 0.01));
+        expect(icon.center.dy, closeTo(target.center.dy, 0.01));
+        expect(
+          fire.left - target.right,
+          greaterThanOrEqualTo(8 * scale - 0.01),
+        );
+        expect(tester.takeException(), isNull);
+      }
+    });
+
+    testWidgets('infused elements fit while the toolbar shrinks', (
+      tester,
+    ) async {
+      await pumpTopBar(tester, size: const Size(1280, 720));
+      await tester.tap(find.byKey(const ValueKey('element-fire')));
+      await tester.pumpAndSettle();
+      expect(getIt<GameState>().elementState[Elements.fire], ElementState.full);
+      getIt<Settings>().userScalingBars.value = 1;
+      tester.view.physicalSize = const Size(360, 800);
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      await tester.pump(const Duration(milliseconds: 20));
+      expect(tester.takeException(), isNull);
+      await tester.pumpAndSettle();
+      getIt<GameState>().undo();
+    });
+
+    testWidgets('narrow toolbar keeps display actions available in overflow', (
+      tester,
+    ) async {
+      getIt<Settings>().userScalingBars.value = 1;
+      await pumpTopBar(tester, size: const Size(360, 800));
+      expect(find.byKey(const Key('top-bar-zoom-in')), findsNothing);
+      await tester.tap(find.byKey(const Key('desktop-actions-menu')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Zoom in (Ctrl++)'));
+      await tester.pumpAndSettle();
+      expect(getIt<Settings>().userScalingMainList.value, 1.1);
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('tapping fire element changes element state', (

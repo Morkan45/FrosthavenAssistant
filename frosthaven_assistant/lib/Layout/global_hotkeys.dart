@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frosthaven_assistant/Resource/enums.dart';
+import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/Resource/ui_utils.dart';
 
 import 'view_models/global_hotkeys_view_model.dart';
+import 'view_models/display_controls_view_model.dart';
 
 // Wraps a SingleActivator so it only fires when no text field is focused.
 // CallbackShortcuts consumes key events before calling callbacks, so the
@@ -35,25 +37,44 @@ class _NoTextFieldActivator implements ShortcutActivator {
 }
 
 class GlobalHotkeys extends StatelessWidget {
-  const GlobalHotkeys({required this.child, super.key, this.gameState});
+  const GlobalHotkeys({
+    required this.child,
+    super.key,
+    this.gameState,
+    this.settings,
+  });
 
   final Widget child;
   final GameState? gameState;
+  final Settings? settings;
 
   @override
   Widget build(BuildContext context) {
     final vm = GlobalHotkeysViewModel(gameState: gameState);
+    final display = DisplayControlsViewModel(settings: settings);
     return CallbackShortcuts(
       bindings: <ShortcutActivator, VoidCallback>{
-        const SingleActivator(LogicalKeyboardKey.keyZ, control: true):
-            vm.undo,
+        for (final key in [
+          LogicalKeyboardKey.equal,
+          LogicalKeyboardKey.add,
+          LogicalKeyboardKey.numpadAdd,
+        ])
+          for (final shifted in [false, true])
+            _NoTextFieldActivator(
+              SingleActivator(key, control: true, shift: shifted),
+            ): display.zoomIn,
+        for (final key in [
+          LogicalKeyboardKey.minus,
+          LogicalKeyboardKey.numpadSubtract,
+        ])
+          _NoTextFieldActivator(SingleActivator(key, control: true)):
+              display.zoomOut,
+        const SingleActivator(LogicalKeyboardKey.keyZ, control: true): vm.undo,
         const SingleActivator(LogicalKeyboardKey.keyZ, meta: true): vm.undo,
-        const SingleActivator(LogicalKeyboardKey.keyY, control: true):
-            vm.redo,
+        const SingleActivator(LogicalKeyboardKey.keyY, control: true): vm.redo,
         const SingleActivator(LogicalKeyboardKey.keyY, meta: true): vm.redo,
-        const _NoTextFieldActivator(
-          SingleActivator(LogicalKeyboardKey.tab),
-        ): vm.advanceActivation,
+        const _NoTextFieldActivator(SingleActivator(LogicalKeyboardKey.tab)):
+            vm.advanceActivation,
         const _NoTextFieldActivator(
           SingleActivator(LogicalKeyboardKey.tab, shift: true),
         ): vm.undoActivation,
@@ -65,22 +86,28 @@ class GlobalHotkeys extends StatelessWidget {
         },
         const _NoTextFieldActivator(
           SingleActivator(LogicalKeyboardKey.digit1),
-        ): () => vm.toggleElement(Elements.fire),
+        ): () =>
+            vm.toggleElement(Elements.fire),
         const _NoTextFieldActivator(
           SingleActivator(LogicalKeyboardKey.digit2),
-        ): () => vm.toggleElement(Elements.ice),
+        ): () =>
+            vm.toggleElement(Elements.ice),
         const _NoTextFieldActivator(
           SingleActivator(LogicalKeyboardKey.digit3),
-        ): () => vm.toggleElement(Elements.air),
+        ): () =>
+            vm.toggleElement(Elements.air),
         const _NoTextFieldActivator(
           SingleActivator(LogicalKeyboardKey.digit4),
-        ): () => vm.toggleElement(Elements.earth),
+        ): () =>
+            vm.toggleElement(Elements.earth),
         const _NoTextFieldActivator(
           SingleActivator(LogicalKeyboardKey.digit5),
-        ): () => vm.toggleElement(Elements.light),
+        ): () =>
+            vm.toggleElement(Elements.light),
         const _NoTextFieldActivator(
           SingleActivator(LogicalKeyboardKey.digit6),
-        ): () => vm.toggleElement(Elements.dark),
+        ): () =>
+            vm.toggleElement(Elements.dark),
       },
       child: child,
     );
