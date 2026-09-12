@@ -122,6 +122,7 @@
 <div class="note"><strong>Test ref.</strong> The base image is <code>s2-3-scenario-active.jpg</code>, produced by the <code>Manual screenshots</code> group in <code>test/widget/manual_goldens_test.dart</code>. The numbered callouts and region outlines are an inline SVG overlay — edit them directly in this file. The sidebar drawer is closed in the base image; callout ④ marks the menu icon (<code>≡</code>) that opens it.</div>
 
 <h3 id="s3-2"><span class="secnum">§3.2</span>Top bar — elements</h3>
+<p>On wide screens, the magnifying-glass <strong>−</strong> and <strong>+</strong> buttons adjust Main List Scaling. The outlined card with printed <strong>+/−</strong> lines toggles monster ability cards between their original modifiers and calculated values. Its highlighted state means original values are shown. On narrow screens these controls are in <strong>More actions</strong> (the three dots beside fire). Display preferences are saved automatically.</p>
 <p>The top bar (<code>TopBar</code>, <code>lib/Layout/top_bar.dart</code>) houses the six element icons that the rules call out: fire, ice, air, earth, light, dark. Each element has three visual states:</p>
 <ul>
   <li><strong>Inert</strong> — element is not in play.</li>
@@ -150,7 +151,8 @@
   <li><strong>Monster type widget</strong> — one per active monster type (e.g., "Bandit Guard"). Shows the type's portrait, the currently-drawn ability card, the stat card for current level, and one standee block per spawned standee, each with HP/conditions and a normal/elite indicator.</li>
   <li><strong>Objective / escort entries</strong> — represented as characters with a special class. See <a href="06-special-mechanics.html#s6-1">§6.1</a>.</li>
 </ul>
-<p><strong>Reordering.</strong> When initiative is entered for all figures, the list re-sorts automatically. To reorder manually (e.g., for ties or scenario-specific overrides), <strong>long-press</strong> any entry and drag.</p>
+<p><strong>Reordering.</strong> When initiative is entered for all figures, the list re-sorts automatically. To reorder manually (e.g., for ties or scenario-specific overrides), drag a row on desktop or long-press and drag on touch screens. A monster's standee number and HP are reserved for its menu and HP slider; gestures starting there do not reorder the row.</p>
+<p>During the round, tapping either a monster portrait or its ability card performs the same turn action. To browse or choose ability cards, tap a standee number and use <strong>Monster ability deck</strong> beside the condition buttons.</p>
 <figure id="fig-3-5">
   <img src="../screenshots/manual/s3-3-main-list-populated.png" alt="Main list set up for Black Barrow with a Brute and a Spellweaver">
   <figcaption><strong>Figure 3.5.</strong> Main list set up for Black Barrow (Gloomhaven Scenario 1) — a Brute and a Spellweaver, both level 1, plus the scenario's monsters: Bandit Guard with one normal and one elite standee, and Bandit Archer with one normal standee. Each character banner shows class color, name, level, current/max HP, and an initiative slot. The monster widget shows the type's portrait, ability-card area, stat card, and a row of standee blocks (the elite block has the yellow border).</figcaption>
@@ -207,7 +209,9 @@
     <tr><td><strong>Long-press</strong></td><td>Element icons</td><td>Sets the element to <em>waning</em> directly (skipping <em>full</em>).</td></tr>
     <tr><td><strong>Long-press</strong></td><td>Main list entries</td><td>Picks up the entry to drag-reorder it manually.</td></tr>
     <tr><td><strong>Long-press</strong></td><td>HP / counter buttons</td><td>Opens a numpad for direct numeric entry instead of single-step.</td></tr>
-    <tr><td><strong>Double-tap</strong></td><td>Ability cards, modifier cards, stat cards</td><td>Zooms the card to full-screen for inspection. Tap again to dismiss.</td></tr>
+    <tr><td><strong>Tap</strong></td><td>Monster portrait or main-list ability card</td><td>Changes that monster type's turn state during a round.</td></tr>
+    <tr><td><strong>Press and drag vertically</strong></td><td>Monster standee HP</td><td>Shows the relative HP slider immediately. Drag up to heal or down to damage; release to apply the selected change.</td></tr>
+    <tr><td><strong>Double-tap</strong></td><td>Modifier cards and stat cards</td><td>Zooms the card for inspection. The main-list monster ability card uses the turn action instead.</td></tr>
     <tr><td><strong>Drag</strong></td><td>Initiative banners</td><td>Alternative initiative entry — drag to set an initiative without opening the numpad. (Setting controlled in <a href="11-settings.html#s11">§11</a>.)</td></tr>
     <tr><td><strong>Tap outside</strong></td><td>Open menu / drawer</td><td>Dismisses the menu without committing anything.</td></tr>
   </tbody>
