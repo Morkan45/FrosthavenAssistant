@@ -1,4 +1,13 @@
 {
+  "desktopConditionsApplyTo": "应用于{target}",
+  "@desktopConditionsApplyTo": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "desktopConditionsHelp": "点击状态，将其添加到当前回合的角色（怪物组则为所有存活个体）。也可拖到角色、怪物或召唤物上。在松开左键前按住右键，可继续拖动；左键点击更多目标，松开右键结束。",
   "topBarZoomIn": "Zoom in (Ctrl++)",
   "topBarZoomOut": "Zoom out (Ctrl+-)",
   "topBarShowOriginalValues": "Show original monster ability values",

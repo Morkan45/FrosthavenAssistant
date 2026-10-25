@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frosthaven_assistant/Resource/app_constants.dart';
@@ -8,6 +10,8 @@ import 'package:frosthaven_assistant/l10n/app_localizations.dart';
 import '../Resource/enums.dart';
 import '../Resource/ui_utils.dart';
 import '../services/service_locator.dart';
+import 'desktop_condition_bar.dart';
+import 'desktop_condition_scope.dart';
 import 'element_button.dart';
 import 'menus/SettingsMenu/settings_menu.dart';
 import 'menus/action_log_menu.dart';
@@ -45,7 +49,14 @@ class TopBar extends StatelessWidget {
         settings.fullScreen,
       ]),
       builder: (context, child) {
-        final userScaling = settings.userScalingBars.value;
+        final desktop = DesktopConditionScope.maybeOf(context) != null;
+        final width = MediaQuery.sizeOf(context).width;
+        final userScaling = desktop
+            ? math.min(
+                settings.userScalingBars.value,
+                (width / 1000).clamp(0.65, 1.6),
+              )
+            : settings.userScalingBars.value;
         final shadow = textShadow(userScaling);
         final l10n = AppLocalizations.of(context)!;
         final showQuickActions = _showQuickActions(context, userScaling);
@@ -55,26 +66,55 @@ class TopBar extends StatelessWidget {
             : l10n.topBarShowOriginalValues;
         return AppBar(
           iconTheme: const IconThemeData(color: Colors.white),
+          leadingWidth: desktop ? actionSize + 8 : null,
           leading: _TopBarMenuButton(
             tooltip: l10n.topBarOpenMainMenu,
             iconSize: _kMenuIconSize * userScaling,
             shadow: shadow,
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
-          title: Container(
-            padding: EdgeInsets.only(left: _kTitlePaddingLeft * userScaling),
-            child: Text(
-              "X-haven\nAssistant",
-              style: getWhiteShadowStyle(kFontSizeBody * userScaling, shadow),
-            ),
-          ),
+          title: desktop
+              ? Row(
+                  children: [
+                    if (width >= 1100) ...[
+                      Text(
+                        "X-haven\nAssistant",
+                        style: getWhiteShadowStyle(
+                          kFontSizeBody * userScaling,
+                          shadow,
+                        ),
+                      ),
+                      SizedBox(width: 12 * userScaling),
+                    ],
+                    Expanded(
+                      child: DesktopConditionBar(
+                        scale: math.min(
+                          userScaling,
+                          math.max(0.7, userScaling / 1.6),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : Container(
+                  padding: EdgeInsets.only(
+                    left: _kTitlePaddingLeft * userScaling,
+                  ),
+                  child: Text(
+                    "X-haven\nAssistant",
+                    style: getWhiteShadowStyle(
+                      kFontSizeBody * userScaling,
+                      shadow,
+                    ),
+                  ),
+                ),
           toolbarHeight: kBarHeight * settings.userScalingBars.value,
           flexibleSpace: ValueListenableBuilder<bool>(
             valueListenable: settings.darkMode,
             builder: (context, value, child) {
               final darkMode = settings.darkMode.value;
               return Container(
-                height: _kFlexibleHeight * userScaling,
+                height: _kFlexibleHeight * settings.userScalingBars.value,
                 decoration: BoxDecoration(
                   color: darkMode ? Colors.black : Colors.transparent,
                   image: DecorationImage(
@@ -212,36 +252,42 @@ class TopBar extends StatelessWidget {
               ),
             ),
             ElementButton(
+              scale: desktop ? userScaling : null,
               key: const ValueKey('element-fire'),
               color: const Color.fromARGB(255, 226, 66, 30),
               element: Elements.fire,
               icon: 'assets/images/psd/element-fire.png',
             ),
             ElementButton(
+              scale: desktop ? userScaling : null,
               key: const ValueKey('element-ice'),
               color: const Color.fromARGB(255, 85, 200, 239),
               element: Elements.ice,
               icon: 'assets/images/psd/element-ice.png',
             ),
             ElementButton(
+              scale: desktop ? userScaling : null,
               key: const ValueKey('element-air'),
               color: const Color.fromARGB(255, 152, 176, 181),
               element: Elements.air,
               icon: 'assets/images/psd/element-air.png',
             ),
             ElementButton(
+              scale: desktop ? userScaling : null,
               key: const ValueKey('element-earth'),
               color: const Color.fromARGB(255, 124, 168, 42),
               element: Elements.earth,
               icon: 'assets/images/psd/element-earth.png',
             ),
             ElementButton(
+              scale: desktop ? userScaling : null,
               key: const ValueKey('element-light'),
               color: const Color.fromARGB(255, 236, 166, 15),
               element: Elements.light,
               icon: 'assets/images/psd/element-light.png',
             ),
             ElementButton(
+              scale: desktop ? userScaling : null,
               key: const ValueKey('element-dark'),
               color: const Color.fromARGB(255, 31, 50, 131),
               element: Elements.dark,

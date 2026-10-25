@@ -9,6 +9,15 @@ class AppLocalizationsPl extends AppLocalizations {
   AppLocalizationsPl([String locale = 'pl']) : super(locale);
 
   @override
+  String desktopConditionsApplyTo(String target) {
+    return 'Zastosuj do: $target';
+  }
+
+  @override
+  String get desktopConditionsHelp =>
+      'Kliknij stan, aby dodać go do postaci wykonującej turę (wszystkich żywych figurek w grupie potworów). Możesz też przeciągnąć go na postać, potwora lub przywołańca. Przytrzymaj prawy przycisk przed puszczeniem lewego, aby kontynuować przeciąganie; klikaj lewym kolejne cele i puść prawy, aby zakończyć.';
+
+  @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
 
   @override

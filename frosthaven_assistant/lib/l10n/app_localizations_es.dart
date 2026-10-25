@@ -9,6 +9,15 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
+  String desktopConditionsApplyTo(String target) {
+    return 'Aplicar a $target';
+  }
+
+  @override
+  String get desktopConditionsHelp =>
+      'Pulsa un estado para aplicarlo a quien tenga el turno (a todas las figuras vivas de un grupo de monstruos). También puedes arrastrarlo a un personaje, monstruo o invocación. Mantén pulsado el botón derecho antes de soltar el izquierdo para seguir arrastrando; pulsa el izquierdo sobre más objetivos y suelta el derecho para terminar.';
+
+  @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
 
   @override

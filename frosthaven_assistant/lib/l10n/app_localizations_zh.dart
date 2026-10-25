@@ -9,6 +9,15 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String desktopConditionsApplyTo(String target) {
+    return '应用于$target';
+  }
+
+  @override
+  String get desktopConditionsHelp =>
+      '点击状态，将其添加到当前回合的角色（怪物组则为所有存活个体）。也可拖到角色、怪物或召唤物上。在松开左键前按住右键，可继续拖动；左键点击更多目标，松开右键结束。';
+
+  @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
 
   @override
@@ -1236,6 +1245,15 @@ class AppLocalizationsZh extends AppLocalizations {
 /// The translations for Chinese, using the Han script (`zh_Hant`).
 class AppLocalizationsZhHant extends AppLocalizationsZh {
   AppLocalizationsZhHant() : super('zh_Hant');
+
+  @override
+  String desktopConditionsApplyTo(String target) {
+    return '套用至$target';
+  }
+
+  @override
+  String get desktopConditionsHelp =>
+      '點擊狀態，將其加入目前回合的角色（怪物群組則為所有存活個體）。也可拖曳至角色、怪物或召喚物上。在放開左鍵前按住右鍵，即可繼續拖曳；左鍵點擊更多目標，放開右鍵結束。';
 
   @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';

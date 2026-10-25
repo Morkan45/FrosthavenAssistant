@@ -9,6 +9,15 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String desktopConditionsApplyTo(String target) {
+    return 'Apply to $target';
+  }
+
+  @override
+  String get desktopConditionsHelp =>
+      'Click an effect to apply it to the current turn (all living standees for a monster group). Or drag onto a character, monster or summon. Hold right before releasing left to keep dragging; left-click more targets, then release right to finish.';
+
+  @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
 
   @override

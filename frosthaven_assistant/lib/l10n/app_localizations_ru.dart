@@ -9,6 +9,15 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
+  String desktopConditionsApplyTo(String target) {
+    return 'Применить к: $target';
+  }
+
+  @override
+  String get desktopConditionsHelp =>
+      'Нажмите на состояние, чтобы применить его к тому, кто сейчас ходит (ко всем живым фигуркам группы монстров). Или перетащите его на персонажа, монстра или призванное существо. Зажмите правую кнопку перед отпусканием левой, чтобы продолжить перетаскивание; нажимайте левой на другие цели и отпустите правую для завершения.';
+
+  @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
 
   @override

@@ -5,6 +5,7 @@ import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/Resource/ui_utils.dart';
 
+import 'control_scroll_zoom.dart';
 import 'view_models/global_hotkeys_view_model.dart';
 import 'view_models/display_controls_view_model.dart';
 
@@ -71,6 +72,9 @@ class GlobalHotkeys extends StatelessWidget {
               display.zoomOut,
         const SingleActivator(LogicalKeyboardKey.keyZ, control: true): vm.undo,
         const SingleActivator(LogicalKeyboardKey.keyZ, meta: true): vm.undo,
+        const _NoTextFieldActivator(
+          SingleActivator(LogicalKeyboardKey.keyZ, alt: true),
+        ): vm.undo,
         const SingleActivator(LogicalKeyboardKey.keyY, control: true): vm.redo,
         const SingleActivator(LogicalKeyboardKey.keyY, meta: true): vm.redo,
         const _NoTextFieldActivator(SingleActivator(LogicalKeyboardKey.tab)):
@@ -109,7 +113,11 @@ class GlobalHotkeys extends StatelessWidget {
         ): () =>
             vm.toggleElement(Elements.dark),
       },
-      child: child,
+      child: ControlScrollZoom(
+        onZoomIn: display.zoomIn,
+        onZoomOut: display.zoomOut,
+        child: child,
+      ),
     );
   }
 }

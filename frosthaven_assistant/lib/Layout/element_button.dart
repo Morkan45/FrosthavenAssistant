@@ -15,6 +15,7 @@ class ElementButton extends StatefulWidget {
     required this.element,
     this.gameState,
     this.settings,
+    this.scale,
   });
   final String icon;
   final Color color;
@@ -24,6 +25,7 @@ class ElementButton extends StatefulWidget {
 
   final GameState? gameState;
   final Settings? settings;
+  final double? scale;
 
   @override
   AnimatedContainerButtonState createState() => AnimatedContainerButtonState();
@@ -49,7 +51,7 @@ class AnimatedContainerButtonState extends State<ElementButton> {
   @override
   void initState() {
     super.initState();
-    final scale = _vm.userScalingBars;
+    final scale = _userScalingBars;
     _height = widget.width * scale;
     _color = Colors.transparent;
     _borderRadius = BorderRadius.all(
@@ -59,7 +61,7 @@ class AnimatedContainerButtonState extends State<ElementButton> {
     );
   }
 
-  double get _userScalingBars => _vm.userScalingBars;
+  double get _userScalingBars => widget.scale ?? _vm.userScalingBars;
 
   String _elementLabel(BuildContext context) {
     final l10n = AppLocalizations.of(context);

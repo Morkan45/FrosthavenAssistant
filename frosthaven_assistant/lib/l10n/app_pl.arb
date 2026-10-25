@@ -1,4 +1,13 @@
 {
+  "desktopConditionsApplyTo": "Zastosuj do: {target}",
+  "@desktopConditionsApplyTo": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "desktopConditionsHelp": "Kliknij stan, aby dodać go do postaci wykonującej turę (wszystkich żywych figurek w grupie potworów). Możesz też przeciągnąć go na postać, potwora lub przywołańca. Przytrzymaj prawy przycisk przed puszczeniem lewego, aby kontynuować przeciąganie; klikaj lewym kolejne cele i puść prawy, aby zakończyć.",
   "topBarZoomIn": "Zoom in (Ctrl++)",
   "topBarZoomOut": "Zoom out (Ctrl+-)",
   "topBarShowOriginalValues": "Show original monster ability values",

@@ -1,7 +1,7 @@
 import '../../Resource/settings.dart';
 import '../../services/service_locator.dart';
 
-/// Shared toolbar and keyboard actions for local display preferences.
+/// Shared toolbar, keyboard and mouse actions for local display preferences.
 class DisplayControlsViewModel {
   DisplayControlsViewModel({Settings? settings})
     : settings = settings ?? getIt<Settings>();

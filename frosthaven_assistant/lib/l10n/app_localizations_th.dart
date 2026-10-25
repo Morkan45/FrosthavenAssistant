@@ -9,6 +9,15 @@ class AppLocalizationsTh extends AppLocalizations {
   AppLocalizationsTh([String locale = 'th']) : super(locale);
 
   @override
+  String desktopConditionsApplyTo(String target) {
+    return 'ใช้กับ $target';
+  }
+
+  @override
+  String get desktopConditionsHelp =>
+      'คลิกสถานะเพื่อใช้กับผู้ที่กำลังเล่นเทิร์นอยู่ (ทุกตัวที่ยังมีชีวิตในกลุ่มมอนสเตอร์) หรือลากไปวางบนตัวละคร มอนสเตอร์ หรือสิ่งอัญเชิญ กดปุ่มขวาค้างก่อนปล่อยปุ่มซ้ายเพื่อลากต่อ คลิกซ้ายบนเป้าหมายอื่น แล้วปล่อยปุ่มขวาเพื่อจบ';
+
+  @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
 
   @override

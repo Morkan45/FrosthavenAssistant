@@ -114,6 +114,8 @@ This will walk you through app installation through your first scenario.
 - To set character level, tap the character to open stat menu, then tap the crown to set character level. Character name can be changed from the same menu.
 - To open stats menu for monster, tap the standee image.
 - On the stats menu you can add conditions and set current health values.
+- On desktop, the 13 basic status effects share the top bar with the elements and zoom controls. Click an effect to add it to whoever is taking their turn; for a monster group, this applies to all living standees that can receive it, in one Undo step. You can also drag an effect onto any character, individual monster standee, or summon. Applied effects are highlighted; repeated clicks leave them applied.
+- To apply an effect to several figures with one drag, drag with the left mouse button, hold the right mouse button, then release left over the first target. Keep right held and left-click additional targets. Release right to finish; each application can be undone separately.
 - On the bottom-right is the monster Attack Modifier Deck (AMD). (Above if the screen is narrow).
 - If a scenario has allied monsters, there will be a second ally modifier deck above the monster AMD.
 - Tapping the AMD discard pile opens the AMD menu. In the menu, tap cards for more options. you may also long press to reorder if needed.
@@ -143,8 +145,10 @@ This will walk you through app installation through your first scenario.
 
 | Shortcut | Action |
 | --- | --- |
-| Ctrl/Cmd+Z | Undo |
+| Ctrl/Cmd+Z or Alt+Z | Undo |
 | Ctrl/Cmd+Y | Redo |
+| Ctrl++ / Ctrl+- | Zoom the main list in / out |
+| Ctrl+scroll up / down | Zoom the main list in / out |
 | Tab | Advance the current activation |
 | Shift+Tab | Undo the most recent activation step |
 | Space | Trigger draw-or-next-round |

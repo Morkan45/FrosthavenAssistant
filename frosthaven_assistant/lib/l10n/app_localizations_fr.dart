@@ -9,6 +9,15 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String desktopConditionsApplyTo(String target) {
+    return 'Appliquer à $target';
+  }
+
+  @override
+  String get desktopConditionsHelp =>
+      'Cliquez sur un état pour l\'appliquer à celui dont c\'est le tour (toutes les figurines vivantes d\'un groupe de monstres). Vous pouvez aussi le glisser sur un personnage, monstre ou invocation. Maintenez le bouton droit avant de relâcher le gauche pour continuer à glisser ; cliquez à gauche sur d\'autres cibles, puis relâchez le droit pour terminer.';
+
+  @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
 
   @override

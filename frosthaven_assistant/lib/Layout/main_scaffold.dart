@@ -17,37 +17,62 @@ import 'LootDeckWidget/loot_deck_widget.dart';
 import 'MainList/main_list.dart';
 import 'bottom_bar.dart';
 import 'character_amds_widget.dart';
+import 'desktop_condition_scope.dart';
 import 'menus/AutoAddStandeeMenu/auto_add_standee_menu.dart';
 import 'menus/main_menu.dart';
+import 'view_models/desktop_conditions_view_model.dart';
 import 'view_models/main_scaffold_view_model.dart';
 
-class MainScaffold extends StatelessWidget {
+class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key, this.settings});
 
   // injected for testing
   final Settings? settings;
 
   @override
-  Widget build(BuildContext context) {
-    final settings = this.settings ?? getIt<Settings>();
+  State<MainScaffold> createState() => _MainScaffoldState();
+}
 
-    return ValueListenableBuilder<double>(
+class _MainScaffoldState extends State<MainScaffold> {
+  DesktopConditionsViewModel? _conditions;
+
+  @override
+  void dispose() {
+    _conditions?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = widget.settings ?? getIt<Settings>();
+    final desktop = DesktopConditionScope.supportsPlatform(context);
+
+    return DesktopConditionScope(
+      notifier: desktop
+          ? (_conditions ??= DesktopConditionsViewModel(settings: settings))
+          : null,
+      child: ValueListenableBuilder<double>(
         valueListenable: settings.userScalingBars,
         builder: (context, value, child) {
+          final topBarHeight = kBarHeight * value;
           return SafeArea(
-              left: false,
-              right: false,
-              maintainBottomViewPadding: true,
-              child: Scaffold(
-                  resizeToAvoidBottomInset: false,
-                  bottomNavigationBar: RepaintBoundary(child: BottomBar()),
-                  appBar: PreferredSize(
-                      preferredSize: Size(double.infinity,
-                          kBarHeight * settings.userScalingBars.value),
-                      child: const RepaintBoundary(child: TopBar())),
-                  drawer: MainMenu(),
-                  body: const RepaintBoundary(child: MainScaffoldBody())));
-        });
+            left: false,
+            right: false,
+            maintainBottomViewPadding: true,
+            child: Scaffold(
+              resizeToAvoidBottomInset: false,
+              bottomNavigationBar: RepaintBoundary(child: BottomBar()),
+              appBar: PreferredSize(
+                preferredSize: Size(double.infinity, topBarHeight),
+                child: const RepaintBoundary(child: TopBar()),
+              ),
+              drawer: MainMenu(),
+              body: const RepaintBoundary(child: MainScaffoldBody()),
+            ),
+          );
+        },
+      ),
+    );
   }
 }
 

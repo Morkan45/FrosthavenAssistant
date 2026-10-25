@@ -8,6 +8,7 @@ import '../../Resource/game_methods.dart';
 import '../../Resource/settings.dart';
 import '../../Resource/ui_utils.dart';
 import '../health_wheel_controller.dart';
+import '../condition_drop_target.dart';
 import '../menus/StatusMenu/status_menu.dart';
 import '../view_models/monster_box_view_model.dart';
 import '../../l10n/app_localizations.dart';
@@ -180,47 +181,57 @@ class MonsterBox extends StatelessWidget {
         );
       }
 
-      return Material(
-        color: Colors.transparent,
-        child: Stack(
-          children: [
-            innerWidget,
-            Positioned(
-              left: 0,
-              top: 0,
-              width: _kStandeeNumberWidth * scale,
-              height: _kBoxHeight * scale,
-              child: statusTarget,
-            ),
-            Positioned(
-              left: _kHealthTargetLeft * scale,
-              top: 0,
-              width: _kHealthTargetWidth * scale,
-              height: _kBoxHeight * scale,
-              child: MonsterHealthSliderController(
-                figureId: data.getId(),
-                ownerId: ownerId,
-                gameState: gameState,
-                child: const SizedBox.expand(),
+      return ConditionDropTarget(
+        figureId: figureId,
+        ownerId: ownerId,
+        enabled: !blockInput,
+        child: Material(
+          color: Colors.transparent,
+          child: Stack(
+            children: [
+              innerWidget,
+              Positioned(
+                left: 0,
+                top: 0,
+                width: _kStandeeNumberWidth * scale,
+                height: _kBoxHeight * scale,
+                child: statusTarget,
               ),
-            ),
-          ],
+              Positioned(
+                left: _kHealthTargetLeft * scale,
+                top: 0,
+                width: _kHealthTargetWidth * scale,
+                height: _kBoxHeight * scale,
+                child: MonsterHealthSliderController(
+                  figureId: data.getId(),
+                  ownerId: ownerId,
+                  gameState: gameState,
+                  child: const SizedBox.expand(),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: openStatusMenu,
-        child: vm.useHealthWheel
-            ? HealthWheelController(
-                figureId: data.getId(),
-                ownerId: ownerId,
-                gameState: gameState,
-                child: innerWidget,
-              )
-            : innerWidget,
+    return ConditionDropTarget(
+      figureId: figureId,
+      ownerId: ownerId,
+      enabled: !blockInput,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: openStatusMenu,
+          child: vm.useHealthWheel
+              ? HealthWheelController(
+                  figureId: data.getId(),
+                  ownerId: ownerId,
+                  gameState: gameState,
+                  child: innerWidget,
+                )
+              : innerWidget,
+        ),
       ),
     );
   }

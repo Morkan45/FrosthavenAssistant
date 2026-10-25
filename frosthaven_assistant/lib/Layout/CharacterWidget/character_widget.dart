@@ -8,6 +8,7 @@ import '../../Resource/game_methods.dart';
 import '../../Resource/settings.dart';
 import '../../Resource/state/game_state.dart';
 import '../MonsterBox/monster_box.dart';
+import '../condition_drop_target.dart';
 import '../health_wheel_controller.dart';
 import '../view_models/character_view_model.dart';
 import 'character_widget_internal.dart';
@@ -186,10 +187,14 @@ class CharacterWidgetState extends State<CharacterWidget> {
                 },
               ),
             ),
-            InkWell(
-              key: const Key('character-status-hit-area'),
-              onTap: () => vm.openStatusMenu(context),
-              child: visibleCharacterContent,
+            ConditionDropTarget(
+              figureId: character.id,
+              ownerId: character.id,
+              child: InkWell(
+                key: const Key('character-status-hit-area'),
+                onTap: () => vm.openStatusMenu(context),
+                child: visibleCharacterContent,
+              ),
             ),
           ],
         );

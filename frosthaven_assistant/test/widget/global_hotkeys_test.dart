@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,6 +35,7 @@ void main() {
   Future<void> pumpHotkeys(
     WidgetTester tester, {
     bool includeTextField = false,
+    Widget? child,
   }) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -41,12 +43,14 @@ void main() {
           body: GlobalHotkeys(
             child: Focus(
               autofocus: true,
-              child: Column(
-                children: [
-                  if (includeTextField) const TextField(autofocus: true),
-                  const SizedBox(height: 24, width: 24),
-                ],
-              ),
+              child:
+                  child ??
+                  Column(
+                    children: [
+                      if (includeTextField) const TextField(autofocus: true),
+                      const SizedBox(height: 24, width: 24),
+                    ],
+                  ),
             ),
           ),
         ),
@@ -67,6 +71,16 @@ void main() {
           : null,
     );
     await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await tester.pump();
+  }
+
+  Future<void> scrollWheel(WidgetTester tester, Offset delta) async {
+    await tester.sendEventToBinding(
+      PointerScrollEvent(
+        position: tester.getCenter(find.byType(GlobalHotkeys)),
+        scrollDelta: delta,
+      ),
+    );
     await tester.pump();
   }
 
@@ -124,6 +138,145 @@ void main() {
 
       await sendCtrlShortcut(tester, LogicalKeyboardKey.keyY);
       expect(gameState.currentList, isNotEmpty);
+    });
+
+    testWidgets('Alt+Z undoes a game action and Ctrl+Y can redo it', (
+      tester,
+    ) async {
+      final gameState = getIt<GameState>();
+      gameState.action(
+        AddCharacterCommand('Blinkblade', 'Frosthaven', 'Blinkblade', 1),
+      );
+      await pumpHotkeys(tester);
+
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyZ);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+      await tester.pump();
+      expect(gameState.currentList, isEmpty);
+
+      await sendCtrlShortcut(tester, LogicalKeyboardKey.keyY);
+      expect(gameState.currentList, isNotEmpty);
+    });
+
+    testWidgets('Alt+Z leaves focused text input alone', (tester) async {
+      final gameState = getIt<GameState>();
+      gameState.action(
+        AddCharacterCommand('Blinkblade', 'Frosthaven', 'Blinkblade', 1),
+      );
+      await pumpHotkeys(tester, includeTextField: true);
+      await tester.tap(find.byType(TextField));
+      await tester.pump();
+      expect(
+        tester
+            .widget<EditableText>(find.byType(EditableText))
+            .focusNode
+            .hasFocus,
+        isTrue,
+      );
+      final initialIndex = gameState.commandIndex.value;
+
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyZ);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+      await tester.pump();
+      expect(gameState.commandIndex.value, initialIndex);
+      expect(gameState.currentList, isNotEmpty);
+    });
+
+    testWidgets(
+      'Ctrl+wheel zooms over a scrollable without scrolling or adding game actions',
+      (tester) async {
+        final settings = getIt<Settings>();
+        final gameState = getIt<GameState>();
+        final controller = ScrollController(initialScrollOffset: 200);
+        addTearDown(controller.dispose);
+        await pumpHotkeys(
+          tester,
+          child: SingleChildScrollView(
+            controller: controller,
+            child: const SizedBox(height: 2000, width: double.infinity),
+          ),
+        );
+        final initialIndex = gameState.commandIndex.value;
+
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+        await scrollWheel(tester, const Offset(0, -120));
+        expect(settings.userScalingMainList.value, 1.1);
+        expect(controller.offset, 200);
+        await scrollWheel(tester, const Offset(0, 120));
+        expect(settings.userScalingMainList.value, 1);
+        expect(controller.offset, 200);
+        expect(gameState.commandIndex.value, initialIndex);
+
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+        await scrollWheel(tester, const Offset(0, 120));
+        expect(controller.offset, 320);
+        expect(settings.userScalingMainList.value, 1);
+      },
+    );
+
+    testWidgets('Ctrl+wheel respects zoom limits and saves the shared scale', (
+      tester,
+    ) async {
+      final settings = getIt<Settings>();
+      await pumpHotkeys(tester);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlRight);
+      settings.userScalingMainList.value = 3;
+      await scrollWheel(tester, const Offset(0, -120));
+      expect(settings.userScalingMainList.value, 3);
+      settings.userScalingMainList.value = 0.2;
+      await scrollWheel(tester, const Offset(0, 120));
+      expect(settings.userScalingMainList.value, 0.2);
+      await scrollWheel(tester, const Offset(0, -120));
+      expect(settings.userScalingMainList.value, 0.3);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlRight);
+
+      await settings.flushPersistence();
+      final restored = Settings();
+      await restored.loadFromDisk(reconnectOnStartup: false);
+      expect(restored.userScalingMainList.value, 0.3);
+    });
+
+    testWidgets(
+      'Ctrl+horizontal wheel scrolls normally without changing zoom',
+      (tester) async {
+        final controller = ScrollController();
+        addTearDown(controller.dispose);
+        await pumpHotkeys(
+          tester,
+          child: SingleChildScrollView(
+            controller: controller,
+            scrollDirection: Axis.horizontal,
+            child: const SizedBox(width: 2000, height: 100),
+          ),
+        );
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+        await scrollWheel(tester, const Offset(120, 0));
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+        expect(controller.offset, 120);
+        expect(getIt<Settings>().userScalingMainList.value, 1);
+      },
+    );
+
+    testWidgets('holding Ctrl does not block child button clicks', (
+      tester,
+    ) async {
+      var pressed = false;
+      await pumpHotkeys(
+        tester,
+        child: Center(
+          child: TextButton(
+            onPressed: () => pressed = true,
+            child: const Text('Test action'),
+          ),
+        ),
+      );
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await tester.tap(find.byType(TextButton));
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      expect(pressed, isTrue);
+      expect(getIt<Settings>().userScalingMainList.value, 1);
     });
 
     testWidgets('tab advances activation and shift tab undoes it', (

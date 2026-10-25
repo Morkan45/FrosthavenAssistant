@@ -9,6 +9,15 @@ class AppLocalizationsKo extends AppLocalizations {
   AppLocalizationsKo([String locale = 'ko']) : super(locale);
 
   @override
+  String desktopConditionsApplyTo(String target) {
+    return '$target에게 적용';
+  }
+
+  @override
+  String get desktopConditionsHelp =>
+      '상태를 클릭하면 현재 차례인 대상에게 적용합니다(몬스터 그룹은 살아 있는 모든 개체). 캐릭터, 몬스터 또는 소환수에게 끌어다 놓을 수도 있습니다. 왼쪽 버튼을 놓기 전에 오른쪽 버튼을 누르면 계속 끌 수 있습니다. 다른 대상에 왼쪽 클릭하고 오른쪽 버튼을 놓으면 끝납니다.';
+
+  @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
 
   @override

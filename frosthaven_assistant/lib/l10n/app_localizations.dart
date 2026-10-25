@@ -113,6 +113,18 @@ abstract class AppLocalizations {
     Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
   ];
 
+  /// No description provided for @desktopConditionsApplyTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply to {target}'**
+  String desktopConditionsApplyTo(String target);
+
+  /// No description provided for @desktopConditionsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Click an effect to apply it to the current turn (all living standees for a monster group). Or drag onto a character, monster or summon. Hold right before releasing left to keep dragging; left-click more targets, then release right to finish.'**
+  String get desktopConditionsHelp;
+
   /// No description provided for @topBarZoomIn.
   ///
   /// In en, this message translates to:

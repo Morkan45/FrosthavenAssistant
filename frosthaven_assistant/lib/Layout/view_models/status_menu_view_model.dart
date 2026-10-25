@@ -34,7 +34,8 @@ class StatusMenuViewModel {
     return "";
   }
 
-  FigureState? get figure => GameMethods.getFigure(ownerId, figureId);
+  FigureState? get figure =>
+      GameMethods.getFigure(ownerId, figureId, gameState: _gameState);
 
   Monster? get monster {
     if (monsterId == null) return null;

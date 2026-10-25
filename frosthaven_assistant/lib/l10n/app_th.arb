@@ -1,4 +1,13 @@
 {
+  "desktopConditionsApplyTo": "ใช้กับ {target}",
+  "@desktopConditionsApplyTo": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "desktopConditionsHelp": "คลิกสถานะเพื่อใช้กับผู้ที่กำลังเล่นเทิร์นอยู่ (ทุกตัวที่ยังมีชีวิตในกลุ่มมอนสเตอร์) หรือลากไปวางบนตัวละคร มอนสเตอร์ หรือสิ่งอัญเชิญ กดปุ่มขวาค้างก่อนปล่อยปุ่มซ้ายเพื่อลากต่อ คลิกซ้ายบนเป้าหมายอื่น แล้วปล่อยปุ่มขวาเพื่อจบ",
   "topBarZoomIn": "Zoom in (Ctrl++)",
   "topBarZoomOut": "Zoom out (Ctrl+-)",
   "topBarShowOriginalValues": "Show original monster ability values",
