@@ -93,6 +93,32 @@ void main() {
     expect(controls.activeItem?.id, 'Blinkblade');
   });
 
+  test(
+    'ordinary and sticky drops reject every basic condition on objectives',
+    () {
+      AddCharacterCommand('Objective', 'na', 'Raven Nest a', 1).execute();
+      final objective = character('Raven Nest a');
+      final index = state.commandIndex.value;
+      for (final condition in controls.conditions) {
+        expect(
+          controls.canApply(condition, objective.id, objective.id),
+          isFalse,
+        );
+        controls.acceptDrop(condition, objective.id, objective.id);
+        controls.beginDrag(condition);
+        controls.hoverTarget(objective.id, objective.id);
+        controls.stickyDrop();
+        controls.endDrag();
+      }
+      expect(objective.characterState.conditions.value, isEmpty);
+      expect(state.commandIndex.value, index);
+      controls.apply(Condition.poison, 'Blinkblade', 'Blinkblade');
+      expect(character('Blinkblade').characterState.conditions.value, [
+        Condition.poison,
+      ]);
+    },
+  );
+
   void addStandees(String name, MonsterType type) {
     AddMonsterCommand(name, 1, false, gameState: state).execute();
     for (final nr in [1, 2]) {

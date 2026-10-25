@@ -1,5 +1,6 @@
 import '../enums.dart';
 import '../game_methods.dart';
+import '../game_rules.dart';
 import '../state/game_state.dart';
 import 'command_l10n.dart';
 
@@ -51,6 +52,16 @@ class AddConditionCommand extends Command {
       figureId,
       gameState: _gameState,
     );
+    final owner = _gameState.currentList
+        .where((item) => item.id == ownerId)
+        .firstOrNull;
+    if (GameRules.isObjectiveFigure(owner, figure) &&
+        GameRules.isImmuneToCondition(
+          condition,
+          GameRules.objectiveConditionImmunities,
+        )) {
+      return;
+    }
     if (figure != null) {
       List<Condition> newList = [];
       newList.addAll(figure.conditions.value);

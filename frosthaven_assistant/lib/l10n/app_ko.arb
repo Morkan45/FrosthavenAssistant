@@ -924,5 +924,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "allConditions": "모든 상태",
+  "objectiveConditionImmunity": "모든 상태 및 강제 이동에 면역"
 }

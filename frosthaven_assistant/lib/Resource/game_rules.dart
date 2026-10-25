@@ -15,6 +15,35 @@ class GameRules {
   static bool isObjectiveOrEscort(CharacterClass character) =>
       character.id == 'Escort' || character.id == 'Objective';
 
+  /// Frosthaven rulebook, p. 15: objectives are immune to all conditions.
+  /// Shield, retaliate, and character tokens are reminders, not conditions.
+  static final List<String> objectiveConditionImmunities = List.unmodifiable([
+    ...Condition.values
+        .where((condition) => condition.index < Condition.shield.index)
+        .map((condition) => '%${condition.name}%'),
+    // These conditions use deck counters instead of the Condition enum.
+    '%bless%',
+    '%curse%',
+  ]);
+
+  static bool isObjectiveFigure(ListItemData? owner, FigureState? figure) =>
+      owner is Character &&
+      owner.characterClass.id == 'Objective' &&
+      identical(owner.characterState, figure);
+
+  static bool isImmuneToCondition(
+    Condition condition,
+    List<String> immunities,
+  ) {
+    for (final item in immunities) {
+      final immunity = item.substring(1, item.length - 1);
+      if (condition.name.contains(immunity)) return true;
+      if (immunity == 'poison' && condition == Condition.infect) return true;
+      if (immunity == 'wound' && condition == Condition.rupture) return true;
+    }
+    return false;
+  }
+
   static bool shouldShowAlliesDeck({GameState? gameState, Settings? settings}) {
     final gs = gameState ?? getIt<GameState>();
     if (!(settings ?? getIt<Settings>()).showAmdDeck.value) {
@@ -129,9 +158,7 @@ class GameRules {
     final cards = <ModifierCard>[];
     if (faction == 'Demons') {
       cards.add(ModifierCard(CardType.add, 'Demons-perks/plus1any'));
-      cards.add(
-        ModifierCard(CardType.add, 'Demons-perks/plus1retaliate1flip'),
-      );
+      cards.add(ModifierCard(CardType.add, 'Demons-perks/plus1retaliate1flip'));
       cards.add(ModifierCard(CardType.add, 'Demons-perks/plus0wardallyflip'));
       cards.add(ModifierCard(CardType.add, 'Demons-perks/unique/fuck3'));
     } else if (faction == 'Merchant-Guild') {

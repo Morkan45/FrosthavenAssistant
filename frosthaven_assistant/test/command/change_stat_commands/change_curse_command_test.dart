@@ -34,6 +34,33 @@ void main() {
   });
 
   group('ChangeCurseCommand', () {
+    test('objectives cannot gain Curse but existing cards can be removed', () {
+      final state = getIt<GameState>();
+      AddCharacterCommand('Objective', 'na', 'Raven Nest a', 1).execute();
+      final objective = state.currentList.whereType<Character>().firstWhere(
+        (item) => item.characterClass.id == 'Objective',
+      );
+      final deck = objective.characterState.modifierDeck;
+      final monsterCurses = state.modifierDeck.getRemovable('curse').value;
+      final command = ChangeCurseCommand(
+        1,
+        objective.id,
+        objective.id,
+        gameState: state,
+      );
+      command.execute();
+      expect(deck.getRemovable('curse').value, 0);
+      expect(state.modifierDeck.getRemovable('curse').value, monsterCurses);
+      deck.addRemovableValue(command.stateAccess, 'curse', 1);
+      ChangeCurseCommand(
+        -1,
+        objective.id,
+        objective.id,
+        gameState: state,
+      ).execute();
+      expect(deck.getRemovable('curse').value, 0);
+    });
+
     test('should add a curse card to a character deck', () {
       // Arrange
       final character = getIt<GameState>().currentList.first as Character;

@@ -1262,4 +1262,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get cmdRemoveNoMonsters => 'Sin monstruos retirados';
+
+  @override
+  String get allConditions => 'Todos los estados';
+
+  @override
+  String get objectiveConditionImmunity =>
+      'Inmune a todos los estados y al movimiento forzado';
 }

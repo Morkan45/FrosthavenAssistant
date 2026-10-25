@@ -1,17 +1,33 @@
 import '../../game_methods.dart';
+import '../../game_rules.dart';
 import '../../state/game_state.dart';
 import 'change_stat_command.dart';
 import '../command_l10n.dart';
 
 class ChangeBlessCommand extends ChangeStatCommand {
   ModifierDeck? deck;
-  ChangeBlessCommand(super.change, super.figureId, super.ownerId,
-      {required super.gameState});
+  ChangeBlessCommand(
+    super.change,
+    super.figureId,
+    super.ownerId, {
+    required super.gameState,
+  });
   ChangeBlessCommand.deck(this.deck, {required GameState gameState})
-      : super(0, '', '', gameState: gameState);
+    : super(0, '', '', gameState: gameState);
 
   @override
   void execute() {
+    final owner = gameState.currentList
+        .where((item) => item.id == ownerId)
+        .firstOrNull;
+    if (change > 0 &&
+        owner is Character &&
+        GameRules.isObjectiveFigure(
+          owner,
+          GameMethods.getFigure(ownerId, figureId, gameState: gameState),
+        )) {
+      return;
+    }
     if (deck == null) {
       deck = gameState.modifierDeck;
       for (final item in gameState.currentList) {

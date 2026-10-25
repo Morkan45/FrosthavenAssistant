@@ -1248,4 +1248,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get cmdRemoveNoMonsters => 'ไม่ได้นำมอนสเตอร์ออก';
+
+  @override
+  String get allConditions => 'ทุกสถานะ';
+
+  @override
+  String get objectiveConditionImmunity =>
+      'มีภูมิคุ้มกันต่อทุกสถานะและการบังคับเคลื่อนที่';
 }

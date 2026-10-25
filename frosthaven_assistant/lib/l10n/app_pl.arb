@@ -924,5 +924,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "allConditions": "Wszystkie stany",
+  "objectiveConditionImmunity": "Odporność na wszystkie stany i wymuszony ruch"
 }

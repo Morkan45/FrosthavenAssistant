@@ -648,6 +648,66 @@ void main() {
     },
   );
 
+  testWidgets('objective hover rejects harmful and helpful condition drops', (
+    tester,
+  ) async {
+    AddCharacterCommand('Objective', 'na', 'Raven Nest a', 1).execute();
+    await pumpBoard(tester);
+    final objective = character('Raven Nest a');
+    final objectiveTarget = target(objective.id, objective.id);
+    final initialIndex = state.commandIndex.value;
+    for (final condition in [Condition.poison, Condition.ward]) {
+      final pointer = await startMouseDrag(
+        tester,
+        condition,
+        tester.getCenter(objectiveTarget),
+      );
+      final decoration =
+          tester.widget<DecoratedBox>(objectiveTarget).decoration
+              as BoxDecoration;
+      expect(decoration.border!.top.color, Colors.redAccent);
+      await tester.sendEventToBinding(pointer.up());
+      await tester.pumpAndSettle();
+      expect(objective.characterState.conditions.value, isEmpty);
+      expect(state.commandIndex.value, initialIndex);
+    }
+    expect(find.byType(StatusMenu), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('sticky drags skip objectives and continue to valid figures', (
+    tester,
+  ) async {
+    AddCharacterCommand('Objective', 'na', 'Raven Nest a', 1).execute();
+    await pumpBoard(tester);
+    final objective = character('Raven Nest a');
+    final initialIndex = state.commandIndex.value;
+    final pointer = await startMouseDrag(
+      tester,
+      Condition.stun,
+      tester.getCenter(target(objective.id, objective.id)),
+    );
+    await stickyClick(tester, pointer);
+    expect(controls(tester).isStickyDrag, isTrue);
+    expect(objective.characterState.conditions.value, isEmpty);
+    expect(state.commandIndex.value, initialIndex);
+
+    await tester.sendEventToBinding(
+      pointer.move(tester.getCenter(target('Blinkblade', 'Blinkblade'))),
+    );
+    await tester.pump();
+    await stickyClick(tester, pointer);
+    expect(character('Blinkblade').characterState.conditions.value, [
+      Condition.stun,
+    ]);
+    expect(objective.characterState.conditions.value, isEmpty);
+    expect(state.commandIndex.value, initialIndex + 1);
+    await tester.sendEventToBinding(pointer.up());
+    await tester.pumpAndSettle();
+    expect(find.byType(StatusMenu), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('desktop toolbar fits small and large UI scales', (tester) async {
     await pumpBoard(tester);
     final settings = getIt<Settings>();

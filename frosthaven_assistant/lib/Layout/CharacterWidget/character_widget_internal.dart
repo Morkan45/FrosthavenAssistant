@@ -15,6 +15,7 @@ import 'character_icon_widget.dart';
 import 'character_level_widget.dart';
 import 'character_xp_widget.dart';
 import 'initiative_widget.dart';
+import 'objective_immunities.dart';
 
 class CharacterWidgetInternal extends StatefulWidget {
   static const double _kScaledHeight = 60.0;
@@ -42,6 +43,8 @@ class CharacterWidgetInternal extends StatefulWidget {
   static const double _kNoteLeft = 168.0;
   static const double _kNoteMaxWidth = 84.0;
   static const double _kNoteTop = 32.0;
+  static const double _kObjectiveImmunitiesLeft = 252.0;
+  static const double _kObjectiveImmunitiesTop = 10.0;
 
   const CharacterWidgetInternal({
     super.key,
@@ -197,7 +200,13 @@ class CharacterInternalWidgetState extends State<CharacterWidgetInternal> {
                 shadow: shadow,
               ),
             ),
-          if (isCharacter)
+          if (_vm.isObjective)
+            Positioned(
+              left: CharacterWidgetInternal._kObjectiveImmunitiesLeft * scale,
+              top: CharacterWidgetInternal._kObjectiveImmunitiesTop * scale,
+              child: ObjectiveImmunities(scale: scale),
+            ),
+          if (isCharacter || _vm.isObjective)
             Positioned(
               left: CharacterWidgetInternal._kHealthControlsLeft * scale,
               top: CharacterWidgetInternal._kHealthControlsTop * scale,

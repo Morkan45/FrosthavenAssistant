@@ -48,6 +48,65 @@ void main() {
   });
 
   group('AddConditionCommand', () {
+    test(
+      'objectives reject all conditions without changing counters or timers',
+      () {
+        final state = getIt<GameState>();
+        AddCharacterCommand('Objective', 'na', 'Raven Nest a', 1).execute();
+        final objective = state.currentList.whereType<Character>().firstWhere(
+          (item) => item.characterClass.id == 'Objective',
+        );
+        const reminders = {
+          Condition.shield,
+          Condition.retaliate,
+          Condition.character1,
+          Condition.character2,
+          Condition.character3,
+          Condition.character4,
+        };
+        for (final condition in Condition.values.where(
+          (condition) => !reminders.contains(condition),
+        )) {
+          AddConditionCommand(
+            condition,
+            objective.id,
+            objective.id,
+            gameState: state,
+          ).execute();
+        }
+        expect(objective.characterState.conditions.value, isEmpty);
+        expect(objective.characterState.chill.value, 0);
+        expect(objective.characterState.plague.value, 0);
+        expect(objective.characterState.conditionsAddedThisTurn, isEmpty);
+        expect(objective.characterState.conditionsAddedPreviousTurn, isEmpty);
+      },
+    );
+
+    test('objective immunity preserves ability and character reminders', () {
+      final state = getIt<GameState>();
+      AddCharacterCommand('Objective', 'na', 'Raven Nest a', 1).execute();
+      final objective = state.currentList.whereType<Character>().firstWhere(
+        (item) => item.characterClass.id == 'Objective',
+      );
+      for (final reminder in [
+        Condition.shield,
+        Condition.retaliate,
+        Condition.character1,
+      ]) {
+        AddConditionCommand(
+          reminder,
+          objective.id,
+          objective.id,
+          gameState: state,
+        ).execute();
+      }
+      expect(objective.characterState.conditions.value, [
+        Condition.shield,
+        Condition.retaliate,
+        Condition.character1,
+      ]);
+    });
+
     test('should add a condition to a character', () {
       // Arrange
       final command = AddConditionCommand(

@@ -924,5 +924,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "allConditions": "所有狀態",
+  "objectiveConditionImmunity": "免疫所有狀態和強制移動"
 }

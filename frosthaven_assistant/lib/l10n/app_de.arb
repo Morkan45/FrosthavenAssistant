@@ -924,5 +924,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "allConditions": "Alle Zustände",
+  "objectiveConditionImmunity": "Immun gegen alle Zustände und erzwungene Bewegung"
 }

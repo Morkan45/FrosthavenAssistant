@@ -2260,6 +2260,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove no monsters'**
   String get cmdRemoveNoMonsters;
+
+  /// No description provided for @allConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'All conditions'**
+  String get allConditions;
+
+  /// No description provided for @objectiveConditionImmunity.
+  ///
+  /// In en, this message translates to:
+  /// **'Immune to all conditions and forced movement'**
+  String get objectiveConditionImmunity;
 }
 
 class _AppLocalizationsDelegate

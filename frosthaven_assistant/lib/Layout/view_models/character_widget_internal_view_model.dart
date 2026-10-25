@@ -7,10 +7,12 @@ import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
 
 class CharacterWidgetInternalViewModel {
-  CharacterWidgetInternalViewModel(this.character,
-      {GameState? gameState, Settings? settings})
-      : _gameState = gameState ?? getIt<GameState>(),
-        _settings = settings ?? getIt<Settings>();
+  CharacterWidgetInternalViewModel(
+    this.character, {
+    GameState? gameState,
+    Settings? settings,
+  }) : _gameState = gameState ?? getIt<GameState>(),
+       _settings = settings ?? getIt<Settings>();
 
   final Character character;
   final GameState _gameState;
@@ -19,6 +21,8 @@ class CharacterWidgetInternalViewModel {
   // Derived state
   bool get isObjectiveOrEscort =>
       GameMethods.isObjectiveOrEscort(character.characterClass);
+
+  bool get isObjective => character.characterClass.id == 'Objective';
 
   RoundState get roundState => _gameState.roundState.value;
 
@@ -38,7 +42,8 @@ class CharacterWidgetInternalViewModel {
           final init = int.tryParse(text);
           if (init != null && init != 0) {
             _gameState.action(
-                SetInitCommand(character.id, init, gameState: _gameState));
+              SetInitCommand(character.id, init, gameState: _gameState),
+            );
             return true;
           }
         }

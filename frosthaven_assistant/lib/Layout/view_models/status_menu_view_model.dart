@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:frosthaven_assistant/Resource/enums.dart';
 import 'package:frosthaven_assistant/Resource/game_methods.dart';
+import 'package:frosthaven_assistant/Resource/game_rules.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 import 'package:frosthaven_assistant/services/service_locator.dart';
@@ -13,8 +14,8 @@ class StatusMenuViewModel {
     this.characterId,
     GameState? gameState,
     Settings? settings,
-  })  : _gameState = gameState ?? getIt<GameState>(),
-        _settings = settings ?? getIt<Settings>();
+  }) : _gameState = gameState ?? getIt<GameState>(),
+       _settings = settings ?? getIt<Settings>();
 
   final String figureId;
   final String? monsterId;
@@ -40,12 +41,15 @@ class StatusMenuViewModel {
   Monster? get monster {
     if (monsterId == null) return null;
     return _gameState.currentList.firstWhereOrNull(
-        (item) => item.id == monsterId) as Monster?;
+          (item) => item.id == monsterId,
+        )
+        as Monster?;
   }
 
   Character? get character {
-    final match = _gameState.currentList
-        .firstWhereOrNull((item) => item.id == characterId);
+    final match = _gameState.currentList.firstWhereOrNull(
+      (item) => item.id == characterId,
+    );
     return match is Character ? match : null;
   }
 
@@ -68,6 +72,9 @@ class StatusMenuViewModel {
 
   List<String> get immunities {
     final fig = figure;
+    if (GameRules.isObjectiveFigure(owner, fig)) {
+      return GameRules.objectiveConditionImmunities;
+    }
     final mon = monster;
     if (fig is! MonsterInstance || mon == null) return [];
     final monsterData = mon.type.levels[mon.level.value];
@@ -120,8 +127,10 @@ class StatusMenuViewModel {
       showCustomContent &&
       _gameState.currentList.any((item) => item.id == "Lifespeaker");
 
-  bool get hasPlagueHerald => _gameState.currentList.any((item) =>
-      item is Character &&
-      item.id == "Plagueherald" &&
-      item.characterClass.edition == "Gloomhaven 2nd Edition");
+  bool get hasPlagueHerald => _gameState.currentList.any(
+    (item) =>
+        item is Character &&
+        item.id == "Plagueherald" &&
+        item.characterClass.edition == "Gloomhaven 2nd Edition",
+  );
 }

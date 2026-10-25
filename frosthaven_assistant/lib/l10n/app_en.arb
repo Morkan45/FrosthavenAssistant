@@ -924,5 +924,7 @@
     }
   },
   "cmdRemoveNoCharacters": "Remove no characters",
-  "cmdRemoveNoMonsters": "Remove no monsters"
+  "cmdRemoveNoMonsters": "Remove no monsters",
+  "allConditions": "All conditions",
+  "objectiveConditionImmunity": "Immune to all conditions and forced movement"
 }

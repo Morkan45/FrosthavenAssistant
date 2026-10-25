@@ -1240,6 +1240,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get cmdRemoveNoMonsters => '未移除任何怪物';
+
+  @override
+  String get allConditions => '所有状态';
+
+  @override
+  String get objectiveConditionImmunity => '免疫所有状态和强制移动';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -2478,4 +2484,10 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get cmdRemoveNoMonsters => '未移除任何怪物';
+
+  @override
+  String get allConditions => '所有狀態';
+
+  @override
+  String get objectiveConditionImmunity => '免疫所有狀態和強制移動';
 }

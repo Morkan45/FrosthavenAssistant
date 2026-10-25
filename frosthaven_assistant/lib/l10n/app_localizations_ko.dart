@@ -1241,4 +1241,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get cmdRemoveNoMonsters => '제거된 몬스터 없음';
+
+  @override
+  String get allConditions => '모든 상태';
+
+  @override
+  String get objectiveConditionImmunity => '모든 상태 및 강제 이동에 면역';
 }

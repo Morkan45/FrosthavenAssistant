@@ -924,5 +924,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "allConditions": "Todos los estados",
+  "objectiveConditionImmunity": "Inmune a todos los estados y al movimiento forzado"
 }

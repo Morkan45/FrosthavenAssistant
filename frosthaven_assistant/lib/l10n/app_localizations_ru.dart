@@ -1260,4 +1260,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cmdRemoveNoMonsters => 'Монстры не убраны';
+
+  @override
+  String get allConditions => 'Все состояния';
+
+  @override
+  String get objectiveConditionImmunity =>
+      'Невосприимчивость ко всем состояниям и принудительному перемещению';
 }

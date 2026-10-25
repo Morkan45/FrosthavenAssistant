@@ -1253,4 +1253,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get cmdRemoveNoMonsters => 'Nie usunięto potworów';
+
+  @override
+  String get allConditions => 'Wszystkie stany';
+
+  @override
+  String get objectiveConditionImmunity =>
+      'Odporność na wszystkie stany i wymuszony ruch';
 }

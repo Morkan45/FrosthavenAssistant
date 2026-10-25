@@ -34,6 +34,33 @@ void main() {
   });
 
   group('ChangeBlessCommand', () {
+    test('objectives cannot gain Bless but existing cards can be removed', () {
+      final state = getIt<GameState>();
+      AddCharacterCommand('Objective', 'na', 'Raven Nest a', 1).execute();
+      final objective = state.currentList.whereType<Character>().firstWhere(
+        (item) => item.characterClass.id == 'Objective',
+      );
+      final deck = objective.characterState.modifierDeck;
+      final monsterBlesses = state.modifierDeck.getRemovable('bless').value;
+      final command = ChangeBlessCommand(
+        1,
+        objective.id,
+        objective.id,
+        gameState: state,
+      );
+      command.execute();
+      expect(deck.getRemovable('bless').value, 0);
+      expect(state.modifierDeck.getRemovable('bless').value, monsterBlesses);
+      deck.addRemovableValue(command.stateAccess, 'bless', 1);
+      ChangeBlessCommand(
+        -1,
+        objective.id,
+        objective.id,
+        gameState: state,
+      ).execute();
+      expect(deck.getRemovable('bless').value, 0);
+    });
+
     test('should add a bless card to a character deck', () {
       // Arrange
       final character = getIt<GameState>().currentList.first as Character;

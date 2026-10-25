@@ -924,5 +924,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "allConditions": "ทุกสถานะ",
+  "objectiveConditionImmunity": "มีภูมิคุ้มกันต่อทุกสถานะและการบังคับเคลื่อนที่"
 }

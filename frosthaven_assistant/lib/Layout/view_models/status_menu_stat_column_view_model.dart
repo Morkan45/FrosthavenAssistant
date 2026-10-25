@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:frosthaven_assistant/Resource/game_methods.dart';
+import 'package:frosthaven_assistant/Resource/game_rules.dart';
 import 'package:frosthaven_assistant/Resource/settings.dart';
 import 'package:frosthaven_assistant/Resource/state/game_state.dart';
 
@@ -98,7 +99,9 @@ class StatusMenuStatColumnViewModel {
       isSummon;
 
   bool get showMonsterAmd =>
-      settings.showAmdDeck.value && (isObjective || (isMonster && !isSummon));
+      !GameRules.isObjectiveFigure(character, figure) &&
+      settings.showAmdDeck.value &&
+      (isObjective || (isMonster && !isSummon));
 
   bool get showAmd => showCharacterAmd || showMonsterAmd;
 
@@ -133,7 +136,5 @@ class StatusMenuStatColumnViewModel {
       (isCharacter && character?.id == "Ruinmaw" && nrOfEmpowers > 0);
 
   ValueListenable<int> get xpNotifier =>
-      figure is CharacterState
-          ? (figure as CharacterState).xp
-          : _zeroXp;
+      figure is CharacterState ? (figure as CharacterState).xp : _zeroXp;
 }
