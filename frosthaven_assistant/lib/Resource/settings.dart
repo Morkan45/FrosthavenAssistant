@@ -22,6 +22,10 @@ import 'settings_codec.dart';
 
 class Settings {
   static const double _kDesktopBarScale = 1.6;
+  static const double minimumStatusEffectScale =
+      SettingsCodec.minimumStatusEffectScale;
+  static const double maximumStatusEffectScale =
+      SettingsCodec.maximumStatusEffectScale;
   static const String _sharedPrefsKey = 'settingsState';
 
   Settings({Future<void> Function(String value)? writer}) {
@@ -57,6 +61,7 @@ class Settings {
         : 1.0,
   );
   final userScalingMenus = ValueNotifier<double>(1.0);
+  final statusEffectScale = ValueNotifier<double>(2.0);
   final fullScreen = ValueNotifier<bool>(true);
   final darkMode = ValueNotifier<bool>(false);
   final noInit = ValueNotifier<bool>(true);
@@ -318,6 +323,7 @@ class Settings {
     'mainListColumns': mainListColumns.value,
     'userScalingBars': userScalingBars.value,
     'userScalingMenus': userScalingMenus.value,
+    'statusEffectScale': statusEffectScale.value,
     'fullScreen': fullScreen.value,
     'softNumpadInput': softNumpadInput.value,
     'darkMode': darkMode.value,
@@ -356,6 +362,7 @@ class Settings {
     mainListColumns.value = data.value('mainListColumns');
     userScalingBars.value = data.value('userScalingBars');
     userScalingMenus.value = data.value('userScalingMenus');
+    statusEffectScale.value = data.value('statusEffectScale');
     fullScreen.value = data.value('fullScreen');
     softNumpadInput.value = data.value('softNumpadInput');
     darkMode.value = data.value('darkMode');
@@ -396,6 +403,7 @@ class Settings {
     'mainListColumns': mainListColumns.value,
     'userScalingBars': userScalingBars.value,
     'userScalingMenus': userScalingMenus.value,
+    'statusEffectScale': statusEffectScale.value,
     'fullScreen': fullScreen.value,
     'softNumpadInput': softNumpadInput.value,
     'noInit': noInit.value,

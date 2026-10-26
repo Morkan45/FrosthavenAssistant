@@ -1,5 +1,5 @@
 {
-  "desktopConditionsApplyTo": "ใช้กับ {target}",
+  "desktopConditionsApplyTo": "เทิร์นปัจจุบัน: {target}",
   "@desktopConditionsApplyTo": {
     "placeholders": {
       "target": {
@@ -7,7 +7,7 @@
       }
     }
   },
-  "desktopConditionsHelp": "คลิกสถานะเพื่อใช้กับผู้ที่กำลังเล่นเทิร์นอยู่ (ทุกตัวที่ยังมีชีวิตในกลุ่มมอนสเตอร์) หรือลากไปวางบนตัวละคร มอนสเตอร์ หรือสิ่งอัญเชิญ กดปุ่มขวาค้างก่อนปล่อยปุ่มซ้ายเพื่อลากต่อ คลิกซ้ายบนเป้าหมายอื่น แล้วปล่อยปุ่มขวาเพื่อจบ",
+  "desktopConditionsHelp": "คลิกเอฟเฟกต์เพื่อเพิ่มหรือลบให้ผู้ที่กำลังเล่นเทิร์นอยู่ (มอนสเตอร์ทุกตัวในกลุ่มที่ยังมีชีวิตและไม่ป้องกันเอฟเฟกต์นั้น) คลิกเอฟเฟกต์ที่ไฮไลต์อีกครั้งเพื่อลบ หรือลากไปยังตัวละคร มอนสเตอร์ หรือยูนิตอัญเชิญเพื่อเพิ่มเอฟเฟกต์ กดปุ่มขวาค้างไว้ก่อนปล่อยปุ่มซ้ายเพื่อลากต่อ คลิกซ้ายที่เป้าหมายอื่นแล้วปล่อยปุ่มขวาเพื่อจบ",
   "topBarZoomIn": "Zoom in (Ctrl++)",
   "topBarZoomOut": "Zoom out (Ctrl+-)",
   "topBarShowOriginalValues": "Show original monster ability values",
@@ -424,6 +424,8 @@
   "settingsScalePresetDefault": "Default",
   "settingsScalePresetLarge": "Large",
   "settingsMenuScaling": "Menu Scaling:",
+  "settingsStatusEffectScaling": "ขนาดเอฟเฟกต์สถานะ:",
+  "settingsStatusEffectScalingHelp": "เลื่อนแนวนอนเพื่อดูเอฟเฟกต์เพิ่มเติม ปรับขนาดแถบแอปหากไอคอนขนาดใหญ่ต้องการพื้นที่แนวตั้งเพิ่ม",
   "@removeCardWithDetails": {
     "placeholders": {
       "title": {

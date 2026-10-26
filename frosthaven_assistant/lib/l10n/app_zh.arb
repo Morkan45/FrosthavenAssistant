@@ -1,5 +1,5 @@
 {
-  "desktopConditionsApplyTo": "应用于{target}",
+  "desktopConditionsApplyTo": "当前回合：{target}",
   "@desktopConditionsApplyTo": {
     "placeholders": {
       "target": {
@@ -7,7 +7,7 @@
       }
     }
   },
-  "desktopConditionsHelp": "点击状态，将其添加到当前回合的角色（怪物组则为所有存活个体）。也可拖到角色、怪物或召唤物上。在松开左键前按住右键，可继续拖动；左键点击更多目标，松开右键结束。",
+  "desktopConditionsHelp": "点击效果可为当前行动的角色或怪物组切换该效果（怪物组中所有存活且不免疫的个体）。再次点击高亮效果可将其移除。将效果拖到角色、怪物或召唤物上则会添加效果。松开左键前按住右键可继续拖动；左键点击更多目标，最后松开右键结束。",
   "topBarZoomIn": "Zoom in (Ctrl++)",
   "topBarZoomOut": "Zoom out (Ctrl+-)",
   "topBarShowOriginalValues": "Show original monster ability values",
@@ -424,6 +424,8 @@
   "settingsScalePresetDefault": "Default",
   "settingsScalePresetLarge": "Large",
   "settingsMenuScaling": "Menu Scaling:",
+  "settingsStatusEffectScaling": "状态效果大小：",
+  "settingsStatusEffectScalingHelp": "水平滚动以查看其他效果。如果较大的图标需要更多高度，请调整应用栏缩放。",
   "@removeCardWithDetails": {
     "placeholders": {
       "title": {

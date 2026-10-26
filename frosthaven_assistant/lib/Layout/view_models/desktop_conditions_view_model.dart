@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../Resource/commands/add_condition_command.dart';
+import '../../Resource/commands/remove_condition_command.dart';
 import '../../Resource/enums.dart';
 import '../../Resource/game_methods.dart';
 import '../../Resource/settings.dart';
@@ -139,22 +140,33 @@ class DesktopConditionsViewModel extends ChangeNotifier {
     _ => [],
   };
 
-  bool isApplied(Condition condition) {
-    final targets = _activeTargets;
-    return targets.isNotEmpty &&
-        targets.every(
+  bool _hasCondition(Condition condition, (String, String) target) =>
+      GameMethods.getFigure(
+        target.$2,
+        target.$1,
+        gameState: _gameState,
+      )?.conditions.value.contains(condition) ??
+      false;
+
+  List<(String, String)> _toggleTargets(Condition condition) {
+    if (!conditions.contains(condition)) return [];
+    return _activeTargets
+        .where(
           (target) =>
-              GameMethods.getFigure(
-                target.$2,
-                target.$1,
-                gameState: _gameState,
-              )?.conditions.value.contains(condition) ??
-              false,
-        );
+              _hasCondition(condition, target) ||
+              canApply(condition, target.$1, target.$2),
+        )
+        .toList();
   }
 
-  bool canApplyToActive(Condition condition) =>
-      _activeTargets.any((target) => canApply(condition, target.$1, target.$2));
+  bool isApplied(Condition condition) {
+    final targets = _toggleTargets(condition);
+    return targets.isNotEmpty &&
+        targets.every((target) => _hasCondition(condition, target));
+  }
+
+  bool canToggleActive(Condition condition) =>
+      _toggleTargets(condition).isNotEmpty;
 
   bool canApply(Condition condition, String figureId, String? ownerId) {
     final figure = GameMethods.getFigure(
@@ -195,14 +207,25 @@ class DesktopConditionsViewModel extends ChangeNotifier {
     );
   }
 
-  void applyToActive(Condition condition) {
-    final targets = _activeTargets
-        .where((target) => canApply(condition, target.$1, target.$2))
-        .toList();
+  void toggleActive(Condition condition) {
+    final targets = _toggleTargets(condition);
     if (targets.isEmpty) return;
     // One toolbar click is one undo step, including a monster group's standees.
+    final remove = targets.every((target) => _hasCondition(condition, target));
     _gameState.action(
-      AddConditionToFiguresCommand(condition, targets, gameState: _gameState),
+      remove
+          ? RemoveConditionFromFiguresCommand(
+              condition,
+              targets,
+              gameState: _gameState,
+            )
+          : AddConditionToFiguresCommand(
+              condition,
+              targets
+                  .where((target) => !_hasCondition(condition, target))
+                  .toList(),
+              gameState: _gameState,
+            ),
     );
   }
 

@@ -35,6 +35,7 @@ void main() {
     );
     final settings = getIt<Settings>();
     settings.userScalingBars.value = 1.6;
+    settings.statusEffectScale.value = 2.0;
     settings.userScalingMainList.value = 1;
     settings.fitMainListToWidth.value = false;
     settings.mainListColumns.value = 0;
@@ -111,6 +112,8 @@ void main() {
     Condition condition,
     Offset destination,
   ) async {
+    await tester.ensureVisible(source(condition));
+    await tester.pumpAndSettle();
     final origin = tester.getCenter(source(condition));
     final gesture = await tester.startGesture(
       origin,
@@ -130,6 +133,8 @@ void main() {
     Offset destination,
   ) async {
     final pointer = TestPointer(31, PointerDeviceKind.mouse);
+    await tester.ensureVisible(source(condition));
+    await tester.pumpAndSettle();
     final origin = tester.getCenter(source(condition));
     await tester.sendEventToBinding(pointer.down(origin));
     await tester.sendEventToBinding(pointer.move(origin + const Offset(0, 24)));
@@ -186,6 +191,20 @@ void main() {
         in state.currentList.whereType<Monster>().single.monsterInstances) {
       expect(standee.conditions.value, [Condition.poison]);
     }
+    final removalIndex = state.commandIndex.value;
+    await tester.tap(source(Condition.poison));
+    await tester.pumpAndSettle();
+    expect(state.commandIndex.value, removalIndex + 1);
+    for (final standee
+        in state.currentList.whereType<Monster>().single.monsterInstances) {
+      expect(standee.conditions.value, isEmpty);
+    }
+    state.undo();
+    await tester.pumpAndSettle();
+    for (final standee
+        in state.currentList.whereType<Monster>().single.monsterInstances) {
+      expect(standee.conditions.value, [Condition.poison]);
+    }
     expect(character('Banner Spear').characterState.conditions.value, isEmpty);
     expect(
       tester.getCenter(source(Condition.poison)).dy,
@@ -196,7 +215,7 @@ void main() {
   });
 
   testWidgets(
-    'applied effects are never toggled off and follow undo and redo',
+    'clicking an applied effect removes it and follows undo and redo',
     (tester) async {
       startTurn('Banner Spear');
       await pumpBoard(tester);
@@ -205,18 +224,26 @@ void main() {
       final index = state.commandIndex.value;
       await tester.tap(source(Condition.poison));
       await tester.pumpAndSettle();
-      expect(state.commandIndex.value, index);
+      expect(state.commandIndex.value, index + 1);
+      expect(
+        character('Banner Spear').characterState.conditions.value,
+        isEmpty,
+      );
+      expect(
+        tester.widget<IconButton>(source(Condition.poison)).isSelected,
+        isFalse,
+      );
       state.undo();
       await tester.pumpAndSettle();
       expect(
         tester.widget<IconButton>(source(Condition.poison)).isSelected,
-        isFalse,
+        isTrue,
       );
       state.redo();
       await tester.pumpAndSettle();
       expect(
         tester.widget<IconButton>(source(Condition.poison)).isSelected,
-        isTrue,
+        isFalse,
       );
       expect(tester.takeException(), isNull);
     },
@@ -575,11 +602,11 @@ void main() {
     (tester) async {
       await pumpBoard(tester);
       startTurn('Blinkblade');
-      controls(tester).applyToActive(Condition.poison);
+      controls(tester).toggleActive(Condition.poison);
       await tester.pump();
       expect(
         tester.widget<IconButton>(source(Condition.poison)).onPressed,
-        isNull,
+        isNotNull,
       );
 
       final monster = state.currentList.whereType<Monster>().single;
@@ -708,39 +735,111 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('desktop toolbar fits small and large UI scales', (tester) async {
+  testWidgets('status sizing preserves small and large app bar heights', (
+    tester,
+  ) async {
     await pumpBoard(tester);
     final settings = getIt<Settings>();
     for (final scale in [0.2, 1.0, 1.6, 3.0]) {
       settings.userScalingBars.value = scale;
       await tester.pumpAndSettle();
-      expect(
-        tester.getSize(find.byType(DesktopConditionBar)).height,
-        lessThanOrEqualTo(40 * scale),
-      );
       expect(tester.getTopLeft(find.byType(MainScaffoldBody)).dy, 40 * scale);
       expect(tester.takeException(), isNull);
     }
   });
 
-  testWidgets('all basic effects fit in the top row across desktop widths', (
+  testWidgets('desktop scrollbar reveals late effects without applying them', (
     tester,
   ) async {
-    await pumpBoard(tester);
-    for (final width in [600.0, 900.0, 1280.0, 1920.0, 2560.0]) {
-      tester.view.physicalSize = Size(width, 720);
-      await tester.pumpAndSettle();
-      for (final condition in controls(tester).conditions) {
-        expect(
-          source(condition).hitTestable(),
-          findsOneWidget,
-          reason: '$condition at $width',
-        );
-      }
-      expect(tester.getTopLeft(find.byType(MainScaffoldBody)).dy, 64);
-      expect(tester.takeException(), isNull);
-    }
+    await pumpBoard(tester, size: const Size(900, 720));
+    final scrollbar = find.descendant(
+      of: find.byType(DesktopConditionBar),
+      matching: find.byType(Scrollbar),
+    );
+    final controller = tester.widget<Scrollbar>(scrollbar).controller!;
+    final index = state.commandIndex.value;
+    final rect = tester.getRect(scrollbar);
+    await tester.dragFrom(
+      Offset(rect.left + 20, rect.bottom - 3),
+      Offset(rect.width, 0),
+      kind: PointerDeviceKind.mouse,
+    );
+    await tester.pumpAndSettle();
+    expect(controller.offset, greaterThan(0));
+    expect(source(Condition.ward).hitTestable(), findsOneWidget);
+    expect(state.commandIndex.value, index);
+    expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'all effects remain reachable without overlap across desktop widths',
+    (tester) async {
+      await pumpBoard(tester);
+      for (final width in [600.0, 900.0, 1280.0, 1920.0, 2560.0]) {
+        tester.view.physicalSize = Size(width, 720);
+        await tester.pumpAndSettle();
+        final effects = controls(tester).conditions;
+        for (var i = 1; i < effects.length; i++) {
+          expect(
+            tester.getRect(source(effects[i])).left,
+            greaterThanOrEqualTo(tester.getRect(source(effects[i - 1])).right),
+          );
+        }
+        for (final condition in effects) {
+          await tester.ensureVisible(source(condition));
+          await tester.pumpAndSettle();
+          expect(
+            source(condition).hitTestable(),
+            findsOneWidget,
+            reason: '$condition at $width',
+          );
+        }
+        expect(tester.getTopLeft(find.byType(MainScaffoldBody)).dy, 64);
+        expect(tester.takeException(), isNull);
+      }
+    },
+  );
+  testWidgets(
+    'size changes live and reserves horizontal space without changing bar height',
+    (tester) async {
+      await pumpBoard(tester, size: const Size(1920, 720));
+      final settings = getIt<Settings>();
+      final defaultWidth = tester.getSize(source(Condition.stun)).width;
+      final icon = find.descendant(
+        of: source(Condition.stun),
+        matching: find.byType(Image),
+      );
+      final defaultIconSize = tester.getSize(icon);
+      expect(defaultIconSize.width, closeTo(52, 0.1));
+
+      settings.statusEffectScale.value = 1;
+      await tester.pumpAndSettle();
+      expect(
+        defaultIconSize.width,
+        closeTo(2 * tester.getSize(icon).width, 0.1),
+      );
+      expect(
+        defaultWidth,
+        greaterThan(tester.getSize(source(Condition.stun)).width),
+      );
+      expect(tester.getTopLeft(find.byType(MainScaffoldBody)).dy, 64);
+
+      for (final scale in [0.5, 1.0, 2.0, 3.0]) {
+        settings.statusEffectScale.value = scale;
+        await tester.pumpAndSettle();
+        final effects = controls(tester).conditions;
+        for (var i = 1; i < effects.length; i++) {
+          expect(
+            tester.getRect(source(effects[i])).left,
+            greaterThanOrEqualTo(tester.getRect(source(effects[i - 1])).right),
+          );
+        }
+        expect(tester.getTopLeft(find.byType(MainScaffoldBody)).dy, 64);
+        expect(tester.takeException(), isNull);
+      }
+    },
+  );
+
   for (final platform in [TargetPlatform.android, TargetPlatform.iOS]) {
     testWidgets(
       'mobile has no toolbar, selection affordance or drop targets on $platform',

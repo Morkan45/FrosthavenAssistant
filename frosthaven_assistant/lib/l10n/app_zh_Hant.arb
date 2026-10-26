@@ -1,5 +1,5 @@
 {
-  "desktopConditionsApplyTo": "套用至{target}",
+  "desktopConditionsApplyTo": "目前回合：{target}",
   "@desktopConditionsApplyTo": {
     "placeholders": {
       "target": {
@@ -7,7 +7,7 @@
       }
     }
   },
-  "desktopConditionsHelp": "點擊狀態，將其加入目前回合的角色（怪物群組則為所有存活個體）。也可拖曳至角色、怪物或召喚物上。在放開左鍵前按住右鍵，即可繼續拖曳；左鍵點擊更多目標，放開右鍵結束。",
+  "desktopConditionsHelp": "點擊效果可為目前行動的角色或怪物組切換該效果（怪物組中所有存活且不免疫的個體）。再次點擊反白效果可將其移除。將效果拖到角色、怪物或召喚物上則會新增效果。放開左鍵前按住右鍵可繼續拖曳；左鍵點擊更多目標，最後放開右鍵結束。",
   "topBarZoomIn": "Zoom in (Ctrl++)",
   "topBarZoomOut": "Zoom out (Ctrl+-)",
   "topBarShowOriginalValues": "Show original monster ability values",
@@ -424,6 +424,8 @@
   "settingsScalePresetDefault": "Default",
   "settingsScalePresetLarge": "Large",
   "settingsMenuScaling": "Menu Scaling:",
+  "settingsStatusEffectScaling": "狀態效果大小：",
+  "settingsStatusEffectScalingHelp": "水平捲動以查看其他效果。如果較大的圖示需要更多高度，請調整應用程式列縮放。",
   "@removeCardWithDetails": {
     "placeholders": {
       "title": {

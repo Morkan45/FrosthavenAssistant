@@ -21,6 +21,8 @@ class SettingsSnapshot {
 class SettingsCodec {
   const SettingsCodec();
 
+  static const double minimumStatusEffectScale = 0.5;
+  static const double maximumStatusEffectScale = 3.0;
   static const double _minimumMainScale = 0.2;
   static const double _minimumBarScale = 0.8;
   static const double _minimumMenuScale = 0.7;
@@ -67,6 +69,13 @@ class SettingsCodec {
       defaults.value<double>('userScalingMenus'),
       minimum: _minimumMenuScale,
       maximum: _maximumMenuScale,
+    );
+
+    values['statusEffectScale'] = _scale(
+      decoded['statusEffectScale'],
+      defaults.value<double>('statusEffectScale'),
+      minimum: minimumStatusEffectScale,
+      maximum: maximumStatusEffectScale,
     );
 
     values['mainListColumns'] = _columns(

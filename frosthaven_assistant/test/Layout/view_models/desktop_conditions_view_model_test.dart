@@ -48,18 +48,18 @@ void main() {
   test('clicks follow the current turn and follow undo and redo', () {
     final initialIndex = state.commandIndex.value;
     expect(controls.activeItem, isNull);
-    controls.applyToActive(Condition.stun);
+    controls.toggleActive(Condition.stun);
     expect(state.commandIndex.value, initialIndex);
     startTurn('Banner Spear');
     expect(controls.activeItem?.id, 'Banner Spear');
-    controls.applyToActive(Condition.poison);
+    controls.toggleActive(Condition.poison);
     expect(character('Banner Spear').characterState.conditions.value, [
       Condition.poison,
     ]);
     expect(character('Blinkblade').characterState.conditions.value, isEmpty);
     state.action(TurnDoneCommand('Banner Spear', gameState: state));
     expect(controls.activeItem?.id, 'Blinkblade');
-    controls.applyToActive(Condition.wound);
+    controls.toggleActive(Condition.wound);
     expect(character('Blinkblade').characterState.conditions.value, [
       Condition.wound,
     ]);
@@ -70,18 +70,34 @@ void main() {
     expect(controls.activeItem?.id, 'Blinkblade');
   });
 
-  test('an existing effect is a no-op and stays applied after redo', () {
-    startTurn('Blinkblade');
-    controls.applyToActive(Condition.poison);
-    final index = state.commandIndex.value;
-    controls.applyToActive(Condition.poison);
-    expect(state.commandIndex.value, index);
-    expect(controls.canApplyToActive(Condition.poison), isFalse);
-    state.undo();
-    expect(controls.isApplied(Condition.poison), isFalse);
-    state.redo();
-    expect(controls.isApplied(Condition.poison), isTrue);
-  });
+  test(
+    'a second click clears the effect and turn tracking with undo and redo',
+    () {
+      startTurn('Blinkblade');
+      controls.toggleActive(Condition.poison);
+      expect(controls.isApplied(Condition.poison), isTrue);
+      expect(controls.canToggleActive(Condition.poison), isTrue);
+      expect(
+        character('Blinkblade').characterState.conditionsAddedThisTurn,
+        contains(Condition.poison),
+      );
+      final index = state.commandIndex.value;
+      controls.toggleActive(Condition.poison);
+      expect(state.commandIndex.value, index + 1);
+      expect(character('Blinkblade').characterState.conditions.value, isEmpty);
+      expect(
+        character('Blinkblade').characterState.conditionsAddedThisTurn,
+        isNot(contains(Condition.poison)),
+      );
+      expect(controls.isApplied(Condition.poison), isFalse);
+      state.undo();
+      expect(controls.isApplied(Condition.poison), isTrue);
+      state.redo();
+      expect(controls.isApplied(Condition.poison), isFalse);
+      controls.toggleActive(Condition.poison);
+      expect(controls.isApplied(Condition.poison), isTrue);
+    },
+  );
 
   test('drops target a single figure independently of the current turn', () {
     startTurn('Blinkblade');
@@ -141,12 +157,12 @@ void main() {
     controls.apply(Condition.poison, first.getId(), monster.id);
     final index = state.commandIndex.value;
     expect(controls.isApplied(Condition.poison), isFalse);
-    controls.applyToActive(Condition.poison);
+    controls.toggleActive(Condition.poison);
     expect(state.commandIndex.value, index + 1);
     expect(controls.isApplied(Condition.poison), isTrue);
     state.undo();
     expect(controls.isApplied(Condition.poison), isFalse);
-    controls.applyToActive(Condition.wound);
+    controls.toggleActive(Condition.wound);
     for (final standee in monster.monsterInstances) {
       expect(standee.conditions.value, contains(Condition.wound));
     }
@@ -156,6 +172,78 @@ void main() {
     }
   });
 
+  test('a second group click clears all living standees in one undo step', () {
+    addStandees('Zealot', MonsterType.normal);
+    AddStandeeCommand(
+      3,
+      null,
+      'Zealot',
+      MonsterType.elite,
+      false,
+      gameState: state,
+    ).execute();
+    final monster = state.currentList.whereType<Monster>().single;
+    final dead = monster.monsterInstances.last;
+    controls.apply(Condition.poison, dead.getId(), monster.id);
+    dead.setHealth(DrawCommand(gameState: state).stateAccess, 0);
+    controls.apply(Condition.poison, 'Banner Spear', 'Banner Spear');
+    startTurn('Zealot');
+    controls.toggleActive(Condition.poison);
+    expect(controls.isApplied(Condition.poison), isTrue);
+    final index = state.commandIndex.value;
+    controls.toggleActive(Condition.poison);
+    expect(state.commandIndex.value, index + 1);
+    for (final standee in monster.monsterInstances.where(
+      (s) => s.health.value > 0,
+    )) {
+      expect(standee.conditions.value, isEmpty);
+      expect(
+        standee.conditionsAddedThisTurn,
+        isNot(contains(Condition.poison)),
+      );
+    }
+    expect(dead.conditions.value, [Condition.poison]);
+    expect(character('Banner Spear').characterState.conditions.value, [
+      Condition.poison,
+    ]);
+    state.undo();
+    expect(controls.isApplied(Condition.poison), isTrue);
+    state.redo();
+    expect(controls.isApplied(Condition.poison), isFalse);
+  });
+
+  test(
+    'immune standees do not prevent highlighting and clearing an applied effect',
+    () {
+      addStandees('Zealot', MonsterType.normal);
+      final monster = state.currentList.whereType<Monster>().single;
+      final immune = monster.monsterInstances.first;
+      final eligible = monster.monsterInstances.last;
+      eligible.setType(
+        DrawCommand(gameState: state).stateAccess,
+        MonsterType.elite,
+      );
+      final immunities =
+          monster.type.levels[monster.level.value].normal!.immunities;
+      final originalImmunities = List<String>.of(immunities);
+      immunities.add('stun');
+      addTearDown(() {
+        immunities
+          ..clear()
+          ..addAll(originalImmunities);
+      });
+      startTurn('Zealot');
+      controls.toggleActive(Condition.stun);
+      expect(immune.conditions.value, isEmpty);
+      expect(eligible.conditions.value, [Condition.stun]);
+      expect(controls.isApplied(Condition.stun), isTrue);
+      expect(controls.canToggleActive(Condition.stun), isTrue);
+      controls.toggleActive(Condition.stun);
+      expect(eligible.conditions.value, isEmpty);
+      expect(controls.isApplied(Condition.stun), isFalse);
+    },
+  );
+
   test('group clicks skip defeated standees and immune effects', () {
     addStandees('Blood Tumor', MonsterType.boss);
     startTurn('Blood Tumor');
@@ -163,9 +251,9 @@ void main() {
     final dead = monster.monsterInstances.last;
     dead.setHealth(DrawCommand(gameState: state).stateAccess, 0);
     final index = state.commandIndex.value;
-    controls.applyToActive(Condition.stun);
+    controls.toggleActive(Condition.stun);
     expect(state.commandIndex.value, index);
-    controls.applyToActive(Condition.wound);
+    controls.toggleActive(Condition.wound);
     expect(monster.monsterInstances.first.conditions.value, [Condition.wound]);
     expect(dead.conditions.value, isEmpty);
   });
@@ -177,7 +265,7 @@ void main() {
     ], gameState: state).execute();
     final index = state.commandIndex.value;
     expect(controls.activeItem, isNull);
-    controls.applyToActive(Condition.stun);
+    controls.toggleActive(Condition.stun);
     expect(state.commandIndex.value, index);
   });
 

@@ -116,13 +116,13 @@ abstract class AppLocalizations {
   /// No description provided for @desktopConditionsApplyTo.
   ///
   /// In en, this message translates to:
-  /// **'Apply to {target}'**
+  /// **'Current turn: {target}'**
   String desktopConditionsApplyTo(String target);
 
   /// No description provided for @desktopConditionsHelp.
   ///
   /// In en, this message translates to:
-  /// **'Click an effect to apply it to the current turn (all living standees for a monster group). Or drag onto a character, monster or summon. Hold right before releasing left to keep dragging; left-click more targets, then release right to finish.'**
+  /// **'Click an effect to toggle it for the current turn (all living eligible standees for a monster group). Click a highlighted effect again to remove it. Or drag onto a character, monster or summon to add it. Hold right before releasing left to keep dragging; left-click more targets, then release right to finish.'**
   String get desktopConditionsHelp;
 
   /// No description provided for @topBarZoomIn.
@@ -802,6 +802,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Menu Scaling:'**
   String get settingsMenuScaling;
+
+  /// No description provided for @settingsStatusEffectScaling.
+  ///
+  /// In en, this message translates to:
+  /// **'Status effect size:'**
+  String get settingsStatusEffectScaling;
+
+  /// No description provided for @settingsStatusEffectScalingHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Scroll horizontally to reach more effects. Adjust App Bar Scaling if larger icons need more height.'**
+  String get settingsStatusEffectScalingHelp;
 
   /// No description provided for @settingsStyleLabel.
   ///

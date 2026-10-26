@@ -10,12 +10,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String desktopConditionsApplyTo(String target) {
-    return 'Aplicar a $target';
+    return 'Turno actual: $target';
   }
 
   @override
   String get desktopConditionsHelp =>
-      'Pulsa un estado para aplicarlo a quien tenga el turno (a todas las figuras vivas de un grupo de monstruos). También puedes arrastrarlo a un personaje, monstruo o invocación. Mantén pulsado el botón derecho antes de soltar el izquierdo para seguir arrastrando; pulsa el izquierdo sobre más objetivos y suelta el derecho para terminar.';
+      'Haz clic en un efecto para activarlo o quitarlo en el turno actual (todas las figuras vivas que puedan recibirlo en un grupo de monstruos). Haz clic de nuevo en un efecto resaltado para quitarlo. Arrástralo a un personaje, monstruo o invocación para añadirlo. Mantén pulsado el botón derecho antes de soltar el izquierdo para seguir arrastrando; haz clic izquierdo en más objetivos y suelta el derecho para terminar.';
 
   @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
@@ -382,6 +382,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsMenuScaling => 'Menu Scaling:';
+
+  @override
+  String get settingsStatusEffectScaling => 'Tamaño de los efectos de estado:';
+
+  @override
+  String get settingsStatusEffectScalingHelp =>
+      'Desplázate horizontalmente para ver más efectos. Ajusta la escala de la barra de la aplicación si los iconos grandes necesitan más altura.';
 
   @override
   String get settingsStyleLabel => 'Estilo:';

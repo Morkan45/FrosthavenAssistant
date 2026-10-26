@@ -10,12 +10,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String desktopConditionsApplyTo(String target) {
-    return 'ใช้กับ $target';
+    return 'เทิร์นปัจจุบัน: $target';
   }
 
   @override
   String get desktopConditionsHelp =>
-      'คลิกสถานะเพื่อใช้กับผู้ที่กำลังเล่นเทิร์นอยู่ (ทุกตัวที่ยังมีชีวิตในกลุ่มมอนสเตอร์) หรือลากไปวางบนตัวละคร มอนสเตอร์ หรือสิ่งอัญเชิญ กดปุ่มขวาค้างก่อนปล่อยปุ่มซ้ายเพื่อลากต่อ คลิกซ้ายบนเป้าหมายอื่น แล้วปล่อยปุ่มขวาเพื่อจบ';
+      'คลิกเอฟเฟกต์เพื่อเพิ่มหรือลบให้ผู้ที่กำลังเล่นเทิร์นอยู่ (มอนสเตอร์ทุกตัวในกลุ่มที่ยังมีชีวิตและไม่ป้องกันเอฟเฟกต์นั้น) คลิกเอฟเฟกต์ที่ไฮไลต์อีกครั้งเพื่อลบ หรือลากไปยังตัวละคร มอนสเตอร์ หรือยูนิตอัญเชิญเพื่อเพิ่มเอฟเฟกต์ กดปุ่มขวาค้างไว้ก่อนปล่อยปุ่มซ้ายเพื่อลากต่อ คลิกซ้ายที่เป้าหมายอื่นแล้วปล่อยปุ่มขวาเพื่อจบ';
 
   @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
@@ -377,6 +377,13 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsMenuScaling => 'Menu Scaling:';
+
+  @override
+  String get settingsStatusEffectScaling => 'ขนาดเอฟเฟกต์สถานะ:';
+
+  @override
+  String get settingsStatusEffectScalingHelp =>
+      'เลื่อนแนวนอนเพื่อดูเอฟเฟกต์เพิ่มเติม ปรับขนาดแถบแอปหากไอคอนขนาดใหญ่ต้องการพื้นที่แนวตั้งเพิ่ม';
 
   @override
   String get settingsStyleLabel => 'สไตล์:';

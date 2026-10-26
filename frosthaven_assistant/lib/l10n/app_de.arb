@@ -1,5 +1,5 @@
 {
-  "desktopConditionsApplyTo": "Auf {target} anwenden",
+  "desktopConditionsApplyTo": "Aktueller Zug: {target}",
   "@desktopConditionsApplyTo": {
     "placeholders": {
       "target": {
@@ -7,7 +7,7 @@
       }
     }
   },
-  "desktopConditionsHelp": "Klicke auf einen Zustand, um ihn der Figur am Zug zu geben (bei Monstern allen lebenden Aufstellern). Oder ziehe ihn auf einen Charakter, ein Monster oder eine Beschwörung. Halte rechts gedrückt, bevor du links loslässt, um weiterzuziehen. Klicke links auf weitere Ziele und lasse rechts los, um zu beenden.",
+  "desktopConditionsHelp": "Klicke auf einen Effekt, um ihn für den aktuellen Zug umzuschalten (alle lebenden, nicht immunen Aufsteller einer Monstergruppe). Erneutes Klicken auf einen markierten Effekt entfernt ihn. Ziehe ihn auf einen Charakter, ein Monster oder eine Beschwörung, um ihn hinzuzufügen. Halte rechts gedrückt, bevor du links loslässt, um weiterzuziehen; klicke links auf weitere Ziele und lasse dann rechts los.",
   "topBarZoomIn": "Zoom in (Ctrl++)",
   "topBarZoomOut": "Zoom out (Ctrl+-)",
   "topBarShowOriginalValues": "Show original monster ability values",
@@ -918,6 +918,8 @@
   "settingsScalePresetDefault": "Default",
   "settingsScalePresetLarge": "Large",
   "settingsMenuScaling": "Menu Scaling:",
+  "settingsStatusEffectScaling": "Größe der Statuseffekte:",
+  "settingsStatusEffectScalingHelp": "Horizontal scrollen, um weitere Effekte zu erreichen. Bei größeren Symbolen kann die Höhe über die App-Leisten-Skalierung angepasst werden.",
   "@cmdSetCharacterNote": {
     "placeholders": {
       "character": {

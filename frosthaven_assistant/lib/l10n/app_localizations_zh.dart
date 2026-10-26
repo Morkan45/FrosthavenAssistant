@@ -10,12 +10,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String desktopConditionsApplyTo(String target) {
-    return '应用于$target';
+    return '当前回合：$target';
   }
 
   @override
   String get desktopConditionsHelp =>
-      '点击状态，将其添加到当前回合的角色（怪物组则为所有存活个体）。也可拖到角色、怪物或召唤物上。在松开左键前按住右键，可继续拖动；左键点击更多目标，松开右键结束。';
+      '点击效果可为当前行动的角色或怪物组切换该效果（怪物组中所有存活且不免疫的个体）。再次点击高亮效果可将其移除。将效果拖到角色、怪物或召唤物上则会添加效果。松开左键前按住右键可继续拖动；左键点击更多目标，最后松开右键结束。';
 
   @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
@@ -374,6 +374,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsMenuScaling => 'Menu Scaling:';
+
+  @override
+  String get settingsStatusEffectScaling => '状态效果大小：';
+
+  @override
+  String get settingsStatusEffectScalingHelp =>
+      '水平滚动以查看其他效果。如果较大的图标需要更多高度，请调整应用栏缩放。';
 
   @override
   String get settingsStyleLabel => '风格：';
@@ -1254,12 +1261,12 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String desktopConditionsApplyTo(String target) {
-    return '套用至$target';
+    return '目前回合：$target';
   }
 
   @override
   String get desktopConditionsHelp =>
-      '點擊狀態，將其加入目前回合的角色（怪物群組則為所有存活個體）。也可拖曳至角色、怪物或召喚物上。在放開左鍵前按住右鍵，即可繼續拖曳；左鍵點擊更多目標，放開右鍵結束。';
+      '點擊效果可為目前行動的角色或怪物組切換該效果（怪物組中所有存活且不免疫的個體）。再次點擊反白效果可將其移除。將效果拖到角色、怪物或召喚物上則會新增效果。放開左鍵前按住右鍵可繼續拖曳；左鍵點擊更多目標，最後放開右鍵結束。';
 
   @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
@@ -1618,6 +1625,13 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get settingsMenuScaling => 'Menu Scaling:';
+
+  @override
+  String get settingsStatusEffectScaling => '狀態效果大小：';
+
+  @override
+  String get settingsStatusEffectScalingHelp =>
+      '水平捲動以查看其他效果。如果較大的圖示需要更多高度，請調整應用程式列縮放。';
 
   @override
   String get settingsStyleLabel => '風格：';

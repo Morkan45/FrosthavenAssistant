@@ -24,12 +24,14 @@ void main() {
     settings.fitMainListToWidth.value = false;
     settings.mainListColumns.value = 0;
     settings.userScalingMenus.value = 1;
+    settings.statusEffectScale.value = 2;
   });
 
   Future<void> pumpMenu(
     WidgetTester tester, {
     Size? size,
     double platformTextScale = 1,
+    TargetPlatform? platform,
   }) async {
     if (size != null) {
       tester.view.physicalSize = size;
@@ -39,6 +41,7 @@ void main() {
     }
     await tester.pumpWidget(
       MaterialApp(
+        theme: ThemeData(platform: platform),
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
@@ -696,6 +699,42 @@ void main() {
       );
       await gesture.up();
       settings.userScalingBars.value = before;
+    });
+
+    testWidgets(
+      'desktop status effect size updates during slider drag and persists',
+      (tester) async {
+        final settings = getIt<Settings>();
+        await pumpMenu(
+          tester,
+          size: const Size(1280, 720),
+          platform: TargetPlatform.windows,
+        );
+        final slider = find.descendant(
+          of: find.byKey(const Key('status-effect-size-slider')),
+          matching: find.byType(Slider),
+        );
+        await tester.ensureVisible(slider);
+        await tester.pumpAndSettle();
+        final gesture = await tester.startGesture(tester.getCenter(slider));
+        await gesture.moveBy(const Offset(40, 0));
+        await tester.pump();
+        final changedSize = settings.statusEffectScale.value;
+        expect(changedSize, isNot(2));
+        await gesture.up();
+        await tester.pumpAndSettle();
+        await settings.flushPersistence();
+        final restored = Settings();
+        await restored.loadFromDisk();
+        expect(restored.statusEffectScale.value, changedSize);
+      },
+    );
+
+    testWidgets('mobile display settings omit desktop status effect size', (
+      tester,
+    ) async {
+      await pumpMenu(tester, platform: TargetPlatform.android);
+      expect(find.byKey(const Key('status-effect-size-slider')), findsNothing);
     });
 
     testWidgets('Menu Scaling updates while the pointer is down', (

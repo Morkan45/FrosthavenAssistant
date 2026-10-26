@@ -1,5 +1,5 @@
 {
-  "desktopConditionsApplyTo": "Apply to {target}",
+  "desktopConditionsApplyTo": "Current turn: {target}",
   "@desktopConditionsApplyTo": {
     "placeholders": {
       "target": {
@@ -7,7 +7,7 @@
       }
     }
   },
-  "desktopConditionsHelp": "Click an effect to apply it to the current turn (all living standees for a monster group). Or drag onto a character, monster or summon. Hold right before releasing left to keep dragging; left-click more targets, then release right to finish.",
+  "desktopConditionsHelp": "Click an effect to toggle it for the current turn (all living eligible standees for a monster group). Click a highlighted effect again to remove it. Or drag onto a character, monster or summon to add it. Hold right before releasing left to keep dragging; left-click more targets, then release right to finish.",
   "topBarZoomIn": "Zoom in (Ctrl++)",
   "topBarZoomOut": "Zoom out (Ctrl+-)",
   "topBarShowOriginalValues": "Show original monster ability values",
@@ -181,6 +181,8 @@
   "settingsMainListScaling": "Main List Scaling:",
   "settingsAppBarScaling": "App Bar Scaling:",
   "settingsMenuScaling": "Menu Scaling:",
+  "settingsStatusEffectScaling": "Status effect size:",
+  "settingsStatusEffectScalingHelp": "Scroll horizontally to reach more effects. Adjust App Bar Scaling if larger icons need more height.",
   "settingsStyleLabel": "Style:",
   "styleFrosthaven": "Frosthaven",
   "styleOriginal": "Original",

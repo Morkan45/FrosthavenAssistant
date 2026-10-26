@@ -3,6 +3,34 @@ import '../game_methods.dart';
 import '../state/game_state.dart';
 import 'command_l10n.dart';
 
+/// Clears a quick effect from the figures taking the current turn atomically.
+class RemoveConditionFromFiguresCommand extends Command {
+  RemoveConditionFromFiguresCommand(
+    this.condition,
+    this.targets, {
+    required GameState gameState,
+  }) : _gameState = gameState;
+
+  final Condition condition;
+  final List<(String, String)> targets;
+  final GameState _gameState;
+
+  @override
+  void execute() {
+    for (final target in targets) {
+      RemoveConditionCommand(
+        condition,
+        target.$1,
+        target.$2,
+        gameState: _gameState,
+      ).execute();
+    }
+  }
+
+  @override
+  String describe() => commandL10n.cmdRemoveCondition(condition.getName());
+}
+
 class RemoveConditionCommand extends Command {
   final Condition condition;
   final String figureId;

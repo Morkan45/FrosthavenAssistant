@@ -1,5 +1,5 @@
 {
-  "desktopConditionsApplyTo": "Применить к: {target}",
+  "desktopConditionsApplyTo": "Текущий ход: {target}",
   "@desktopConditionsApplyTo": {
     "placeholders": {
       "target": {
@@ -7,7 +7,7 @@
       }
     }
   },
-  "desktopConditionsHelp": "Нажмите на состояние, чтобы применить его к тому, кто сейчас ходит (ко всем живым фигуркам группы монстров). Или перетащите его на персонажа, монстра или призванное существо. Зажмите правую кнопку перед отпусканием левой, чтобы продолжить перетаскивание; нажимайте левой на другие цели и отпустите правую для завершения.",
+  "desktopConditionsHelp": "Нажмите на эффект, чтобы добавить или снять его с участника текущего хода (всех живых фигур группы монстров без иммунитета). Повторное нажатие на выделенный эффект снимает его. Перетащите эффект на персонажа, монстра или призванное существо, чтобы добавить его. Зажмите правую кнопку перед отпусканием левой, чтобы продолжить перетаскивание; нажимайте левой на другие цели и отпустите правую для завершения.",
   "topBarZoomIn": "Zoom in (Ctrl++)",
   "topBarZoomOut": "Zoom out (Ctrl+-)",
   "topBarShowOriginalValues": "Show original monster ability values",
@@ -424,6 +424,8 @@
   "settingsScalePresetDefault": "Default",
   "settingsScalePresetLarge": "Large",
   "settingsMenuScaling": "Menu Scaling:",
+  "settingsStatusEffectScaling": "Размер эффектов состояния:",
+  "settingsStatusEffectScalingHelp": "Прокручивайте по горизонтали, чтобы увидеть остальные эффекты. Если крупным значкам не хватает высоты, измените масштаб панели приложения.",
   "@removeCardWithDetails": {
     "placeholders": {
       "title": {

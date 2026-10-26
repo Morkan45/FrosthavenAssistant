@@ -10,6 +10,7 @@ import '../../../Resource/state/game_state.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../services/service_locator.dart';
 import '../../../services/translation_service.dart';
+import '../../desktop_condition_scope.dart';
 import 'settings_checkbox.dart';
 
 enum _LayoutScalePreset { compact, standard, large }
@@ -330,6 +331,26 @@ class SettingsDisplaySection extends StatelessWidget {
           },
           onChangeEnd: settings.saveToDisk,
         ),
+        if (DesktopConditionScope.supportsPlatform(context)) ...[
+          _SettingsSlider(
+            key: const Key('status-effect-size-slider'),
+            label:
+                '${l10n.settingsStatusEffectScaling} '
+                '${(settings.statusEffectScale.value * 100).round()}%',
+            value: settings.statusEffectScale.value,
+            min: Settings.minimumStatusEffectScale,
+            max: Settings.maximumStatusEffectScale,
+            onChanged: (value) {
+              settings.statusEffectScale.value = value;
+              onLayoutChanged();
+            },
+            onChangeEnd: settings.saveToDisk,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(l10n.settingsStatusEffectScalingHelp),
+          ),
+        ],
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
           child: Text(l10n.settingsStyleLabel),
@@ -370,6 +391,7 @@ class SettingsDisplaySection extends StatelessWidget {
 
 class _SettingsSlider extends StatelessWidget {
   const _SettingsSlider({
+    super.key,
     required this.label,
     required this.value,
     required this.min,

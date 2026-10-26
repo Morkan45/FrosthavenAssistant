@@ -10,12 +10,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String desktopConditionsApplyTo(String target) {
-    return 'Auf $target anwenden';
+    return 'Aktueller Zug: $target';
   }
 
   @override
   String get desktopConditionsHelp =>
-      'Klicke auf einen Zustand, um ihn der Figur am Zug zu geben (bei Monstern allen lebenden Aufstellern). Oder ziehe ihn auf einen Charakter, ein Monster oder eine Beschwörung. Halte rechts gedrückt, bevor du links loslässt, um weiterzuziehen. Klicke links auf weitere Ziele und lasse rechts los, um zu beenden.';
+      'Klicke auf einen Effekt, um ihn für den aktuellen Zug umzuschalten (alle lebenden, nicht immunen Aufsteller einer Monstergruppe). Erneutes Klicken auf einen markierten Effekt entfernt ihn. Ziehe ihn auf einen Charakter, ein Monster oder eine Beschwörung, um ihn hinzuzufügen. Halte rechts gedrückt, bevor du links loslässt, um weiterzuziehen; klicke links auf weitere Ziele und lasse dann rechts los.';
 
   @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
@@ -385,6 +385,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsMenuScaling => 'Menu Scaling:';
+
+  @override
+  String get settingsStatusEffectScaling => 'Größe der Statuseffekte:';
+
+  @override
+  String get settingsStatusEffectScalingHelp =>
+      'Horizontal scrollen, um weitere Effekte zu erreichen. Bei größeren Symbolen kann die Höhe über die App-Leisten-Skalierung angepasst werden.';
 
   @override
   String get settingsStyleLabel => 'Stil:';

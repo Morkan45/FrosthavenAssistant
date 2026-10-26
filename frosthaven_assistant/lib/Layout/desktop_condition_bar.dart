@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
 import '../Resource/enums.dart';
@@ -12,11 +10,29 @@ import 'condition_drag_source.dart';
 import 'desktop_condition_scope.dart';
 import 'view_models/desktop_conditions_view_model.dart';
 
-/// Compact quick effects sharing the existing desktop app bar.
-class DesktopConditionBar extends StatelessWidget {
-  const DesktopConditionBar({super.key, required this.scale});
+/// Quick effects whose horizontal footprint follows the player's chosen size.
+class DesktopConditionBar extends StatefulWidget {
+  const DesktopConditionBar({
+    super.key,
+    required this.scale,
+    this.effectScale = 2.0,
+  });
 
   final double scale;
+  final double effectScale;
+
+  @override
+  State<DesktopConditionBar> createState() => _DesktopConditionBarState();
+}
+
+class _DesktopConditionBarState extends State<DesktopConditionBar> {
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,54 +44,46 @@ class DesktopConditionBar extends StatelessWidget {
         : l10n.desktopConditionsApplyTo(
             getIt<TranslationService>().t(activeName),
           );
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final indicatorSize = 24 * scale;
-        final size = math.min(
-          40 * scale,
-          math.max(
-            24 * scale,
-            (constraints.maxWidth - indicatorSize) / controls.conditions.length,
+    return Row(
+      key: const Key('desktop-condition-bar'),
+      children: [
+        Tooltip(
+          key: const Key('condition-active-turn'),
+          message: activeName == null
+              ? activeLabel
+              : '$activeLabel\n${l10n.desktopConditionsHelp}',
+          child: SizedBox(
+            width: 24 * widget.scale,
+            child: Icon(
+              Icons.play_arrow,
+              color: activeName == null ? Colors.white54 : Colors.tealAccent,
+              size: 20 * widget.scale,
+            ),
           ),
-        );
-        return Row(
-          key: const Key('desktop-condition-bar'),
-          children: [
-            Tooltip(
-              key: const Key('condition-active-turn'),
-              message: activeName == null
-                  ? activeLabel
-                  : '$activeLabel\n${l10n.desktopConditionsHelp}',
-              child: SizedBox(
-                width: indicatorSize,
-                child: Icon(
-                  Icons.play_arrow,
-                  color: activeName == null
-                      ? Colors.white54
-                      : Colors.tealAccent,
-                  size: 20 * scale,
-                ),
+        ),
+        Expanded(
+          child: Scrollbar(
+            controller: _scrollController,
+            thumbVisibility: true,
+            child: SingleChildScrollView(
+              key: const Key('desktop-condition-scroll'),
+              controller: _scrollController,
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (final condition in controls.conditions)
+                    _ConditionSource(
+                      condition: condition,
+                      scale: widget.scale * widget.effectScale,
+                      controls: controls,
+                      activeLabel: activeLabel,
+                    ),
+                ],
               ),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    for (final condition in controls.conditions)
-                      _ConditionSource(
-                        condition: condition,
-                        scale: size / 40,
-                        controls: controls,
-                        activeLabel: activeLabel,
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -112,7 +120,7 @@ class _ConditionSource extends StatelessWidget {
       height: 26 * scale,
       filterQuality: FilterQuality.medium,
     );
-    final canApply = controls.canApplyToActive(condition);
+    final canToggle = controls.canToggleActive(condition);
     final applied = controls.isApplied(condition);
     final size = 40 * scale;
     final button = SizedBox.square(
@@ -131,10 +139,14 @@ class _ConditionSource extends StatelessWidget {
           child: IconButton(
             key: ValueKey('condition-source-${condition.name}'),
             tooltip: '$label\n$activeLabel',
-            padding: EdgeInsets.all(5 * scale),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            style: IconButton.styleFrom(
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
             isSelected: applied,
-            onPressed: canApply
-                ? () => controls.applyToActive(condition)
+            onPressed: canToggle
+                ? () => controls.toggleActive(condition)
                 : null,
             icon: icon,
             selectedIcon: icon,

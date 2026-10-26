@@ -1,5 +1,5 @@
 {
-  "desktopConditionsApplyTo": "Appliquer à {target}",
+  "desktopConditionsApplyTo": "Tour actuel : {target}",
   "@desktopConditionsApplyTo": {
     "placeholders": {
       "target": {
@@ -7,7 +7,7 @@
       }
     }
   },
-  "desktopConditionsHelp": "Cliquez sur un état pour l'appliquer à celui dont c'est le tour (toutes les figurines vivantes d'un groupe de monstres). Vous pouvez aussi le glisser sur un personnage, monstre ou invocation. Maintenez le bouton droit avant de relâcher le gauche pour continuer à glisser ; cliquez à gauche sur d'autres cibles, puis relâchez le droit pour terminer.",
+  "desktopConditionsHelp": "Cliquez sur un effet pour le basculer pendant le tour actuel (toutes les figurines vivantes non immunisées du groupe de monstres). Cliquez à nouveau sur un effet surligné pour le retirer. Faites-le glisser sur un personnage, un monstre ou une invocation pour l’ajouter. Maintenez le bouton droit avant de relâcher le gauche pour continuer ; cliquez à gauche sur d’autres cibles, puis relâchez le bouton droit.",
   "topBarZoomIn": "Zoom in (Ctrl++)",
   "topBarZoomOut": "Zoom out (Ctrl+-)",
   "topBarShowOriginalValues": "Show original monster ability values",
@@ -424,6 +424,8 @@
   "settingsScalePresetDefault": "Default",
   "settingsScalePresetLarge": "Large",
   "settingsMenuScaling": "Menu Scaling:",
+  "settingsStatusEffectScaling": "Taille des effets de statut :",
+  "settingsStatusEffectScalingHelp": "Faites défiler horizontalement pour accéder aux autres effets. Ajustez l’échelle de la barre d’application si les grandes icônes ont besoin de plus de hauteur.",
   "@removeCardWithDetails": {
     "placeholders": {
       "title": {

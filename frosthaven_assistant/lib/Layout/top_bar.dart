@@ -44,6 +44,7 @@ class TopBar extends StatelessWidget {
     return ListenableBuilder(
       listenable: Listenable.merge([
         settings.userScalingBars,
+        settings.statusEffectScale,
         settings.userScalingMainList,
         settings.noCalculation,
         settings.fullScreen,
@@ -88,6 +89,7 @@ class TopBar extends StatelessWidget {
                     ],
                     Expanded(
                       child: DesktopConditionBar(
+                        effectScale: settings.statusEffectScale.value,
                         scale: math.min(
                           userScaling,
                           math.max(0.7, userScaling / 1.6),

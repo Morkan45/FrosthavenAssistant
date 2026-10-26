@@ -10,12 +10,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String desktopConditionsApplyTo(String target) {
-    return 'Zastosuj do: $target';
+    return 'Bieżąca tura: $target';
   }
 
   @override
   String get desktopConditionsHelp =>
-      'Kliknij stan, aby dodać go do postaci wykonującej turę (wszystkich żywych figurek w grupie potworów). Możesz też przeciągnąć go na postać, potwora lub przywołańca. Przytrzymaj prawy przycisk przed puszczeniem lewego, aby kontynuować przeciąganie; klikaj lewym kolejne cele i puść prawy, aby zakończyć.';
+      'Kliknij efekt, aby włączyć lub wyłączyć go dla bieżącej tury (wszystkich żywych, nieodpornych figurek grupy potworów). Ponowne kliknięcie podświetlonego efektu usuwa go. Przeciągnij efekt na postać, potwora lub przywołańca, aby go dodać. Przytrzymaj prawy przycisk przed zwolnieniem lewego, aby kontynuować przeciąganie; klikaj lewym kolejne cele, a następnie zwolnij prawy.';
 
   @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
@@ -380,6 +380,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsMenuScaling => 'Menu Scaling:';
+
+  @override
+  String get settingsStatusEffectScaling => 'Rozmiar efektów stanu:';
+
+  @override
+  String get settingsStatusEffectScalingHelp =>
+      'Przewijaj w poziomie, aby dotrzeć do kolejnych efektów. Jeśli większe ikony potrzebują więcej miejsca w pionie, dostosuj skalowanie paska aplikacji.';
 
   @override
   String get settingsStyleLabel => 'Styl:';

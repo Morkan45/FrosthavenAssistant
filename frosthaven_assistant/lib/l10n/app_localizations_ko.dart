@@ -10,12 +10,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String desktopConditionsApplyTo(String target) {
-    return '$target에게 적용';
+    return '현재 차례: $target';
   }
 
   @override
   String get desktopConditionsHelp =>
-      '상태를 클릭하면 현재 차례인 대상에게 적용합니다(몬스터 그룹은 살아 있는 모든 개체). 캐릭터, 몬스터 또는 소환수에게 끌어다 놓을 수도 있습니다. 왼쪽 버튼을 놓기 전에 오른쪽 버튼을 누르면 계속 끌 수 있습니다. 다른 대상에 왼쪽 클릭하고 오른쪽 버튼을 놓으면 끝납니다.';
+      '효과를 클릭하면 현재 차례의 대상에게 효과를 적용하거나 해제합니다(몬스터 그룹은 살아 있고 면역이 없는 모든 개체). 강조된 효과를 다시 클릭하면 해제됩니다. 캐릭터, 몬스터 또는 소환수에게 드래그하면 효과를 추가합니다. 왼쪽 버튼을 놓기 전에 오른쪽 버튼을 누르고 있으면 계속 드래그할 수 있습니다. 다른 대상을 왼쪽 클릭한 뒤 오른쪽 버튼을 놓아 끝내세요.';
 
   @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
@@ -374,6 +374,13 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get settingsMenuScaling => 'Menu Scaling:';
+
+  @override
+  String get settingsStatusEffectScaling => '상태 효과 크기:';
+
+  @override
+  String get settingsStatusEffectScalingHelp =>
+      '가로로 스크롤하여 다른 효과를 확인하세요. 큰 아이콘에 더 많은 높이가 필요하면 앱 바 배율을 조정하세요.';
 
   @override
   String get settingsStyleLabel => '스타일:';

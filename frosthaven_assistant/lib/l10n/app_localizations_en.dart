@@ -10,12 +10,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String desktopConditionsApplyTo(String target) {
-    return 'Apply to $target';
+    return 'Current turn: $target';
   }
 
   @override
   String get desktopConditionsHelp =>
-      'Click an effect to apply it to the current turn (all living standees for a monster group). Or drag onto a character, monster or summon. Hold right before releasing left to keep dragging; left-click more targets, then release right to finish.';
+      'Click an effect to toggle it for the current turn (all living eligible standees for a monster group). Click a highlighted effect again to remove it. Or drag onto a character, monster or summon to add it. Hold right before releasing left to keep dragging; left-click more targets, then release right to finish.';
 
   @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
@@ -377,6 +377,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsMenuScaling => 'Menu Scaling:';
+
+  @override
+  String get settingsStatusEffectScaling => 'Status effect size:';
+
+  @override
+  String get settingsStatusEffectScalingHelp =>
+      'Scroll horizontally to reach more effects. Adjust App Bar Scaling if larger icons need more height.';
 
   @override
   String get settingsStyleLabel => 'Style:';

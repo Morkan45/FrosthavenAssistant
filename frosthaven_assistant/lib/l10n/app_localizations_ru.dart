@@ -10,12 +10,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String desktopConditionsApplyTo(String target) {
-    return 'Применить к: $target';
+    return 'Текущий ход: $target';
   }
 
   @override
   String get desktopConditionsHelp =>
-      'Нажмите на состояние, чтобы применить его к тому, кто сейчас ходит (ко всем живым фигуркам группы монстров). Или перетащите его на персонажа, монстра или призванное существо. Зажмите правую кнопку перед отпусканием левой, чтобы продолжить перетаскивание; нажимайте левой на другие цели и отпустите правую для завершения.';
+      'Нажмите на эффект, чтобы добавить или снять его с участника текущего хода (всех живых фигур группы монстров без иммунитета). Повторное нажатие на выделенный эффект снимает его. Перетащите эффект на персонажа, монстра или призванное существо, чтобы добавить его. Зажмите правую кнопку перед отпусканием левой, чтобы продолжить перетаскивание; нажимайте левой на другие цели и отпустите правую для завершения.';
 
   @override
   String get topBarZoomIn => 'Zoom in (Ctrl++)';
@@ -381,6 +381,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsMenuScaling => 'Menu Scaling:';
+
+  @override
+  String get settingsStatusEffectScaling => 'Размер эффектов состояния:';
+
+  @override
+  String get settingsStatusEffectScalingHelp =>
+      'Прокручивайте по горизонтали, чтобы увидеть остальные эффекты. Если крупным значкам не хватает высоты, измените масштаб панели приложения.';
 
   @override
   String get settingsStyleLabel => 'Стиль:';
